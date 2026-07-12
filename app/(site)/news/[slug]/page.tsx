@@ -71,10 +71,10 @@ export default async function PostPage({
           <Badge variant="soft" className="self-start">
             {post.category}
           </Badge>
-          <h1 className="text-[34px] font-bold tracking-[-0.02em] text-ink md:text-[52px]">
+          <h1 className="text-ink text-[34px] font-bold tracking-[-0.02em] md:text-[52px]">
             {post.title}
           </h1>
-          <span className="text-[14px] text-ink-muted">
+          <span className="text-ink-muted text-[14px]">
             {post.published_at ? formatBerlin(post.published_at) : null}
             {post.published_at ? " · " : null}
             {post.reading_min} Min. Lesezeit
@@ -82,7 +82,7 @@ export default async function PostPage({
         </div>
 
         {post.cover_url ? (
-          <div className="overflow-hidden rounded-[20px] bg-surface-alt">
+          <div className="bg-surface-alt overflow-hidden rounded-[20px]">
             <Image
               src={post.cover_url}
               alt={post.cover_alt ?? ""}

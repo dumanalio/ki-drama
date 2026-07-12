@@ -27,15 +27,15 @@ export function AnswerCard({
       aria-checked={selected}
       onClick={onSelect}
       className={cn(
-        "relative flex w-full flex-col gap-1 rounded-xl border border-line bg-surface p-5 text-left transition-colors duration-[120ms] outline-none",
+        "border-line bg-surface relative flex w-full flex-col gap-1 rounded-xl border p-5 text-left transition-colors duration-[120ms] outline-none",
         "hover:border-line-strong",
-        "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
+        "focus-visible:ring-accent focus-visible:ring-2 focus-visible:ring-offset-2",
         selected && "border-accent bg-accent-soft"
       )}
     >
       <span
         className={cn(
-          "absolute top-4 right-4 flex size-5 items-center justify-center border border-line bg-surface",
+          "border-line bg-surface absolute top-4 right-4 flex size-5 items-center justify-center border",
           multi ? "rounded-md" : "rounded-full",
           selected && "border-accent bg-accent"
         )}
@@ -47,14 +47,14 @@ export function AnswerCard({
       </span>
 
       {shortcutNumber ? (
-        <span className="text-[13px] font-medium text-ink-muted">
+        <span className="text-ink-muted text-[13px] font-medium">
           {shortcutNumber}
         </span>
       ) : null}
 
-      <span className="pr-8 text-[18px] font-semibold text-ink">{label}</span>
+      <span className="text-ink pr-8 text-[18px] font-semibold">{label}</span>
       {description ? (
-        <span className="text-[15px] leading-relaxed text-ink-soft">
+        <span className="text-ink-soft text-[15px] leading-relaxed">
           {description}
         </span>
       ) : null}

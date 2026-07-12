@@ -83,7 +83,9 @@ async function sendAndLog(
  * Fehlschläge brechen den Aufruf nicht ab — der Lead ist bereits gespeichert,
  * bevor diese Funktion überhaupt aufgerufen wird.
  */
-export async function sendCheckEmails(input: SendCheckEmailsInput): Promise<void> {
+export async function sendCheckEmails(
+  input: SendCheckEmailsInput
+): Promise<void> {
   const summary = buildAnswerSummary(input.answers, input.questions);
   const segmentLabel = input.segment === "privat" ? "Privat" : "Unternehmen";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";

@@ -52,6 +52,7 @@ export interface Database {
           email?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
       leads: {
         Row: {
@@ -96,6 +97,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       lead_activities: {
         Row: {
@@ -122,6 +124,7 @@ export interface Database {
           meta?: Json;
           created_at?: string;
         };
+        Relationships: [];
       };
       quiz_questions: {
         Row: {
@@ -163,6 +166,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       quiz_responses: {
         Row: {
@@ -195,6 +199,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       availability_rules: {
         Row: {
@@ -224,6 +229,7 @@ export interface Database {
           buffer_minutes?: number;
           active?: boolean;
         };
+        Relationships: [];
       };
       availability_exceptions: {
         Row: {
@@ -250,6 +256,7 @@ export interface Database {
           end_time?: string | null;
           reason?: string | null;
         };
+        Relationships: [];
       };
       bookings: {
         Row: {
@@ -288,6 +295,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       posts: {
         Row: {
@@ -338,6 +346,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       chapters: {
         Row: {
@@ -376,6 +385,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       tools: {
         Row: {
@@ -429,6 +439,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       media: {
         Row: {
@@ -464,6 +475,7 @@ export interface Database {
           bytes?: number | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       settings: {
         Row: {
@@ -481,6 +493,7 @@ export interface Database {
           value?: Json;
           updated_at?: string;
         };
+        Relationships: [];
       };
       email_log: {
         Row: {
@@ -510,6 +523,7 @@ export interface Database {
           error?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

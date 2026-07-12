@@ -47,10 +47,10 @@ export default async function ChapterPage({
     <Section>
       <article className="mx-auto flex max-w-[720px] flex-col gap-6">
         <div className="flex flex-col gap-3">
-          <h1 className="text-[34px] font-bold tracking-[-0.02em] text-ink md:text-[52px]">
+          <h1 className="text-ink text-[34px] font-bold tracking-[-0.02em] md:text-[52px]">
             {chapter.title}
           </h1>
-          <span className="text-[14px] text-ink-muted">
+          <span className="text-ink-muted text-[14px]">
             {estimateReadingMinutes(chapter.body)} Min. Lesezeit
           </span>
         </div>
@@ -60,17 +60,17 @@ export default async function ChapterPage({
         {nextChapter ? (
           <Link
             href={`/grundlagen/${nextChapter.slug}`}
-            className="group mt-10 flex items-center justify-between rounded-xl border border-line bg-surface p-5 shadow-card transition-colors duration-[120ms] hover:border-line-strong"
+            className="group border-line bg-surface shadow-card hover:border-line-strong mt-10 flex items-center justify-between rounded-xl border p-5 transition-colors duration-[120ms]"
           >
             <div className="flex flex-col gap-1">
-              <span className="text-[13px] font-semibold tracking-[0.06em] text-ink-muted uppercase">
+              <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">
                 Nächstes Kapitel
               </span>
-              <span className="text-[18px] font-semibold text-ink group-hover:text-accent">
+              <span className="text-ink group-hover:text-accent text-[18px] font-semibold">
                 {nextChapter.title}
               </span>
             </div>
-            <ArrowRight className="size-5 text-accent" aria-hidden="true" />
+            <ArrowRight className="text-accent size-5" aria-hidden="true" />
           </Link>
         ) : null}
       </article>

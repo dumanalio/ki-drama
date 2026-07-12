@@ -67,7 +67,15 @@ export async function POST(request: Request) {
       }),
     }
   );
-  const verifyResult = (await verifyResponse.json()) as { success: boolean };
+  const verifyResult = (await verifyResponse.json()) as {
+    success: boolean;
+    "error-codes"?: string[];
+  };
+  console.log(
+    "[api/check] Turnstile-Antwort:",
+    verifyResponse.status,
+    verifyResult
+  );
 
   if (!verifyResult.success) {
     return NextResponse.json(
@@ -89,8 +97,12 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (findLeadError) {
+    console.error("[api/check] Fehler beim Suchen des Leads:", findLeadError);
     return NextResponse.json(
-      { error: "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut." },
+      {
+        error:
+          "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      },
       { status: 500 }
     );
   }
@@ -112,8 +124,15 @@ export async function POST(request: Request) {
       .single();
 
     if (updateError || !updatedLead) {
+      console.error(
+        "[api/check] Fehler beim Aktualisieren des Leads:",
+        updateError
+      );
       return NextResponse.json(
-        { error: "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut." },
+        {
+          error:
+            "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut.",
+        },
         { status: 500 }
       );
     }
@@ -133,8 +152,12 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError || !createdLead) {
+      console.error("[api/check] Fehler beim Anlegen des Leads:", insertError);
       return NextResponse.json(
-        { error: "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut." },
+        {
+          error:
+            "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut.",
+        },
         { status: 500 }
       );
     }
@@ -153,8 +176,15 @@ export async function POST(request: Request) {
   );
 
   if (responseError) {
+    console.error(
+      "[api/check] Fehler beim Speichern der Antworten:",
+      responseError
+    );
     return NextResponse.json(
-      { error: "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut." },
+      {
+        error:
+          "Der Check konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      },
       { status: 500 }
     );
   }
