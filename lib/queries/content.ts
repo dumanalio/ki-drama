@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Chapter, Post, Tool } from "@/types/database";
+import type { Chapter, Post, QuizQuestion, Tool } from "@/types/database";
 
 export async function getPublishedChapters(): Promise<Chapter[]> {
   const supabase = await createClient();
@@ -65,4 +65,16 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 
   if (error) throw error;
   return data;
+}
+
+export async function getActiveQuizQuestions(): Promise<QuizQuestion[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("quiz_questions")
+    .select("*")
+    .eq("active", true)
+    .order("position", { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
 }
