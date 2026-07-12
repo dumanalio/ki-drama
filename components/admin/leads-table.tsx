@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   type ColumnDef,
+  type PaginationState,
+  type SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -19,6 +21,12 @@ import {
   Download,
   Search,
 } from "lucide-react";
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryState,
+} from "nuqs";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -102,9 +110,73 @@ function exportCsv(rows: LeadListRow[]) {
 
 export function LeadsTable({ data }: { data: LeadListRow[] }) {
   const router = useRouter();
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<string>("alle");
-  const [segmentFilter, setSegmentFilter] = React.useState<string>("alle");
+
+  // Suche, Filter, Sortierung und Seite leben in der URL (nuqs) — überleben
+  // einen Reload und lassen sich als Lesezeichen speichern/teilen.
+  const [globalFilter, setGlobalFilter] = useQueryState(
+    "q",
+    parseAsString.withDefault("")
+  );
+  const [statusFilter, setStatusFilter] = useQueryState(
+    "status",
+    parseAsString.withDefault("alle")
+  );
+  const [segmentFilter, setSegmentFilter] = useQueryState(
+    "segment",
+    parseAsString.withDefault("alle")
+  );
+  const [sortBy, setSortBy] = useQueryState(
+    "sort",
+    parseAsString.withDefault("")
+  );
+  const [sortDir, setSortDir] = useQueryState(
+    "dir",
+    parseAsStringEnum(["asc", "desc"]).withDefault("asc")
+  );
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+
+  const sorting: SortingState = React.useMemo(
+    () => (sortBy ? [{ id: sortBy, desc: sortDir === "desc" }] : []),
+    [sortBy, sortDir]
+  );
+
+  function handleSortingChange(updater: React.SetStateAction<SortingState>) {
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    if (next.length === 0) {
+      void setSortBy(null);
+      void setSortDir(null);
+    } else {
+      void setSortBy(next[0].id);
+      void setSortDir(next[0].desc ? "desc" : "asc");
+    }
+  }
+
+  const pagination: PaginationState = React.useMemo(
+    () => ({ pageIndex: page - 1, pageSize: PAGE_SIZE }),
+    [page]
+  );
+
+  function handlePaginationChange(
+    updater: React.SetStateAction<PaginationState>
+  ) {
+    const next = typeof updater === "function" ? updater(pagination) : updater;
+    void setPage(next.pageIndex + 1 === 1 ? null : next.pageIndex + 1);
+  }
+
+  function handleGlobalFilterChange(value: string) {
+    void setGlobalFilter(value.length > 0 ? value : null);
+    void setPage(null);
+  }
+
+  function handleStatusFilterChange(value: string) {
+    void setStatusFilter(value === "alle" ? null : value);
+    void setPage(null);
+  }
+
+  function handleSegmentFilterChange(value: string) {
+    void setSegmentFilter(value === "alle" ? null : value);
+    void setPage(null);
+  }
 
   const filteredData = React.useMemo(() => {
     return data.filter((row) => {
@@ -207,8 +279,13 @@ export function LeadsTable({ data }: { data: LeadListRow[] }) {
   const table = useReactTable({
     data: filteredData,
     columns,
-    state: { globalFilter },
-    onGlobalFilterChange: setGlobalFilter,
+    state: { globalFilter, sorting, pagination },
+    onGlobalFilterChange: (updater) =>
+      handleGlobalFilterChange(
+        typeof updater === "function" ? updater(globalFilter) : updater
+      ),
+    onSortingChange: handleSortingChange,
+    onPaginationChange: handlePaginationChange,
     globalFilterFn: (row, _columnId, filterValue) => {
       const search = String(filterValue).toLowerCase();
       const lead = row.original;
@@ -222,7 +299,6 @@ export function LeadsTable({ data }: { data: LeadListRow[] }) {
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: PAGE_SIZE } },
   });
 
   const visibleRowCount = table.getFilteredRowModel().rows.length;
@@ -237,7 +313,7 @@ export function LeadsTable({ data }: { data: LeadListRow[] }) {
           />
           <Input
             value={globalFilter}
-            onChange={(event) => setGlobalFilter(event.target.value)}
+            onChange={(event) => handleGlobalFilterChange(event.target.value)}
             placeholder="Name, E-Mail oder Firma suchen…"
             className="pl-9"
             aria-label="Leads durchsuchen"
@@ -246,7 +322,7 @@ export function LeadsTable({ data }: { data: LeadListRow[] }) {
 
         <Select
           value={statusFilter}
-          onValueChange={(value) => setStatusFilter(value ?? "alle")}
+          onValueChange={(value) => handleStatusFilterChange(value ?? "alle")}
         >
           <SelectTrigger className="w-[190px]">
             <SelectValue placeholder="Status" />
@@ -263,7 +339,7 @@ export function LeadsTable({ data }: { data: LeadListRow[] }) {
 
         <Select
           value={segmentFilter}
-          onValueChange={(value) => setSegmentFilter(value ?? "alle")}
+          onValueChange={(value) => handleSegmentFilterChange(value ?? "alle")}
         >
           <SelectTrigger className="w-[170px]">
             <SelectValue placeholder="Segment" />
