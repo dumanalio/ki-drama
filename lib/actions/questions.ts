@@ -46,7 +46,8 @@ export async function createDraftQuestion(): Promise<void> {
 
   if (error) throw error;
 
-  revalidatePath("/admin/fragen");
+  // revalidatePath ist hier unzulässig (läuft während des Renderns von
+  // /admin/fragen/neu) und unnötig, da die Liste ohnehin dynamisch ist.
   redirect(`/admin/fragen/${data.id}`);
 }
 

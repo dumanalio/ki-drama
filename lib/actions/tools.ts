@@ -40,7 +40,8 @@ export async function createDraftTool(): Promise<void> {
 
   if (error) throw error;
 
-  revalidatePath("/admin/landschaft");
+  // revalidatePath ist hier unzulässig (läuft während des Renderns von
+  // /admin/landschaft/neu) und unnötig, da die Liste ohnehin dynamisch ist.
   redirect(`/admin/landschaft/${data.id}`);
 }
 

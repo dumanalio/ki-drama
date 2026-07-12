@@ -34,7 +34,9 @@ export async function createDraftPost(): Promise<void> {
 
   if (error) throw error;
 
-  revalidatePath("/admin/news");
+  // revalidatePath ist hier unzulässig (läuft während des Renderns von
+  // /admin/news/neu, nicht als eigenständige Mutation) und auch unnötig,
+  // da /admin/news ohnehin bei jedem Aufruf dynamisch neu gerendert wird.
   redirect(`/admin/news/${data.id}`);
 }
 

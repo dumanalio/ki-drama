@@ -44,7 +44,8 @@ export async function createDraftChapter(): Promise<void> {
 
   if (error) throw error;
 
-  revalidatePath("/admin/grundlagen");
+  // revalidatePath ist hier unzulässig (läuft während des Renderns von
+  // /admin/grundlagen/neu) und unnötig, da die Liste ohnehin dynamisch ist.
   redirect(`/admin/grundlagen/${data.id}`);
 }
 
