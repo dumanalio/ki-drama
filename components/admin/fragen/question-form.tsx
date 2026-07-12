@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { QuestionPreview } from "@/components/admin/fragen/question-preview";
 import { AdminPageHeader } from "@/components/admin/page-header";
@@ -105,8 +106,10 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
       });
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success("Frage gespeichert");
       router.push("/admin/fragen");
     });
   }
@@ -115,9 +118,11 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
     startDeleting(async () => {
       const result = await deleteQuestion(question.id);
       if (result.ok) {
+        toast.success("Frage gelöscht");
         router.push("/admin/fragen");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

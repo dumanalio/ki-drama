@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { SortableList } from "@/components/admin/sortable-list";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +42,9 @@ function QuestionRow({ question }: { question: QuizQuestion }) {
       if (!result.ok) {
         setError(result.error);
         setConfirmOpen(false);
+        toast.error(result.error);
+      } else {
+        toast.success("Frage gelöscht");
       }
     });
   }
@@ -104,7 +108,9 @@ export function QuestionList({ questions }: { questions: QuizQuestion[] }) {
 
   function handleReorder(next: QuizQuestion[]) {
     setItems(next);
-    void reorderQuestions(next.map((item) => item.id));
+    reorderQuestions(next.map((item) => item.id)).then((result) => {
+      if (!result.ok) toast.error(result.error);
+    });
   }
 
   return (

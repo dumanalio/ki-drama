@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { SortableList } from "@/components/admin/sortable-list";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,9 @@ function ChapterRow({ chapter }: { chapter: Chapter }) {
       if (!result.ok) {
         setError(result.error);
         setConfirmOpen(false);
+        toast.error(result.error);
+      } else {
+        toast.success("Kapitel gelöscht");
       }
     });
   }
@@ -99,7 +103,9 @@ export function ChapterList({ chapters }: { chapters: Chapter[] }) {
 
   function handleReorder(next: Chapter[]) {
     setItems(next);
-    void reorderChapters(next.map((item) => item.id));
+    reorderChapters(next.map((item) => item.id)).then((result) => {
+      if (!result.ok) toast.error(result.error);
+    });
   }
 
   return (

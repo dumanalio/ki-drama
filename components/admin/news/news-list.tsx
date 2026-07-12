@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ImageOff, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -35,9 +36,11 @@ function PostRow({ post }: { post: Post }) {
       const result = await deletePost(post.id);
       if (result.ok) {
         setConfirmOpen(false);
+        toast.success("Beitrag gelöscht");
         router.refresh();
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

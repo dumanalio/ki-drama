@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { SortableList } from "@/components/admin/sortable-list";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,9 @@ function ToolRow({ tool }: { tool: Tool }) {
       if (!result.ok) {
         setError(result.error);
         setConfirmOpen(false);
+        toast.error(result.error);
+      } else {
+        toast.success("Tool gelöscht");
       }
     });
   }
@@ -90,7 +94,9 @@ export function ToolList({ tools }: { tools: Tool[] }) {
 
   function handleReorder(next: Tool[]) {
     setItems(next);
-    void reorderTools(next.map((item) => item.id));
+    reorderTools(next.map((item) => item.id)).then((result) => {
+      if (!result.ok) toast.error(result.error);
+    });
   }
 
   return (

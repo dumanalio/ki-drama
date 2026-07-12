@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CalendarX } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -37,8 +38,10 @@ function BookingRow({ booking }: { booking: BookingWithLead }) {
       const result = await cancelBooking({ bookingId: booking.id });
       if (result.ok) {
         setConfirmOpen(false);
+        toast.success("Termin abgesagt");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }
@@ -51,7 +54,14 @@ function BookingRow({ booking }: { booking: BookingWithLead }) {
         bookingId: booking.id,
         status: value,
       });
-      if (!result.ok) setError(result.error);
+      if (!result.ok) {
+        setError(result.error);
+        toast.error(result.error);
+      } else {
+        toast.success(
+          `Termin als „${BOOKING_STATUS_LABELS[value as keyof typeof BOOKING_STATUS_LABELS]}“ markiert`
+        );
+      }
     });
   }
 

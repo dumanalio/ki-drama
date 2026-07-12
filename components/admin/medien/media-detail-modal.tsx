@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Check, Copy, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,8 +48,10 @@ export function MediaDetailModal({
       });
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success("Bild aktualisiert");
       onUpdated({
         ...media,
         alt: alt.trim(),
@@ -64,8 +67,10 @@ export function MediaDetailModal({
       if (!result.ok) {
         setError(result.error);
         setConfirmingDelete(false);
+        toast.error(result.error);
         return;
       }
+      toast.success("Bild gelöscht");
       onDeleted(media.id);
     });
   }

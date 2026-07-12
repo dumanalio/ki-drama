@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,8 +20,10 @@ export function LeadAddNoteForm({ leadId }: { leadId: string }) {
       const result = await addLeadActivity({ leadId, body: value });
       if (result.ok) {
         setValue("");
+        toast.success("Notiz hinzugefügt");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

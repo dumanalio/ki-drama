@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { AvailabilityPreview } from "@/components/admin/termine/availability-preview";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -244,15 +245,22 @@ function RuleRowEditor({
 
       if (row.id) {
         const result = await updateAvailabilityRule({ id: row.id, ...payload });
-        if (!result.ok) setError(result.error);
+        if (!result.ok) {
+          setError(result.error);
+          toast.error(result.error);
+        } else {
+          toast.success("Wochenregel gespeichert");
+        }
         return;
       }
 
       const result = await createAvailabilityRule(payload);
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success("Wochenregel angelegt");
       onSaved(result.id);
     });
   }
@@ -268,8 +276,10 @@ function RuleRowEditor({
       if (result.ok) {
         setConfirmOpen(false);
         onDeleted();
+        toast.success("Wochenregel gelöscht");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }
@@ -483,15 +493,22 @@ function ExceptionRowEditor({
           id: row.id,
           ...payload,
         });
-        if (!result.ok) setError(result.error);
+        if (!result.ok) {
+          setError(result.error);
+          toast.error(result.error);
+        } else {
+          toast.success("Ausnahme gespeichert");
+        }
         return;
       }
 
       const result = await createAvailabilityException(payload);
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success("Ausnahme angelegt");
       onSaved(result.id);
     });
   }
@@ -507,8 +524,10 @@ function ExceptionRowEditor({
       if (result.ok) {
         setConfirmOpen(false);
         onDeleted();
+        toast.success("Ausnahme gelöscht");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

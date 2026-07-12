@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AlertTriangle, Loader2, Upload, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -142,9 +143,11 @@ export function MediaUploader({
 
     if (!result.ok) {
       patchPending(item.id, { status: "awaiting-alt", error: result.error });
+      toast.error(result.error);
       return;
     }
 
+    toast.success("Bild in der Bibliothek gespeichert");
     URL.revokeObjectURL(item.previewUrl);
     removePending(item.id);
     onSaved({

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ImagePlus, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
 import { AdminPageHeader } from "@/components/admin/page-header";
@@ -70,8 +71,10 @@ export function ToolForm({ tool }: { tool: Tool }) {
       });
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success("Tool gespeichert");
       router.push("/admin/landschaft");
     });
   }
@@ -80,9 +83,11 @@ export function ToolForm({ tool }: { tool: Tool }) {
     startDeleting(async () => {
       const result = await deleteTool(tool.id);
       if (result.ok) {
+        toast.success("Tool gelöscht");
         router.push("/admin/landschaft");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

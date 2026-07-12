@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ExternalLink } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -27,8 +28,10 @@ export function LeadBookingPanel({ booking }: { booking: Booking }) {
       const result = await cancelBooking({ bookingId: booking.id });
       if (result.ok) {
         setConfirmOpen(false);
+        toast.success("Termin abgesagt");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

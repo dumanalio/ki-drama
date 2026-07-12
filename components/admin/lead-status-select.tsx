@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 
 import {
   Select,
@@ -45,6 +46,9 @@ export function LeadStatusSelect({
       if (!result.ok) {
         setValue(previous);
         setError(result.error);
+        toast.error(result.error);
+      } else {
+        toast.success(`Status geändert zu „${LEAD_STATUS_LABELS[nextStatus]}“`);
       }
     });
   }
