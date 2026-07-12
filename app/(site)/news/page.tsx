@@ -7,6 +7,8 @@ import { ErrorState } from "@/components/ui/error-state";
 import { getPublishedPosts } from "@/lib/queries/content";
 import type { Post } from "@/types/database";
 
+export const revalidate = 3600;
+
 export default async function NewsPage() {
   let posts: Post[] = [];
   let loadError = false;

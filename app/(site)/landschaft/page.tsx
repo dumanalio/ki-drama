@@ -7,6 +7,8 @@ import { ErrorState } from "@/components/ui/error-state";
 import { getPublishedTools } from "@/lib/queries/content";
 import type { Tool } from "@/types/database";
 
+export const revalidate = 3600;
+
 export default async function LandschaftPage() {
   let tools: Tool[] = [];
   let loadError = false;

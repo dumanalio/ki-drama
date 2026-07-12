@@ -101,6 +101,7 @@ export async function savePost(input: unknown): Promise<ActionResult> {
     revalidatePath(`/admin/news/${data.id}`);
     revalidatePath("/news");
     revalidatePath(`/news/${data.slug}`);
+    revalidatePath("/");
 
     return { ok: true };
   } catch (error) {
@@ -119,6 +120,7 @@ export async function deletePost(id: string): Promise<ActionResult> {
 
     revalidatePath("/admin/news");
     revalidatePath("/news");
+    revalidatePath("/");
     return { ok: true };
   } catch (error) {
     return fail(

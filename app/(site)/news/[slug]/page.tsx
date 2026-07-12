@@ -12,6 +12,13 @@ import { TiptapRender } from "@/lib/tiptap-render";
 import { getPostBySlug } from "@/lib/queries/content";
 import { getPostBySlugAnyStatus } from "@/lib/queries/admin-posts";
 
+// Bewusst OHNE revalidate/generateStaticParams: resolvePost() liest bei
+// ?preview=1 über requireAdmin() die Session-Cookies, um Admins Entwürfe
+// zeigen zu können. Das ist mit statischem Rendering nicht vereinbar
+// (Next.js wirft DYNAMIC_SERVER_USAGE) — die Korrektheit der
+// Vorschau-Funktion hat hier Vorrang vor dem Cache-Vorteil für diese
+// einzelne Seite. Die Beitragsliste (/news) ist weiterhin statisch.
+
 async function resolvePost(slug: string, isPreview: boolean) {
   if (!isPreview)
     return { post: await getPostBySlug(slug), isPreviewing: false };

@@ -14,6 +14,11 @@ import { getPublishedPosts } from "@/lib/queries/content";
 import { getLandingPageContent } from "@/lib/queries/admin-settings";
 import type { Post } from "@/types/database";
 
+// Rein öffentliche Inhalte (Beiträge, Startseiten-Texte) — Admin-Aktionen
+// rufen bei Änderungen bereits revalidatePath() auf, dieser Wert ist nur
+// das zeitbasierte Sicherheitsnetz.
+export const revalidate = 3600;
+
 export default async function Home() {
   let posts: Post[] = [];
   let loadError = false;

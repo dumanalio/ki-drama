@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { Chapter, Post, QuizQuestion, Tool } from "@/types/database";
 
 export async function getPublishedChapters(): Promise<Chapter[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("chapters")
     .select("*")
@@ -14,7 +14,7 @@ export async function getPublishedChapters(): Promise<Chapter[]> {
 }
 
 export async function getChapterBySlug(slug: string): Promise<Chapter | null> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("chapters")
     .select("*")
@@ -27,7 +27,7 @@ export async function getChapterBySlug(slug: string): Promise<Chapter | null> {
 }
 
 export async function getPublishedTools(): Promise<Tool[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("tools")
     .select("*")
@@ -40,7 +40,7 @@ export async function getPublishedTools(): Promise<Tool[]> {
 }
 
 export async function getPublishedPosts(limit?: number): Promise<Post[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   let query = supabase
     .from("posts")
     .select("*")
@@ -55,7 +55,7 @@ export async function getPublishedPosts(limit?: number): Promise<Post[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("posts")
     .select("*")
@@ -68,7 +68,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 }
 
 export async function getActiveQuizQuestions(): Promise<QuizQuestion[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("quiz_questions")
     .select("*")

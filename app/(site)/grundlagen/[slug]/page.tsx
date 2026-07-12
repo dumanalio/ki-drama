@@ -8,6 +8,13 @@ import { estimateReadingMinutes, TiptapRender } from "@/lib/tiptap-render";
 import { getChapterBySlug, getPublishedChapters } from "@/lib/queries/content";
 import type { Chapter } from "@/types/database";
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const chapters = await getPublishedChapters();
+  return chapters.map((chapter) => ({ slug: chapter.slug }));
+}
+
 export default async function ChapterPage({
   params,
 }: {

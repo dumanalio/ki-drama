@@ -7,6 +7,8 @@ import { ErrorState } from "@/components/ui/error-state";
 import { getPublishedChapters } from "@/lib/queries/content";
 import type { Chapter } from "@/types/database";
 
+export const revalidate = 3600;
+
 const LEVEL_LABELS: Record<string, string> = {
   einsteiger: "Einsteiger",
   fortgeschritten: "Fortgeschritten",

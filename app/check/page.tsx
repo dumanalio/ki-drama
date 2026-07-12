@@ -3,6 +3,8 @@ import { ErrorState } from "@/components/ui/error-state";
 import { getActiveQuizQuestions } from "@/lib/queries/content";
 import type { QuizQuestion } from "@/types/database";
 
+export const revalidate = 3600;
+
 export default async function CheckPage() {
   let questions: QuizQuestion[] = [];
   let loadError = false;
