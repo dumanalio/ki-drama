@@ -1,0 +1,30 @@
+import {
+  BookOpen,
+  Calendar,
+  HelpCircle,
+  Image as ImageIcon,
+  LayoutDashboard,
+  Layers,
+  Newspaper,
+  Settings,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
+export interface AdminNavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/leads", label: "Leads", icon: Users },
+  { href: "/admin/termine", label: "Termine", icon: Calendar },
+  { href: "/admin/news", label: "News", icon: Newspaper },
+  { href: "/admin/landschaft", label: "Landschaft", icon: Layers },
+  { href: "/admin/grundlagen", label: "Grundlagen", icon: BookOpen },
+  { href: "/admin/fragen", label: "Fragen", icon: HelpCircle },
+  { href: "/admin/medien", label: "Medien", icon: ImageIcon },
+  { href: "/admin/einstellungen", label: "Einstellungen", icon: Settings },
+];

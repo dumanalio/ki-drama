@@ -117,3 +117,22 @@ export async function addLeadActivity(input: unknown): Promise<ActionResult> {
     };
   }
 }
+
+export interface LeadPaletteEntry {
+  id: string;
+  name: string;
+  email: string;
+}
+
+/** Für die Befehlspalette (Cmd+K): leichte Liste, Filterung läuft in cmdk. */
+export async function listLeadsForPalette(): Promise<LeadPaletteEntry[]> {
+  const { adminClient } = await requireAdmin();
+  const { data, error } = await adminClient
+    .from("leads")
+    .select("id, name, email")
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (error) throw error;
+  return data ?? [];
+}

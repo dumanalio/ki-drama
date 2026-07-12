@@ -4,35 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Dialog } from "@base-ui/react/dialog";
-import {
-  BookOpen,
-  Calendar,
-  HelpCircle,
-  Image as ImageIcon,
-  LayoutDashboard,
-  Layers,
-  LogOut,
-  Menu,
-  Newspaper,
-  Settings,
-  Users,
-  X,
-} from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 
+import { ADMIN_NAV_ITEMS } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-
-const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/leads", label: "Leads", icon: Users },
-  { href: "/admin/termine", label: "Termine", icon: Calendar },
-  { href: "/admin/news", label: "News", icon: Newspaper },
-  { href: "/admin/landschaft", label: "Landschaft", icon: Layers },
-  { href: "/admin/grundlagen", label: "Grundlagen", icon: BookOpen },
-  { href: "/admin/fragen", label: "Fragen", icon: HelpCircle },
-  { href: "/admin/medien", label: "Medien", icon: ImageIcon },
-  { href: "/admin/einstellungen", label: "Einstellungen", icon: Settings },
-];
 
 function isActiveHref(pathname: string | null, href: string): boolean {
   if (href === "/admin") return pathname === "/admin";
@@ -62,7 +38,7 @@ function SidebarNav({
         Verwalten
       </span>
       <nav className="flex flex-col gap-0.5 px-3">
-        {NAV_ITEMS.map((item) => {
+        {ADMIN_NAV_ITEMS.map((item) => {
           const active = isActiveHref(pathname, item.href);
           const Icon = item.icon;
           return (

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { CommandPalette } from "@/components/admin/command-palette";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -39,6 +40,7 @@ export default async function AdminProtectedLayout({
     <div className="bg-canvas flex min-h-screen flex-col md:flex-row">
       <AdminSidebar adminEmail={admin.email} />
       <main className="flex-1 px-6 py-8 md:px-10 md:py-10">{children}</main>
+      <CommandPalette />
       <Toaster
         position="bottom-right"
         toastOptions={{
