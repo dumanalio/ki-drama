@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  /* Flächen */
+  --color-canvas: #f4f4f7;
+  --color-surface: #ffffff;
+  --color-surface-alt: #efeff2;
+
+  /* Text */
+  --color-ink: #1e1b39;
+  --color-ink-soft: #4a4766;
+  --color-ink-muted: #6e6c85;
+
+  /* Linien */
+  --color-line: #e3e3ea;
+  --color-line-strong: #c9c9d4;
+
+  /* Akzent */
+  --color-accent: #5b4ee3;
+  --color-accent-hover: #4a3fd1;
+  --color-accent-soft: #eceafd;
+
+  /* Signal (Logo, Marker, seltene Highlights — sparsam!) */
+  --color-signal: #f0523c;
+  --color-signal-soft: #fdeae7;
+
+  /* Status */
+  --color-success: #1e7a47;
+  --color-success-soft: #dff5e6;
+  --color-warning: #9a6400;
+  --color-warning-soft: #fdf1dc;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fceae9;
+
+  /* Typografie */
+  --font-display: var(--font-plus-jakarta-sans);
+  --font-sans: var(--font-inter);
+
+  /* Radien */
+  --radius-btn: 8px;
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-panel: 20px;
+  --radius-pill: 999px;
+
+  /* Schatten */
+  --shadow-card:
+    0 1px 2px rgba(30, 27, 57, 0.05), 0 1px 3px rgba(30, 27, 57, 0.04);
+  --shadow-float: 0 8px 30px rgba(30, 27, 57, 0.1);
+}
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-canvas text-ink-soft min-h-full font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-ink;
+  }
+
+  :focus-visible {
+    @apply ring-accent ring-2 ring-offset-2 outline-none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
