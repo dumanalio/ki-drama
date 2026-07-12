@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { sendAndLog } from "@/lib/email/send-and-log";
+import { getGeneralSettings } from "@/lib/queries/admin-settings";
 import { formatBerlin } from "@/lib/time";
 import type { Database } from "@/types/database";
 
@@ -35,6 +36,7 @@ export async function sendBookingConfirmation(
   const manageUrl = `${siteUrl()}/termin/${input.manageToken}`;
   const formatted = formatBerlin(input.startsAt, DATE_FORMAT);
   const isReschedule = input.kind === "rescheduled";
+  const { emailConfirmationNote, emailSignoff } = await getGeneralSettings();
 
   const text = [
     `Hallo ${input.leadName},`,
@@ -43,13 +45,14 @@ export async function sendBookingConfirmation(
       ? `dein Termin wurde verschoben auf: ${formatted} Uhr.`
       : `dein Termin ist bestätigt: ${formatted} Uhr.`,
     input.meetingUrl ? `Meeting-Link: ${input.meetingUrl}` : null,
+    emailConfirmationNote.length > 0 ? "" : null,
+    emailConfirmationNote.length > 0 ? emailConfirmationNote : null,
     "",
     `Termin verschieben oder absagen: ${manageUrl}`,
     "",
     "Die Kalenderdatei ist angehängt.",
     "",
-    "Bis dahin,",
-    "KI-Drama",
+    emailSignoff,
   ]
     .filter((line): line is string => line !== null)
     .join("\n");
@@ -76,7 +79,9 @@ interface SendAdminNotificationInput {
 export async function sendBookingAdminNotification(
   input: SendAdminNotificationInput
 ): Promise<void> {
-  const adminEmail = process.env.ADMIN_NOTIFY_EMAIL;
+  const { notifyEmail } = await getGeneralSettings();
+  const adminEmail =
+    notifyEmail.length > 0 ? notifyEmail : process.env.ADMIN_NOTIFY_EMAIL;
   if (!adminEmail) return;
 
   const formatted = formatBerlin(input.startsAt, DATE_FORMAT);

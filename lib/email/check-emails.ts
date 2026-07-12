@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { sendAndLog } from "@/lib/email/send-and-log";
+import { getGeneralSettings } from "@/lib/queries/admin-settings";
 import type { Database, QuizQuestion } from "@/types/database";
 
 interface AnswerSummaryLine {
@@ -58,7 +59,9 @@ export async function sendCheckEmails(
   const segmentLabel = input.segment === "privat" ? "Privat" : "Unternehmen";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-  const adminEmail = process.env.ADMIN_NOTIFY_EMAIL;
+  const { notifyEmail } = await getGeneralSettings();
+  const adminEmail =
+    notifyEmail.length > 0 ? notifyEmail : process.env.ADMIN_NOTIFY_EMAIL;
   if (adminEmail) {
     const adminSubject = `Neuer Check: ${input.leadName} (${segmentLabel})`;
     const adminText = [
