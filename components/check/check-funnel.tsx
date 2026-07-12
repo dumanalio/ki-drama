@@ -35,6 +35,7 @@ interface StoredState {
 }
 
 const STORAGE_KEY = "ki-drama-check-v1";
+const AUTO_ADVANCE_DELAY_MS = 200;
 
 type Step =
   | { kind: "segment" }
@@ -204,32 +205,36 @@ export function CheckFunnel({ questions }: { questions: QuizQuestion[] }) {
   const clampedStepIndex = Math.min(stepIndex, steps.length - 1);
   const currentStep = steps[clampedStepIndex];
 
+  // Ausgewählte Callbacks unten laufen teils verzögert (window.setTimeout)
+  // und dürfen deshalb `steps` niemals aus einer Closure lesen: `steps`
+  // ändert sich genau dann, wenn `segment` gesetzt wird — zum Klickzeitpunkt
+  // der Segment-Auswahl ist die neue Länge noch nicht bekannt. Ein Ref, das
+  // bei jedem Render aktualisiert wird, garantiert, dass der verzögerte
+  // Callback immer die aktuelle Länge sieht.
+  const stepsRef = React.useRef(steps);
+  stepsRef.current = steps;
+
   const goNext = React.useCallback(() => {
-    setStepIndex((i) => Math.min(i + 1, steps.length - 1));
-  }, [steps.length]);
+    setStepIndex((i) => Math.min(i + 1, stepsRef.current.length - 1));
+  }, []);
 
   const goBack = React.useCallback(() => {
     setStepIndex((i) => Math.max(i - 1, 0));
   }, []);
 
-  const selectSegment = React.useCallback(
-    (value: Segment, totalSteps: number) => {
-      setSegment(value);
-      window.setTimeout(
-        () => setStepIndex((i) => Math.min(i + 1, totalSteps - 1)),
-        300
-      );
-    },
-    []
-  );
+  const selectSegment = React.useCallback((value: Segment) => {
+    setSegment(value);
+    window.setTimeout(() => {
+      setStepIndex((i) => Math.min(i + 1, stepsRef.current.length - 1));
+    }, AUTO_ADVANCE_DELAY_MS);
+  }, []);
 
   const selectSingle = React.useCallback(
-    (questionId: string, value: string, totalSteps: number) => {
+    (questionId: string, value: string) => {
       setAnswers((prev) => ({ ...prev, [questionId]: value }));
-      window.setTimeout(
-        () => setStepIndex((i) => Math.min(i + 1, totalSteps - 1)),
-        300
-      );
+      window.setTimeout(() => {
+        setStepIndex((i) => Math.min(i + 1, stepsRef.current.length - 1));
+      }, AUTO_ADVANCE_DELAY_MS);
     },
     []
   );
@@ -278,14 +283,14 @@ export function CheckFunnel({ questions }: { questions: QuizQuestion[] }) {
       if (step.kind === "segment") {
         const value: Segment | undefined =
           digit === 1 ? "privat" : digit === 2 ? "business" : undefined;
-        if (value) selectSegment(value, steps.length);
+        if (value) selectSegment(value);
       } else if (step.kind === "question") {
         const { question } = step;
         if (question.type === "text") return;
         const option = question.options[digit - 1];
         if (!option) return;
         if (question.type === "multi") toggleMulti(question.id, option.value);
-        else selectSingle(question.id, option.value, steps.length);
+        else selectSingle(question.id, option.value);
       }
     }
 
@@ -412,7 +417,10 @@ export function CheckFunnel({ questions }: { questions: QuizQuestion[] }) {
           )}
         </div>
 
-        <div className="flex flex-1 flex-col justify-center gap-8">
+        <div
+          key={clampedStepIndex}
+          className="flex flex-1 [animation:step-in_180ms_ease-out] flex-col justify-center gap-8"
+        >
           {currentStep.kind === "segment" ? (
             <div className="flex flex-col gap-6">
               <h1 className="text-ink text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
@@ -424,14 +432,14 @@ export function CheckFunnel({ questions }: { questions: QuizQuestion[] }) {
                   description="Ich möchte KI für mich persönlich verstehen."
                   selected={segment === "privat"}
                   shortcutNumber={1}
-                  onSelect={() => selectSegment("privat", steps.length)}
+                  onSelect={() => selectSegment("privat")}
                 />
                 <AnswerCard
                   label="Unternehmen"
                   description="Ich möchte KI in meinem Team einsetzen."
                   selected={segment === "business"}
                   shortcutNumber={2}
-                  onSelect={() => selectSegment("business", steps.length)}
+                  onSelect={() => selectSegment("business")}
                 />
               </div>
             </div>
@@ -442,7 +450,7 @@ export function CheckFunnel({ questions }: { questions: QuizQuestion[] }) {
               question={currentStep.question}
               answer={answers[currentStep.question.id]}
               onSelectSingle={(value) =>
-                selectSingle(currentStep.question.id, value, steps.length)
+                selectSingle(currentStep.question.id, value)
               }
               onToggleMulti={(value) =>
                 toggleMulti(currentStep.question.id, value)
