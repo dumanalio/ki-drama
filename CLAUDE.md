@@ -32,32 +32,35 @@ Erfinde keine neuen Farben.**
 ```css
 @theme {
   /* Flächen */
-  --color-canvas:      #F4F4F7;  /* Seitenhintergrund, Admin-Content */
-  --color-surface:     #FFFFFF;  /* Karten, Panels, Sidebar */
-  --color-surface-alt: #EFEFF2;  /* Bildkacheln, Code-Blöcke, Skeletons */
+  --color-canvas: #f4f4f7; /* Seitenhintergrund, Admin-Content */
+  --color-surface: #ffffff; /* Karten, Panels, Sidebar */
+  --color-surface-alt: #efeff2; /* Bildkacheln, Code-Blöcke, Skeletons */
 
   /* Text */
-  --color-ink:         #1E1B39;  /* Überschriften, Primärtext */
-  --color-ink-soft:    #4A4766;  /* Fließtext */
-  --color-ink-muted:   #6E6C85;  /* Labels, Hilfstexte, Platzhalter */
+  --color-ink: #1e1b39; /* Überschriften, Primärtext */
+  --color-ink-soft: #4a4766; /* Fließtext */
+  --color-ink-muted: #6e6c85; /* Labels, Hilfstexte, Platzhalter */
 
   /* Linien */
-  --color-line:        #E3E3EA;  /* Rahmen, Trenner */
-  --color-line-strong: #C9C9D4;  /* Rahmen bei Hover */
+  --color-line: #e3e3ea; /* Rahmen, Trenner */
+  --color-line-strong: #c9c9d4; /* Rahmen bei Hover */
 
   /* Akzent */
-  --color-accent:      #5B4EE3;  /* Links, sekundäre CTAs, aktive Zustände */
-  --color-accent-hover:#4A3FD1;
-  --color-accent-soft: #ECEAFD;  /* Fläche für weiche Buttons, Badges, Hinweisboxen */
+  --color-accent: #5b4ee3; /* Links, sekundäre CTAs, aktive Zustände */
+  --color-accent-hover: #4a3fd1;
+  --color-accent-soft: #eceafd; /* Fläche für weiche Buttons, Badges, Hinweisboxen */
 
   /* Signal (Logo, Marker, seltene Highlights — sparsam!) */
-  --color-signal:      #F0523C;
-  --color-signal-soft: #FDEAE7;
+  --color-signal: #f0523c;
+  --color-signal-soft: #fdeae7;
 
   /* Status */
-  --color-success:     #1E7A47;  --color-success-soft: #DFF5E6;
-  --color-warning:     #9A6400;  --color-warning-soft: #FDF1DC;
-  --color-danger:      #B3261E;  --color-danger-soft:  #FCEAE9;
+  --color-success: #1e7a47;
+  --color-success-soft: #dff5e6;
+  --color-warning: #9a6400;
+  --color-warning-soft: #fdf1dc;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fceae9;
 }
 ```
 
@@ -70,14 +73,15 @@ Dark Mode: **nicht bauen.** Später, wenn alles steht.
 - Beide über `next/font/google` einbinden → werden zur Buildzeit gehostet, kein Request an Google.
 
 Skala (Desktop / Mobil):
-| Rolle | Größe | Weight | Tracking |
-|---|---|---|---|
-| Hero H1 | 52 / 34 px | 700 | -0.02em |
-| Section H2 | 34 / 26 px | 700 | -0.015em |
-| Card H3 | 20 / 18 px | 600 | -0.01em |
-| Body | 17 / 16 px | 400 | 0, `leading-relaxed` |
-| Small / Label | 14 px | 500 | 0 |
-| Eyebrow | 13 px | 600 | uppercase, 0.06em |
+
+| Rolle         | Größe      | Weight | Tracking             |
+| ------------- | ---------- | ------ | -------------------- |
+| Hero H1       | 52 / 34 px | 700    | -0.02em              |
+| Section H2    | 34 / 26 px | 700    | -0.015em             |
+| Card H3       | 20 / 18 px | 600    | -0.01em              |
+| Body          | 17 / 16 px | 400    | 0, `leading-relaxed` |
+| Small / Label | 14 px      | 500    | 0                    |
+| Eyebrow       | 13 px      | 600    | uppercase, 0.06em    |
 
 Zeilenlänge im Fließtext: max. `65ch`. Immer.
 
@@ -92,12 +96,12 @@ Zeilenlänge im Fließtext: max. `65ch`. Immer.
 
 ### Buttons — exakt vier Varianten, keine fünfte
 
-| Variante | Aussehen | Einsatz |
-|---|---|---|
+| Variante  | Aussehen                                                                | Einsatz                             |
+| --------- | ----------------------------------------------------------------------- | ----------------------------------- |
 | `primary` | Fläche `--color-ink`, weißer Text, `h-11 px-5 rounded-lg font-semibold` | Die **eine** Hauptaktion pro Screen |
-| `accent` | Fläche `--color-accent`, weißer Text | Conversion-CTA („Check starten") |
-| `soft` | Fläche `--color-accent-soft`, Text `--color-accent`, oft mit Pfeil `→` | Sekundär, „Mehr erfahren →" |
-| `outline` | weiß, Rahmen `--color-line`, Text `--color-ink` | Abbrechen, Zurück, Nebenaktion |
+| `accent`  | Fläche `--color-accent`, weißer Text                                    | Conversion-CTA („Check starten")    |
+| `soft`    | Fläche `--color-accent-soft`, Text `--color-accent`, oft mit Pfeil `→`  | Sekundär, „Mehr erfahren →"         |
+| `outline` | weiß, Rahmen `--color-line`, Text `--color-ink`                         | Abbrechen, Zurück, Nebenaktion      |
 
 Hover: 120 ms Farbübergang. Focus: `ring-2 ring-accent ring-offset-2` — **immer sichtbar**, nie `outline: none` ohne Ersatz.
 
@@ -150,3 +154,11 @@ Hover: 120 ms Farbübergang. Focus: `ring-2 ring-accent ring-offset-2` — **imm
 Arbeite die Phasen aus `docs/prompts.md` **einzeln** ab. Nach jeder Phase:
 `npm run build` muss durchlaufen. Erst dann die nächste.
 Wenn eine Anforderung unklar ist: **frag nach, rate nicht.**
+
+## Löschen und Aufräumen
+
+Claude Code löscht NIEMALS eigenständig Daten aus der Datenbank oder aus
+Storage — auch nicht "eigene" Testdaten. Testdaten werden beim Anlegen mit
+einem eindeutigen Präfix versehen (z.B. "**TEST**") und nur exakt darüber
+wieder entfernt. Nie über Namensmuster, nie über ILIKE auf Freitextfelder.
+Im Zweifel: Kandidaten auflisten und mich fragen, nicht löschen.
