@@ -17,7 +17,22 @@ export const postSaveSchema = z.object({
   coverUrl: z.string().url().nullable(),
   coverAlt: z.string().trim().max(200).nullable(),
   status: z.enum(["entwurf", "veroeffentlicht"]),
-  body: z.record(z.string(), z.unknown()),
+  // Kommt als JSON-String an (nicht als Objekt): Next.js' Server-Action-
+  // Serialisierung verliert verschachtelte Node-Attribute (z. B. die
+  // Bild-Attribute aus dem Tiptap-Editor) bei komplexen Tiptap-Dokumenten,
+  // wenn sie als Objekt übergeben werden. Ein expliziter String-Rundgang
+  // umgeht das zuverlässig.
+  body: z
+    .string()
+    .min(1)
+    .transform((value, ctx) => {
+      try {
+        return JSON.parse(value) as Record<string, unknown>;
+      } catch {
+        ctx.addIssue({ code: "custom", message: "Der Inhalt ist ungültig." });
+        return z.NEVER;
+      }
+    }),
 });
 
 export type PostSaveInput = z.infer<typeof postSaveSchema>;

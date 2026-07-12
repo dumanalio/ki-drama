@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
+import { EditableImage } from "@/components/admin/tiptap/image-extension";
 import type { Json } from "@/types/database";
 
 export function useContentEditor({
@@ -25,7 +25,7 @@ export function useContentEditor({
         autolink: true,
         HTMLAttributes: { rel: "noopener noreferrer" },
       }),
-      Image,
+      EditableImage,
       Placeholder.configure({
         placeholder: placeholder ?? "Schreib deinen Text…",
       }),

@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { RichTextEditor } from "@/components/admin/tiptap/rich-text-editor";
@@ -68,12 +69,14 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
         summary,
         level,
         status,
-        body: bodyRef.current,
+        body: JSON.stringify(bodyRef.current),
       });
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success("Kapitel gespeichert");
       router.push("/admin/grundlagen");
     });
   }
@@ -82,9 +85,11 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
     startDeleting(async () => {
       const result = await deleteChapter(chapter.id);
       if (result.ok) {
+        toast.success("Kapitel gelöscht");
         router.push("/admin/grundlagen");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

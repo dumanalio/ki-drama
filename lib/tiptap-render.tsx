@@ -181,19 +181,47 @@ function renderNode(node: TiptapNode, key: React.Key): React.ReactNode {
       const alt = typeof node.attrs?.alt === "string" ? node.attrs.alt : "";
       const width = Number(node.attrs?.width) || 1200;
       const height = Number(node.attrs?.height) || 675;
+      const sizePreset =
+        typeof node.attrs?.sizePreset === "string"
+          ? node.attrs.sizePreset
+          : "full";
+      const align =
+        typeof node.attrs?.align === "string" ? node.attrs.align : "center";
+      const caption =
+        typeof node.attrs?.caption === "string" && node.attrs.caption.length > 0
+          ? node.attrs.caption
+          : null;
+
+      const widthClass =
+        sizePreset === "small"
+          ? "max-w-[280px]"
+          : sizePreset === "medium"
+            ? "max-w-[480px]"
+            : "max-w-full";
+      const alignClass =
+        align === "left"
+          ? "mr-auto"
+          : align === "right"
+            ? "ml-auto"
+            : "mx-auto";
+
       return (
-        <span
-          key={key}
-          className="bg-surface-alt block overflow-hidden rounded-[20px]"
-        >
-          <Image
-            src={src}
-            alt={alt}
-            width={width}
-            height={height}
-            className="h-auto w-full"
-          />
-        </span>
+        <figure key={key} className={`${widthClass} ${alignClass}`}>
+          <span className="bg-surface-alt block overflow-hidden rounded-[20px]">
+            <Image
+              src={src}
+              alt={alt}
+              width={width}
+              height={height}
+              className="h-auto w-full"
+            />
+          </span>
+          {caption ? (
+            <figcaption className="text-ink-muted mt-2 text-center text-[13px]">
+              {caption}
+            </figcaption>
+          ) : null}
+        </figure>
       );
     }
 

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ImagePlus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
 import { AdminPageHeader } from "@/components/admin/page-header";
@@ -96,7 +97,11 @@ export function NewsEditor({ post }: { post: Post }) {
     };
   }
 
-  async function save(nextStatus?: Post["status"]) {
+  async function save(
+    nextStatus?: Post["status"],
+    options?: { announce?: boolean }
+  ) {
+    const announce = options?.announce ?? false;
     const current = stateRef.current;
     const finalStatus = nextStatus ?? current.status;
 
@@ -113,18 +118,28 @@ export function NewsEditor({ post }: { post: Post }) {
       coverUrl: current.coverUrl,
       coverAlt: current.coverAlt || null,
       status: finalStatus,
-      body: bodyRef.current,
+      body: JSON.stringify(bodyRef.current),
     });
 
     if (!result.ok) {
       setSaveStatus("error");
       setError(result.error);
+      // Auch beim automatischen Speichern immer melden — ein fehlgeschlagenes
+      // Autosave darf nicht unbemerkt bleiben, sonst geht Arbeit verloren.
+      toast.error(result.error);
       return;
     }
 
     if (nextStatus) setStatus(nextStatus);
     setDirty(false);
     setSaveStatus("saved");
+    if (announce) {
+      toast.success(
+        finalStatus === "veroeffentlicht"
+          ? "Beitrag veröffentlicht"
+          : "Änderungen gespeichert"
+      );
+    }
   }
 
   React.useEffect(() => {
@@ -137,9 +152,9 @@ export function NewsEditor({ post }: { post: Post }) {
 
   async function handlePrimaryAction() {
     if (status === "entwurf") {
-      await save("veroeffentlicht");
+      await save("veroeffentlicht", { announce: true });
     } else {
-      await save();
+      await save(undefined, { announce: true });
     }
   }
 
@@ -152,9 +167,11 @@ export function NewsEditor({ post }: { post: Post }) {
     startDeleting(async () => {
       const result = await deletePost(post.id);
       if (result.ok) {
+        toast.success("Beitrag gelöscht");
         router.push("/admin/news");
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     });
   }

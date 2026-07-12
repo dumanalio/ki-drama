@@ -179,7 +179,12 @@ export function RichTextEditor({ editor }: { editor: Editor | null }) {
           editor
             .chain()
             .focus()
-            .setImage({ src: media.url, alt: media.alt })
+            .setImage({
+              src: media.url,
+              alt: media.alt,
+              width: media.width ?? undefined,
+              height: media.height ?? undefined,
+            })
             .run();
           setPickerOpen(false);
         }}
