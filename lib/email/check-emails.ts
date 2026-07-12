@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { EMAIL_FROM, getResendClient } from "@/lib/email/resend";
+import { sendAndLog } from "@/lib/email/send-and-log";
 import type { Database, QuizQuestion } from "@/types/database";
 
 interface AnswerSummaryLine {
@@ -44,38 +44,6 @@ interface SendCheckEmailsInput {
   answers: Record<string, string | string[]>;
   questions: QuizQuestion[];
   sessionId: string;
-}
-
-async function sendAndLog(
-  supabase: SupabaseClient<Database>,
-  input: { to: string; subject: string; text: string; template: string }
-): Promise<void> {
-  const resend = getResendClient();
-
-  try {
-    const { error } = await resend.emails.send({
-      from: EMAIL_FROM,
-      to: input.to,
-      subject: input.subject,
-      text: input.text,
-    });
-
-    await supabase.from("email_log").insert({
-      to_email: input.to,
-      template: input.template,
-      subject: input.subject,
-      status: error ? "fehlgeschlagen" : "gesendet",
-      error: error?.message ?? null,
-    });
-  } catch (err) {
-    await supabase.from("email_log").insert({
-      to_email: input.to,
-      template: input.template,
-      subject: input.subject,
-      status: "fehlgeschlagen",
-      error: err instanceof Error ? err.message : "Unbekannter Fehler",
-    });
-  }
 }
 
 /**
