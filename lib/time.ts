@@ -66,6 +66,20 @@ export function toUtc(localDateTime: string): Date {
 }
 
 /**
+ * Liefert das Berlin-Kalenderdatum (YYYY-MM-DD) für einen UTC-Zeitpunkt.
+ * Nötig, weil ein UTC-Zeitpunkt nahe Mitternacht je nach Sommer-/Winterzeit
+ * auf den vorherigen oder nächsten Berliner Kalendertag fallen kann.
+ */
+export function getBerlinDateString(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: BERLIN_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+/**
  * Liefert den UTC-Zeitraum, der einem vollen Kalendertag in Berlin entspricht
  * (00:00 bis 24:00 Ortszeit). Nützlich, um Buchungen/Verfügbarkeiten eines
  * Tages abzufragen, unabhängig von der Zeitzone des Servers.
