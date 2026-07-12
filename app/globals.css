@@ -77,6 +77,52 @@
   }
 }
 
+/* Tiptap-Editor: spiegelt die Node-Styles aus lib/tiptap-render.tsx, damit
+   das Bearbeiten optisch nah an der veröffentlichten Ansicht ist. */
+.tiptap-content {
+  @apply flex flex-col gap-4;
+}
+.tiptap-content p {
+  @apply text-ink-soft text-[17px] leading-relaxed;
+}
+.tiptap-content h2 {
+  @apply text-ink mt-10 text-[26px] font-bold tracking-[-0.015em] first:mt-0;
+}
+.tiptap-content h3 {
+  @apply text-ink mt-8 text-[20px] font-semibold tracking-[-0.01em];
+}
+.tiptap-content ul {
+  @apply text-ink-soft list-disc space-y-2 pl-6 text-[17px] leading-relaxed;
+}
+.tiptap-content ol {
+  @apply text-ink-soft list-decimal space-y-2 pl-6 text-[17px] leading-relaxed;
+}
+.tiptap-content blockquote {
+  @apply border-line-strong text-ink-soft border-l-2 pl-4 text-[17px] leading-relaxed italic;
+}
+.tiptap-content pre {
+  @apply bg-surface-alt text-ink overflow-x-auto rounded-xl p-4 text-[14px] leading-relaxed;
+}
+.tiptap-content code {
+  @apply bg-surface-alt text-ink rounded px-1.5 py-0.5 text-[0.9em];
+}
+.tiptap-content pre code {
+  @apply bg-transparent p-0;
+}
+.tiptap-content hr {
+  @apply border-line my-2;
+}
+.tiptap-content img {
+  @apply rounded-[20px];
+}
+.tiptap-content a {
+  @apply text-accent hover:text-accent-hover underline underline-offset-2;
+}
+.tiptap-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-ink-muted pointer-events-none float-left h-0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
