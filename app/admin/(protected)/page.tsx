@@ -4,9 +4,14 @@ import { CalendarX, Users as UsersIcon } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { KpiCard } from "@/components/admin/kpi-card";
 import { LeadsChart } from "@/components/admin/leads-chart";
-import { Badge, type BadgeProps } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
+import {
+  LEAD_SEGMENT_LABELS,
+  LEAD_STATUS_LABELS,
+  LEAD_STATUS_VARIANTS,
+} from "@/lib/labels";
 import {
   getDashboardMetrics,
   getLatestLeads,
@@ -14,30 +19,6 @@ import {
   getUpcomingBookings,
 } from "@/lib/queries/admin-dashboard";
 import { formatBerlin } from "@/lib/time";
-import type { LeadSegment, LeadStatus } from "@/types/database";
-
-const STATUS_LABELS: Record<LeadStatus, string> = {
-  neu: "Neu",
-  kontaktiert: "Kontaktiert",
-  termin_gebucht: "Termin gebucht",
-  gespraech_gefuehrt: "Gespräch geführt",
-  kunde: "Kunde",
-  kein_interesse: "Kein Interesse",
-};
-
-const STATUS_VARIANTS: Record<LeadStatus, BadgeProps["variant"]> = {
-  neu: "soft",
-  kontaktiert: "soft",
-  termin_gebucht: "warning",
-  gespraech_gefuehrt: "soft",
-  kunde: "success",
-  kein_interesse: "danger",
-};
-
-const SEGMENT_LABELS: Record<LeadSegment, string> = {
-  privat: "Privat",
-  business: "Unternehmen",
-};
 
 export default async function AdminDashboardPage() {
   let metrics: Awaited<ReturnType<typeof getDashboardMetrics>> | null = null;
@@ -133,7 +114,7 @@ export default async function AdminDashboardPage() {
                     </span>
                   </div>
                   <Badge variant="soft">
-                    {SEGMENT_LABELS[booking.segment]}
+                    {LEAD_SEGMENT_LABELS[booking.segment]}
                   </Badge>
                 </li>
               ))}
@@ -169,8 +150,8 @@ export default async function AdminDashboardPage() {
                       {lead.email}
                     </span>
                   </div>
-                  <Badge variant={STATUS_VARIANTS[lead.status]}>
-                    {STATUS_LABELS[lead.status]}
+                  <Badge variant={LEAD_STATUS_VARIANTS[lead.status]}>
+                    {LEAD_STATUS_LABELS[lead.status]}
                   </Badge>
                 </li>
               ))}
