@@ -346,6 +346,7 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
           </p>
           <QuestionPreview
             type={type}
+            segment={segment}
             title={title}
             hint={hint.trim().length > 0 ? hint : null}
             options={options.map((option) => ({

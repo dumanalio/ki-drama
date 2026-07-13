@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { Info } from "lucide-react";
 
 import { AnswerCard } from "@/components/check/answer-card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { QuestionType } from "@/types/database";
+import type { QuestionSegment, QuestionType } from "@/types/database";
 
 export interface PreviewOption {
   label: string;
@@ -14,14 +16,21 @@ export interface PreviewOption {
   iconAlt: string | null;
 }
 
+const SEGMENT_HINT_LABELS: Record<Exclude<QuestionSegment, "alle">, string> = {
+  privat: "Nur für: Privat",
+  business: "Nur für: Unternehmen",
+};
+
 export function QuestionPreview({
   type,
+  segment,
   title,
   hint,
   options,
   required,
 }: {
   type: QuestionType;
+  segment: QuestionSegment;
   title: string;
   hint: string | null;
   options: PreviewOption[];
@@ -41,6 +50,13 @@ export function QuestionPreview({
   return (
     <div className="border-line bg-canvas rounded-xl border p-6">
       <div className="mx-auto flex max-w-sm flex-col gap-6">
+        {segment !== "alle" ? (
+          <Badge variant="soft" className="self-start">
+            <Info className="size-3.5" aria-hidden="true" />
+            {SEGMENT_HINT_LABELS[segment]}
+          </Badge>
+        ) : null}
+
         <div className="flex flex-col gap-2">
           <h3 className="text-ink text-[22px] font-bold tracking-[-0.015em]">
             {title || "Ohne Titel"}
