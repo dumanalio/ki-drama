@@ -10,7 +10,9 @@ import {
   questionSaveSchema,
   questionsReorderSchema,
 } from "@/lib/validation/question";
-import type { QuizOption } from "@/types/database";
+import type { QuestionSegment, QuizOption } from "@/types/database";
+
+type DuplicateResult = { ok: true; id: string } | { ok: false; error: string };
 
 function fail(error: unknown, fallback: string): { ok: false; error: string } {
   if (error instanceof AdminAuthError) {
@@ -49,6 +51,68 @@ export async function createDraftQuestion(): Promise<void> {
   // revalidatePath ist hier unzulässig (läuft während des Renderns von
   // /admin/fragen/neu) und unnötig, da die Liste ohnehin dynamisch ist.
   redirect(`/admin/fragen/${data.id}`);
+}
+
+const OTHER_SEGMENT: Record<"privat" | "business", QuestionSegment> = {
+  privat: "business",
+  business: "privat",
+};
+
+/** Kopiert eine Frage inkl. Optionen/Icons und setzt das jeweils andere Segment. */
+export async function duplicateQuestion(id: string): Promise<DuplicateResult> {
+  try {
+    const { adminClient } = await requireAdmin();
+
+    const { data: source, error: fetchError } = await adminClient
+      .from("quiz_questions")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    if (source.segment !== "privat" && source.segment !== "business") {
+      return {
+        ok: false,
+        error:
+          'Fragen mit Segment „Alle" gelten bereits für beide Gruppen und können nicht dupliziert werden.',
+      };
+    }
+
+    const { data: maxRow } = await adminClient
+      .from("quiz_questions")
+      .select("position")
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const { data: inserted, error: insertError } = await adminClient
+      .from("quiz_questions")
+      .insert({
+        position: (maxRow?.position ?? 0) + 1,
+        type: source.type,
+        segment: OTHER_SEGMENT[source.segment],
+        title: source.title,
+        hint: source.hint,
+        options: source.options,
+        icon_align: source.icon_align,
+        text_align: source.text_align,
+        required: source.required,
+        active: source.active,
+      })
+      .select("id")
+      .single();
+    if (insertError) throw insertError;
+
+    revalidatePath("/admin/fragen");
+    revalidatePath("/check");
+
+    return { ok: true, id: inserted.id };
+  } catch (error) {
+    return fail(
+      error,
+      "Die Frage konnte nicht dupliziert werden. Bitte versuche es erneut."
+    );
+  }
 }
 
 export async function saveQuestion(input: unknown): Promise<ActionResult> {
