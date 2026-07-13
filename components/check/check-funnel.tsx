@@ -113,6 +113,8 @@ function QuestionStep({
                 description={option.description}
                 iconUrl={option.iconUrl}
                 iconAlt={option.iconAlt}
+                iconAlign={question.icon_align}
+                textAlign={question.text_align}
                 selected={selectedValues.includes(option.value)}
                 multi={question.type === "multi"}
                 shortcutNumber={index + 1}

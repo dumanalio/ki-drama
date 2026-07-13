@@ -79,7 +79,9 @@ create table quiz_questions (
   segment    question_segment not null default 'alle',
   title      text not null,
   hint       text,
-  options    jsonb not null default '[]'::jsonb,  -- [{value,label,description,icon}]
+  options    jsonb not null default '[]'::jsonb,  -- [{value,label,description,iconUrl,iconAlt}]
+  icon_align text not null default 'left',        -- left | center | right
+  text_align text not null default 'left',        -- left | center | right
   required   boolean not null default true,
   active     boolean not null default true,
   created_at timestamptz not null default now(),

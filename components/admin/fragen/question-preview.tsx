@@ -7,7 +7,11 @@ import { AnswerCard } from "@/components/check/answer-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { QuestionSegment, QuestionType } from "@/types/database";
+import type {
+  QuestionAlign,
+  QuestionSegment,
+  QuestionType,
+} from "@/types/database";
 
 export interface PreviewOption {
   label: string;
@@ -27,6 +31,8 @@ export function QuestionPreview({
   title,
   hint,
   options,
+  iconAlign,
+  textAlign,
   required,
 }: {
   type: QuestionType;
@@ -34,6 +40,8 @@ export function QuestionPreview({
   title: string;
   hint: string | null;
   options: PreviewOption[];
+  iconAlign: QuestionAlign;
+  textAlign: QuestionAlign;
   required: boolean;
 }) {
   const [selected, setSelected] = React.useState<string[]>([]);
@@ -93,6 +101,8 @@ export function QuestionPreview({
                   description={option.description ?? undefined}
                   iconUrl={option.iconUrl ?? undefined}
                   iconAlt={option.iconAlt ?? undefined}
+                  iconAlign={iconAlign}
+                  textAlign={textAlign}
                   selected={selected.includes(String(index))}
                   multi={type === "multi"}
                   shortcutNumber={index + 1}

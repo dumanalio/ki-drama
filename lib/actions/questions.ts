@@ -80,6 +80,8 @@ export async function saveQuestion(input: unknown): Promise<ActionResult> {
         title: data.title,
         hint: data.hint,
         options,
+        icon_align: data.iconAlign,
+        text_align: data.textAlign,
         required: data.required,
         active: data.active,
       })

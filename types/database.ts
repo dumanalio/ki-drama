@@ -22,6 +22,7 @@ export type LeadStatus =
   | "kein_interesse";
 export type QuestionType = "single" | "multi" | "scale" | "text";
 export type QuestionSegment = "alle" | "privat" | "business";
+export type QuestionAlign = "left" | "center" | "right";
 export type BookingStatus =
   "gebucht" | "abgesagt" | "wahrgenommen" | "nicht_erschienen";
 export type ContentStatus = "entwurf" | "veroeffentlicht";
@@ -136,6 +137,8 @@ export interface Database {
           title: string;
           hint: string | null;
           options: QuizOption[];
+          icon_align: QuestionAlign;
+          text_align: QuestionAlign;
           required: boolean;
           active: boolean;
           created_at: string;
@@ -149,6 +152,8 @@ export interface Database {
           title: string;
           hint?: string | null;
           options?: QuizOption[];
+          icon_align?: QuestionAlign;
+          text_align?: QuestionAlign;
           required?: boolean;
           active?: boolean;
           created_at?: string;
@@ -162,6 +167,8 @@ export interface Database {
           title?: string;
           hint?: string | null;
           options?: QuizOption[];
+          icon_align?: QuestionAlign;
+          text_align?: QuestionAlign;
           required?: boolean;
           active?: boolean;
           created_at?: string;

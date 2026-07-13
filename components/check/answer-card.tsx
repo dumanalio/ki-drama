@@ -4,11 +4,15 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+export type AnswerAlign = "left" | "center" | "right";
+
 export interface AnswerCardProps {
   label: string;
   description?: string;
   iconUrl?: string;
   iconAlt?: string;
+  iconAlign?: AnswerAlign;
+  textAlign?: AnswerAlign;
   selected: boolean;
   multi?: boolean;
   shortcutNumber?: number;
@@ -20,6 +24,8 @@ export function AnswerCard({
   description,
   iconUrl,
   iconAlt,
+  iconAlign = "left",
+  textAlign = "left",
   selected,
   multi,
   shortcutNumber,
@@ -63,16 +69,28 @@ export function AnswerCard({
           alt={iconAlt ?? ""}
           width={64}
           height={64}
-          className="size-16 rounded-md object-cover"
+          className={cn(
+            "size-16 rounded-md object-cover",
+            iconAlign === "center" && "self-center",
+            iconAlign === "right" && "self-end"
+          )}
         />
       ) : null}
 
-      <span className="text-ink pr-8 text-[18px] font-semibold">{label}</span>
-      {description ? (
-        <span className="text-ink-soft text-[15px] leading-relaxed">
-          {description}
-        </span>
-      ) : null}
+      <span
+        className={cn(
+          "flex flex-col gap-1 pr-8",
+          textAlign === "center" && "items-center text-center",
+          textAlign === "right" && "items-end text-right"
+        )}
+      >
+        <span className="text-ink text-[18px] font-semibold">{label}</span>
+        {description ? (
+          <span className="text-ink-soft text-[15px] leading-relaxed">
+            {description}
+          </span>
+        ) : null}
+      </span>
     </button>
   );
 }

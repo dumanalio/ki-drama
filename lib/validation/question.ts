@@ -14,6 +14,8 @@ export const questionSaveSchema = z.object({
   title: z.string().trim().min(1, "Bitte einen Titel angeben.").max(200),
   hint: z.string().trim().max(300).nullable(),
   options: z.array(optionSchema).max(20),
+  iconAlign: z.enum(["left", "center", "right"]),
+  textAlign: z.enum(["left", "center", "right"]),
   required: z.boolean(),
   active: z.boolean(),
 });

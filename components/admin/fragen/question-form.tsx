@@ -4,7 +4,16 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ImagePlus, Plus, Trash2, X } from "lucide-react";
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  ArrowLeft,
+  ImagePlus,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { QuestionPreview } from "@/components/admin/fragen/question-preview";
@@ -29,6 +38,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { deleteQuestion, saveQuestion } from "@/lib/actions/questions";
 import type {
+  QuestionAlign,
   QuestionSegment,
   QuestionType,
   QuizQuestion,
@@ -46,6 +56,16 @@ const SEGMENT_LABELS: Record<QuestionSegment, string> = {
   privat: "Privat",
   business: "Unternehmen",
 };
+
+const ALIGN_OPTIONS: {
+  value: QuestionAlign;
+  icon: typeof AlignLeft;
+  label: string;
+}[] = [
+  { value: "left", icon: AlignLeft, label: "Links" },
+  { value: "center", icon: AlignCenter, label: "Mittig" },
+  { value: "right", icon: AlignRight, label: "Rechts" },
+];
 
 interface OptionRow {
   label: string;
@@ -70,6 +90,12 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
       iconUrl: option.iconUrl ?? null,
       iconAlt: option.iconAlt ?? null,
     }))
+  );
+  const [iconAlign, setIconAlign] = React.useState<QuestionAlign>(
+    question.icon_align
+  );
+  const [textAlign, setTextAlign] = React.useState<QuestionAlign>(
+    question.text_align
   );
   const [required, setRequired] = React.useState(question.required);
   const [active, setActive] = React.useState(question.active);
@@ -112,6 +138,8 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
               iconAlt: option.iconAlt,
             }))
           : [],
+        iconAlign,
+        textAlign,
         required,
         active,
       });
@@ -236,10 +264,59 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
             </label>
 
             {showOptions ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <span className="text-ink-muted text-[12px] font-medium">
                   Optionen
                 </span>
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-ink-muted text-[12px]">
+                    Icon-Ausrichtung
+                  </span>
+                  <div className="border-line flex w-fit items-center gap-1 rounded-lg border p-1">
+                    {ALIGN_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-label={`Icon-Ausrichtung: ${option.label}`}
+                        aria-pressed={iconAlign === option.value}
+                        onClick={() => setIconAlign(option.value)}
+                        className={`flex size-7 items-center justify-center rounded ${
+                          iconAlign === option.value
+                            ? "bg-accent-soft text-accent"
+                            : "text-ink-soft hover:bg-surface-alt"
+                        }`}
+                      >
+                        <option.icon className="size-4" aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-ink-muted text-[12px]">
+                    Text-Ausrichtung
+                  </span>
+                  <div className="border-line flex w-fit items-center gap-1 rounded-lg border p-1">
+                    {ALIGN_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-label={`Text-Ausrichtung: ${option.label}`}
+                        aria-pressed={textAlign === option.value}
+                        onClick={() => setTextAlign(option.value)}
+                        className={`flex size-7 items-center justify-center rounded ${
+                          textAlign === option.value
+                            ? "bg-accent-soft text-accent"
+                            : "text-ink-soft hover:bg-surface-alt"
+                        }`}
+                      >
+                        <option.icon className="size-4" aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {options.map((option, index) => (
                   <div
                     key={index}
@@ -358,6 +435,8 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
               iconUrl: option.iconUrl,
               iconAlt: option.iconAlt,
             }))}
+            iconAlign={iconAlign}
+            textAlign={textAlign}
             required={required}
           />
         </div>
