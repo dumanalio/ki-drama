@@ -10,6 +10,8 @@ import type { QuestionType } from "@/types/database";
 export interface PreviewOption {
   label: string;
   description: string | null;
+  iconUrl: string | null;
+  iconAlt: string | null;
 }
 
 export function QuestionPreview({
@@ -73,6 +75,8 @@ export function QuestionPreview({
                   key={index}
                   label={option.label || `Option ${index + 1}`}
                   description={option.description ?? undefined}
+                  iconUrl={option.iconUrl ?? undefined}
+                  iconAlt={option.iconAlt ?? undefined}
                   selected={selected.includes(String(index))}
                   multi={type === "multi"}
                   shortcutNumber={index + 1}

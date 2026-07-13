@@ -1,4 +1,5 @@
 import * as React from "react";
+import Image from "next/image";
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -6,6 +7,8 @@ import { cn } from "@/lib/utils";
 export interface AnswerCardProps {
   label: string;
   description?: string;
+  iconUrl?: string;
+  iconAlt?: string;
   selected: boolean;
   multi?: boolean;
   shortcutNumber?: number;
@@ -15,6 +18,8 @@ export interface AnswerCardProps {
 export function AnswerCard({
   label,
   description,
+  iconUrl,
+  iconAlt,
   selected,
   multi,
   shortcutNumber,
@@ -50,6 +55,16 @@ export function AnswerCard({
         <span className="text-ink-muted text-[13px] font-medium">
           {shortcutNumber}
         </span>
+      ) : null}
+
+      {iconUrl ? (
+        <Image
+          src={iconUrl}
+          alt={iconAlt ?? ""}
+          width={64}
+          height={64}
+          className="size-16 rounded-md object-cover"
+        />
       ) : null}
 
       <span className="text-ink pr-8 text-[18px] font-semibold">{label}</span>

@@ -3,6 +3,8 @@ import { z } from "zod";
 const optionSchema = z.object({
   label: z.string().trim().min(1, "Bitte eine Beschriftung angeben."),
   description: z.string().trim().max(200).nullable(),
+  iconUrl: z.string().url().nullable(),
+  iconAlt: z.string().trim().max(200).nullable(),
 });
 
 export const questionSaveSchema = z.object({

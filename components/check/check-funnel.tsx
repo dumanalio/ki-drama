@@ -111,6 +111,8 @@ function QuestionStep({
                 key={option.value}
                 label={option.label}
                 description={option.description}
+                iconUrl={option.iconUrl}
+                iconAlt={option.iconAlt}
                 selected={selectedValues.includes(option.value)}
                 multi={question.type === "multi"}
                 shortcutNumber={index + 1}

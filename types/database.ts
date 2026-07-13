@@ -30,7 +30,8 @@ export interface QuizOption {
   value: string;
   label: string;
   description?: string;
-  icon?: string;
+  iconUrl?: string;
+  iconAlt?: string;
 }
 
 export interface Database {

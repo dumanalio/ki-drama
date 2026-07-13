@@ -68,6 +68,8 @@ export async function saveQuestion(input: unknown): Promise<ActionResult> {
       value: slugify(option.label) || Math.random().toString(36).slice(2, 8),
       label: option.label,
       description: option.description ?? undefined,
+      iconUrl: option.iconUrl ?? undefined,
+      iconAlt: option.iconAlt ?? undefined,
     }));
 
     const { error } = await adminClient

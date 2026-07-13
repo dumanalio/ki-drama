@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ImagePlus, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { QuestionPreview } from "@/components/admin/fragen/question-preview";
+import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,6 +50,8 @@ const SEGMENT_LABELS: Record<QuestionSegment, string> = {
 interface OptionRow {
   label: string;
   description: string;
+  iconUrl: string | null;
+  iconAlt: string | null;
 }
 
 export function QuestionForm({ question }: { question: QuizQuestion }) {
@@ -63,6 +67,8 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
     question.options.map((option) => ({
       label: option.label,
       description: option.description ?? "",
+      iconUrl: option.iconUrl ?? null,
+      iconAlt: option.iconAlt ?? null,
     }))
   );
   const [required, setRequired] = React.useState(question.required);
@@ -70,6 +76,9 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, startSaving] = React.useTransition();
   const [isDeleting, startDeleting] = React.useTransition();
+  const [iconPickerIndex, setIconPickerIndex] = React.useState<number | null>(
+    null
+  );
 
   const showOptions = type === "single" || type === "multi" || type === "scale";
 
@@ -99,6 +108,8 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
                 option.description.trim().length > 0
                   ? option.description.trim()
                   : null,
+              iconUrl: option.iconUrl,
+              iconAlt: option.iconAlt,
             }))
           : [],
         required,
@@ -234,6 +245,41 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
                     key={index}
                     className="border-line flex gap-2 rounded-lg border p-3"
                   >
+                    <div className="flex shrink-0 flex-col items-center gap-1">
+                      {option.iconUrl ? (
+                        <div className="group relative size-11 overflow-hidden rounded-md">
+                          <Image
+                            src={option.iconUrl}
+                            alt={option.iconAlt ?? ""}
+                            fill
+                            sizes="44px"
+                            className="object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateOption(index, {
+                                iconUrl: null,
+                                iconAlt: null,
+                              })
+                            }
+                            aria-label="Bild entfernen"
+                            className="bg-ink/60 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-[120ms] group-hover:opacity-100"
+                          >
+                            <X className="size-4 text-white" aria-hidden="true" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIconPickerIndex(index)}
+                          aria-label="Bild wählen"
+                          className="border-line text-ink-muted hover:border-line-strong hover:text-ink flex size-11 items-center justify-center rounded-md border border-dashed"
+                        >
+                          <ImagePlus className="size-4" aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
                     <div className="flex flex-1 flex-col gap-2">
                       <Input
                         value={option.label}
@@ -269,7 +315,7 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
                   onClick={() =>
                     setOptions((prev) => [
                       ...prev,
-                      { label: "", description: "" },
+                      { label: "", description: "", iconUrl: null, iconAlt: null },
                     ])
                   }
                 >
@@ -308,11 +354,29 @@ export function QuestionForm({ question }: { question: QuizQuestion }) {
                 option.description.trim().length > 0
                   ? option.description
                   : null,
+              iconUrl: option.iconUrl,
+              iconAlt: option.iconAlt,
             }))}
             required={required}
           />
         </div>
       </div>
+
+      <MediaPickerModal
+        open={iconPickerIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setIconPickerIndex(null);
+        }}
+        onSelect={(media) => {
+          if (iconPickerIndex !== null) {
+            updateOption(iconPickerIndex, {
+              iconUrl: media.url,
+              iconAlt: media.alt,
+            });
+          }
+          setIconPickerIndex(null);
+        }}
+      />
 
       <Modal>
         <ModalTrigger
