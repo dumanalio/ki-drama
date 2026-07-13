@@ -69,7 +69,7 @@ export function Header({
           <SiteLogo logoUrl={logoUrl} logoAlt={logoAlt} />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {NAV_ITEMS.map((item) => {
             const active =
               pathname === item.href || pathname?.startsWith(`${item.href}/`);
@@ -78,10 +78,10 @@ export function Header({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-[15px] transition-colors duration-[120ms]",
+                  "rounded-lg px-3 py-2 text-[15px] transition-colors duration-[120ms]",
                   active
                     ? "text-ink font-semibold"
-                    : "text-ink-soft hover:text-ink"
+                    : "text-ink-soft hover:bg-surface-alt hover:text-ink"
                 )}
               >
                 {item.label}
