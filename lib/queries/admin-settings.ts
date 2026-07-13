@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   EMPTY_LANDING_CONTENT,
+  normalizeSection,
   type LandingPageContent,
 } from "@/lib/landing-content";
 
@@ -82,7 +83,7 @@ export async function getLandingPageContent(): Promise<LandingPageContent> {
   return {
     hero: { ...EMPTY_LANDING_CONTENT.hero, ...stored.hero },
     sections: Array.isArray(stored.sections)
-      ? stored.sections
+      ? stored.sections.map(normalizeSection)
       : EMPTY_LANDING_CONTENT.sections,
     closingCta: { ...EMPTY_LANDING_CONTENT.closingCta, ...stored.closingCta },
   };

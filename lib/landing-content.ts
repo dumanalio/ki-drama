@@ -29,10 +29,26 @@ export interface LandingSectionButton {
   customColor: string | null;
 }
 
+export type LandingSectionColumnCount = 1 | 2 | 3;
+
+export interface LandingSectionColumn {
+  /** Stabile Client-ID für React-Keys, kein DB-Primärschlüssel. */
+  id: string;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  title: string | null;
+  text: string | null;
+  button: LandingSectionButton | null;
+}
+
 export interface LandingSection {
   /** Stabile Client-ID für Drag&Drop/React-Keys, kein DB-Primärschlüssel. */
   id: string;
+  /** Nur relevant, wenn columnCount === 1. */
   layout: LandingSectionLayout;
+  columnCount: LandingSectionColumnCount;
+  /** Nur relevant, wenn columnCount > 1 -- ein Eintrag pro Spalte. */
+  columns: LandingSectionColumn[];
   eyebrow: string | null;
   title: string | null;
   text: string | null;
@@ -72,6 +88,8 @@ export function createEmptySection(): LandingSection {
   return {
     id: crypto.randomUUID(),
     layout: "image-left",
+    columnCount: 1,
+    columns: [],
     eyebrow: null,
     title: null,
     text: null,
@@ -79,6 +97,37 @@ export function createEmptySection(): LandingSection {
     imageUrl: null,
     imageAlt: null,
     button: null,
+  };
+}
+
+export function createEmptyColumn(): LandingSectionColumn {
+  return {
+    id: crypto.randomUUID(),
+    imageUrl: null,
+    imageAlt: null,
+    title: null,
+    text: null,
+    button: null,
+  };
+}
+
+/**
+ * Ergänzt fehlende Felder (z. B. columnCount/columns aus einer späteren
+ * Erweiterung) mit Defaults, damit ältere gespeicherte Abschnitte nicht zu
+ * Laufzeitfehlern führen.
+ */
+export function normalizeSection(
+  section: Partial<LandingSection>
+): LandingSection {
+  const empty = createEmptySection();
+  return {
+    ...empty,
+    ...section,
+    columnCount: section.columnCount ?? empty.columnCount,
+    columns: Array.isArray(section.columns) ? section.columns : empty.columns,
+    checklistItems: Array.isArray(section.checklistItems)
+      ? section.checklistItems
+      : empty.checklistItems,
   };
 }
 

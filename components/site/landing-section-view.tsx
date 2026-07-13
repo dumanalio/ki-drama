@@ -35,13 +35,19 @@ function SectionButton({
   );
 }
 
-function SectionMedia({ section }: { section: LandingSection }) {
+function SectionMedia({
+  imageUrl,
+  imageAlt,
+}: {
+  imageUrl: string | null;
+  imageAlt: string | null;
+}) {
   return (
     <div className="relative size-full">
-      {section.imageUrl ? (
+      {imageUrl ? (
         <Image
-          src={section.imageUrl}
-          alt={section.imageAlt ?? ""}
+          src={imageUrl}
+          alt={imageAlt ?? ""}
           fill
           sizes="(min-width: 768px) 50vw, 100vw"
           className="object-cover"
@@ -55,11 +61,73 @@ function SectionMedia({ section }: { section: LandingSection }) {
   );
 }
 
+function SectionColumnView({
+  column,
+}: {
+  column: LandingSection["columns"][number];
+}) {
+  return (
+    <div className="flex flex-col items-start gap-4">
+      <div className="bg-accent-soft aspect-4/3 w-full overflow-hidden rounded-[20px]">
+        <SectionMedia imageUrl={column.imageUrl} imageAlt={column.imageAlt} />
+      </div>
+      {column.title ? (
+        <h3 className="text-ink text-[20px] font-semibold tracking-[-0.01em]">
+          {column.title}
+        </h3>
+      ) : null}
+      {column.text ? (
+        <p className="text-ink-soft text-[15px] leading-relaxed">
+          {column.text}
+        </p>
+      ) : null}
+      <SectionButton button={column.button} />
+    </div>
+  );
+}
+
 export function LandingSectionView({ section }: { section: LandingSection }) {
   const checklistItems = section.checklistItems.filter(
     (item): item is string => Boolean(item && item.trim().length > 0)
   );
   const button = <SectionButton button={section.button} />;
+
+  if (section.columnCount > 1) {
+    const hasHeading = Boolean(section.eyebrow || section.title || section.text);
+    return (
+      <div className="flex flex-col gap-10">
+        {hasHeading ? (
+          <div className="mx-auto flex max-w-[720px] flex-col items-center gap-3 text-center">
+            {section.eyebrow ? (
+              <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">
+                {section.eyebrow}
+              </span>
+            ) : null}
+            {section.title ? (
+              <h2 className="text-ink text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
+                {section.title}
+              </h2>
+            ) : null}
+            {section.text ? (
+              <p className="text-ink-soft text-[17px] leading-relaxed">
+                {section.text}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        <div
+          className={cn(
+            "grid gap-8",
+            section.columnCount === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"
+          )}
+        >
+          {section.columns.map((column) => (
+            <SectionColumnView key={column.id} column={column} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (section.layout === "no-image") {
     return (
@@ -91,7 +159,7 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
     return (
       <div className="flex flex-col gap-6">
         <div className="bg-accent-soft aspect-16/9 w-full overflow-hidden rounded-[20px]">
-          <SectionMedia section={section} />
+          <SectionMedia imageUrl={section.imageUrl} imageAlt={section.imageAlt} />
         </div>
         <div className="flex flex-col items-start gap-4">
           {section.eyebrow ? (
@@ -148,7 +216,7 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
       </div>
       <div className="order-1 flex-1 md:order-none">
         <div className="bg-accent-soft aspect-4/3 w-full overflow-hidden rounded-[20px]">
-          <SectionMedia section={section} />
+          <SectionMedia imageUrl={section.imageUrl} imageAlt={section.imageAlt} />
         </div>
       </div>
     </div>

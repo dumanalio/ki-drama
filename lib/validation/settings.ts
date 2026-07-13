@@ -73,9 +73,20 @@ const sectionButtonSchema = z
     }
   );
 
+const landingSectionColumnSchema = z.object({
+  id: z.string().min(1),
+  imageUrl: nullableUrl,
+  imageAlt: nullableString(200),
+  title: nullableString(200),
+  text: nullableString(400),
+  button: sectionButtonSchema,
+});
+
 const landingSectionSchema = z.object({
   id: z.string().min(1),
   layout: z.enum(["image-left", "image-right", "image-top", "no-image"]),
+  columnCount: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+  columns: z.array(landingSectionColumnSchema).max(3),
   eyebrow: nullableString(60),
   title: nullableString(200),
   text: nullableString(600),

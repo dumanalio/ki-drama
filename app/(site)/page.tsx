@@ -28,6 +28,8 @@ const DEFAULT_SECTIONS: LandingSection[] = [
   {
     id: "default-grundlagen",
     layout: "image-left",
+    columnCount: 1,
+    columns: [],
     eyebrow: "Grundlagen",
     title: "Die Basics, ohne Fachchinesisch",
     text: "Was ist ein Sprachmodell? Was bedeutet Token, Prompt oder Halluzination? Kurze Kapitel erklären die Begriffe, die du wirklich brauchst – der Reihe nach, im eigenen Tempo.",
@@ -47,6 +49,8 @@ const DEFAULT_SECTIONS: LandingSection[] = [
   {
     id: "default-landschaft",
     layout: "image-right",
+    columnCount: 1,
+    columns: [],
     eyebrow: "Landschaft",
     title: "Ein neutraler Blick auf die aktuellen Tools",
     text: "Welche Werkzeuge gibt es, wofür taugen sie, und worauf solltest du achten? Ohne Empfehlungen, ohne Bewertungen – nur eine klare Übersicht.",
