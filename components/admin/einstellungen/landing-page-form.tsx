@@ -1,86 +1,23 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
-import { ImagePlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
-import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
+import { ImagePickerField } from "@/components/admin/einstellungen/image-picker-field";
+import { SectionEditor } from "@/components/admin/einstellungen/section-editor";
+import { SortableList } from "@/components/admin/sortable-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { saveLandingPageContent } from "@/lib/actions/settings";
-import type { LandingPageContent } from "@/lib/landing-content";
+import { createEmptySection } from "@/lib/landing-content";
+import type { LandingPageContent, LandingSection } from "@/lib/landing-content";
 
-const PROBLEM_CARD_LABELS = [
-  "Karte 1 — Überflutung",
-  "Karte 2 — Unsicherheit",
-  "Karte 3 — Uninformierte Teams",
-];
-const SPLIT_SECTION_LABELS = [
-  "Sektion 1 — Grundlagen",
-  "Sektion 2 — Landschaft",
-];
+const AUTOSAVE_DELAY_MS = 1200;
 
-function ImagePickerField({
-  label,
-  imageUrl,
-  imageAlt,
-  onSelect,
-  onAltChange,
-}: {
-  label: string;
-  imageUrl: string | null;
-  imageAlt: string | null;
-  onSelect: (url: string, alt: string) => void;
-  onAltChange: (alt: string) => void;
-}) {
-  const [pickerOpen, setPickerOpen] = React.useState(false);
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-ink-muted text-[12px] font-medium">{label}</span>
-      {imageUrl ? (
-        <div className="bg-surface-alt relative aspect-4/3 w-full max-w-[220px] overflow-hidden rounded-lg">
-          <Image
-            src={imageUrl}
-            alt={imageAlt ?? ""}
-            fill
-            sizes="220px"
-            className="object-cover"
-          />
-        </div>
-      ) : null}
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-fit"
-        onClick={() => setPickerOpen(true)}
-      >
-        <ImagePlus className="size-4" aria-hidden="true" />
-        {imageUrl ? "Bild ändern" : "Bild wählen"}
-      </Button>
-      {imageUrl ? (
-        <Input
-          value={imageAlt ?? ""}
-          onChange={(event) => onAltChange(event.target.value)}
-          placeholder="Alt-Text für das Bild"
-          className="max-w-[320px]"
-        />
-      ) : null}
-
-      <MediaPickerModal
-        open={pickerOpen}
-        onOpenChange={setPickerOpen}
-        onSelect={(media) => {
-          onSelect(media.url, media.alt);
-          setPickerOpen(false);
-        }}
-      />
-    </div>
-  );
-}
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 export function LandingPageForm({
   content: initial,
@@ -89,74 +26,70 @@ export function LandingPageForm({
 }) {
   const [content, setContent] = React.useState(initial);
   const [error, setError] = React.useState<string | null>(null);
-  const [isSaving, startSaving] = React.useTransition();
+  const [saveStatus, setSaveStatus] = React.useState<SaveStatus>("idle");
+  const [dirty, setDirty] = React.useState(false);
+  const contentRef = React.useRef(content);
+  contentRef.current = content;
+
+  const save = React.useCallback(async (announce = false) => {
+    setSaveStatus("saving");
+    setError(null);
+    const result = await saveLandingPageContent(
+      JSON.stringify(contentRef.current)
+    );
+    if (!result.ok) {
+      setSaveStatus("error");
+      setError(result.error);
+      toast.error(result.error);
+      return;
+    }
+    setSaveStatus("saved");
+    setDirty(false);
+    if (announce) toast.success("Startseite gespeichert");
+  }, []);
+
+  // Debounced Autosave: speichert kurz nach der letzten Änderung.
+  React.useEffect(() => {
+    if (!dirty) return;
+    const timeout = setTimeout(() => {
+      void save();
+    }, AUTOSAVE_DELAY_MS);
+    return () => clearTimeout(timeout);
+  }, [dirty, content, save]);
+
+  function update(patch: Partial<LandingPageContent>) {
+    setContent((prev) => ({ ...prev, ...patch }));
+    setDirty(true);
+  }
 
   function updateHero(patch: Partial<LandingPageContent["hero"]>) {
-    setContent((prev) => ({ ...prev, hero: { ...prev.hero, ...patch } }));
-  }
-
-  function updateProblemCard(
-    index: number,
-    patch: Partial<LandingPageContent["problemCards"][number]>
-  ) {
-    setContent((prev) => ({
-      ...prev,
-      problemCards: prev.problemCards.map((card, i) =>
-        i === index ? { ...card, ...patch } : card
-      ),
-    }));
-  }
-
-  function updateSplitSection(
-    index: number,
-    patch: Partial<LandingPageContent["splitSections"][number]>
-  ) {
-    setContent((prev) => ({
-      ...prev,
-      splitSections: prev.splitSections.map((section, i) =>
-        i === index ? { ...section, ...patch } : section
-      ),
-    }));
-  }
-
-  function updateChecklistItem(
-    sectionIndex: number,
-    itemIndex: number,
-    value: string
-  ) {
-    setContent((prev) => ({
-      ...prev,
-      splitSections: prev.splitSections.map((section, i) =>
-        i === sectionIndex
-          ? {
-              ...section,
-              checklistItems: section.checklistItems.map((item, j) =>
-                j === itemIndex ? value : item
-              ),
-            }
-          : section
-      ),
-    }));
+    update({ hero: { ...content.hero, ...patch } });
   }
 
   function updateClosingCta(patch: Partial<LandingPageContent["closingCta"]>) {
-    setContent((prev) => ({
-      ...prev,
-      closingCta: { ...prev.closingCta, ...patch },
-    }));
+    update({ closingCta: { ...content.closingCta, ...patch } });
   }
 
-  function handleSave() {
-    setError(null);
-    startSaving(async () => {
-      const result = await saveLandingPageContent(JSON.stringify(content));
-      if (!result.ok) {
-        setError(result.error);
-        toast.error(result.error);
-        return;
-      }
-      toast.success("Startseite gespeichert");
+  function updateSection(id: string, patch: Partial<LandingSection>) {
+    update({
+      sections: content.sections.map((section) =>
+        section.id === id ? { ...section, ...patch } : section
+      ),
     });
+  }
+
+  function addSection() {
+    update({ sections: [...content.sections, createEmptySection()] });
+    toast.success("Abschnitt hinzugefügt");
+  }
+
+  function deleteSection(id: string) {
+    update({ sections: content.sections.filter((s) => s.id !== id) });
+    toast.success("Abschnitt gelöscht");
+  }
+
+  function reorderSections(next: LandingSection[]) {
+    update({ sections: next });
   }
 
   return (
@@ -224,116 +157,48 @@ export function LandingPageForm({
             label="Bild"
             imageUrl={content.hero.imageUrl}
             imageAlt={content.hero.imageAlt}
-            onSelect={(url, alt) =>
-              updateHero({ imageUrl: url, imageAlt: alt })
-            }
+            onSelect={(url, alt) => updateHero({ imageUrl: url, imageAlt: alt })}
             onAltChange={(alt) => updateHero({ imageAlt: alt })}
+            onRemove={() => updateHero({ imageUrl: null, imageAlt: null })}
           />
         </div>
       </Card>
 
-      <Card>
-        <CardHeader title="Problem-Karten" />
-        <div className="flex flex-col gap-5">
-          {content.problemCards.map((card, index) => (
-            <div
-              key={index}
-              className="border-line border-t pt-5 first:border-t-0 first:pt-0"
-            >
-              <p className="text-ink-muted mb-2 text-[13px] font-semibold">
-                {PROBLEM_CARD_LABELS[index]}
-              </p>
-              <div className="flex flex-col gap-3">
-                <Input
-                  value={card.title ?? ""}
-                  onChange={(event) =>
-                    updateProblemCard(index, { title: event.target.value })
-                  }
-                  placeholder="Titel"
-                />
-                <Textarea
-                  value={card.text ?? ""}
-                  onChange={(event) =>
-                    updateProblemCard(index, { text: event.target.value })
-                  }
-                  placeholder="Text"
-                  className="min-h-[70px]"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {content.splitSections.map((section, index) => (
-        <Card key={index}>
-          <CardHeader title={SPLIT_SECTION_LABELS[index]} />
-          <div className="flex flex-col gap-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="flex flex-col gap-1">
-                <span className="text-ink-muted text-[12px] font-medium">
-                  Eyebrow
-                </span>
-                <Input
-                  value={section.eyebrow ?? ""}
-                  onChange={(event) =>
-                    updateSplitSection(index, { eyebrow: event.target.value })
-                  }
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-ink-muted text-[12px] font-medium">
-                  Überschrift
-                </span>
-                <Input
-                  value={section.title ?? ""}
-                  onChange={(event) =>
-                    updateSplitSection(index, { title: event.target.value })
-                  }
-                />
-              </label>
-            </div>
-            <label className="flex flex-col gap-1">
-              <span className="text-ink-muted text-[12px] font-medium">
-                Text
-              </span>
-              <Textarea
-                value={section.text ?? ""}
-                onChange={(event) =>
-                  updateSplitSection(index, { text: event.target.value })
-                }
-                className="min-h-[80px]"
-              />
-            </label>
-            <div className="flex flex-col gap-2">
-              <span className="text-ink-muted text-[12px] font-medium">
-                Häkchenliste
-              </span>
-              {section.checklistItems.map((item, itemIndex) => (
-                <Input
-                  key={itemIndex}
-                  value={item ?? ""}
-                  onChange={(event) =>
-                    updateChecklistItem(index, itemIndex, event.target.value)
-                  }
-                  placeholder={`Punkt ${itemIndex + 1}`}
-                />
-              ))}
-            </div>
-            <ImagePickerField
-              label="Bild"
-              imageUrl={section.imageUrl}
-              imageAlt={section.imageAlt}
-              onSelect={(url, alt) =>
-                updateSplitSection(index, { imageUrl: url, imageAlt: alt })
-              }
-              onAltChange={(alt) =>
-                updateSplitSection(index, { imageAlt: alt })
-              }
-            />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-ink text-[20px] font-semibold tracking-[-0.01em]">
+              Abschnitte
+            </h3>
+            <p className="text-ink-muted text-[13px]">
+              Beliebig viele, sortierbar per Drag & Drop.
+            </p>
           </div>
-        </Card>
-      ))}
+          <Button variant="outline" size="sm" onClick={addSection}>
+            <Plus className="size-4" aria-hidden="true" />
+            Abschnitt hinzufügen
+          </Button>
+        </div>
+
+        {content.sections.length === 0 ? (
+          <p className="text-ink-muted border-line rounded-xl border border-dashed p-6 text-center text-[14px]">
+            Noch keine eigenen Abschnitte — die Startseite zeigt bis dahin die
+            Standardabschnitte.
+          </p>
+        ) : (
+          <SortableList
+            items={content.sections}
+            onReorder={reorderSections}
+            renderItem={(section) => (
+              <SectionEditor
+                section={section}
+                onChange={(patch) => updateSection(section.id, patch)}
+                onDelete={() => deleteSection(section.id)}
+              />
+            )}
+          />
+        )}
+      </div>
 
       <Card>
         <CardHeader title="Abschluss-CTA" />
@@ -381,14 +246,24 @@ export function LandingPageForm({
         </p>
       ) : null}
 
-      <Button
-        variant="primary"
-        onClick={handleSave}
-        loading={isSaving}
-        className="self-start"
-      >
-        Speichern
-      </Button>
+      <div className="flex items-center gap-3">
+        <Button
+          variant="primary"
+          onClick={() => void save(true)}
+          loading={saveStatus === "saving"}
+        >
+          Jetzt speichern
+        </Button>
+        <span className="text-ink-muted text-[13px]" aria-live="polite">
+          {saveStatus === "saving"
+            ? "Wird gespeichert…"
+            : saveStatus === "saved"
+              ? "Gespeichert"
+              : saveStatus === "error"
+                ? "Fehler beim Speichern"
+                : ""}
+        </span>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { meetsWcagAA } from "@/lib/contrast";
+
 export const generalSettingsSchema = z.object({
   meetingUrl: z
     .string()
@@ -37,30 +39,55 @@ const heroSchema = z.object({
   imageAlt: nullableString(200),
 });
 
-const problemCardSchema = z.object({
-  title: nullableString(80),
-  text: nullableString(300),
-});
-
-const splitSectionSchema = z.object({
-  eyebrow: nullableString(60),
-  title: nullableString(200),
-  text: nullableString(500),
-  checklistItems: z.array(nullableString(120)).length(2),
-  imageUrl: nullableUrl,
-  imageAlt: nullableString(200),
-});
-
 const closingCtaSchema = z.object({
   title: nullableString(200),
   text: nullableString(400),
   buttonLabel: nullableString(60),
 });
 
+const nullableHexColor = z.preprocess(
+  (value) => (typeof value === "string" ? emptyToNull(value) : value),
+  z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Bitte eine gültige Hex-Farbe angeben.")
+    .nullable()
+);
+
+const sectionButtonSchema = z
+  .object({
+    label: nullableString(60),
+    href: nullableString(300),
+    color: z.enum(["primary", "accent", "soft", "outline", "custom"]),
+    customColor: nullableHexColor,
+  })
+  .nullable()
+  .refine(
+    (button) =>
+      !button ||
+      button.color !== "custom" ||
+      !button.customColor ||
+      meetsWcagAA(button.customColor),
+    {
+      message:
+        "Diese Farbe hat zu wenig Kontrast zu weißem Text (WCAG AA verlangt mind. 4.5:1). Bitte eine dunklere Farbe wählen.",
+    }
+  );
+
+const landingSectionSchema = z.object({
+  id: z.string().min(1),
+  layout: z.enum(["image-left", "image-right", "image-top", "no-image"]),
+  eyebrow: nullableString(60),
+  title: nullableString(200),
+  text: nullableString(600),
+  checklistItems: z.array(nullableString(120)).max(6),
+  imageUrl: nullableUrl,
+  imageAlt: nullableString(200),
+  button: sectionButtonSchema,
+});
+
 const landingPageContentShape = z.object({
   hero: heroSchema,
-  problemCards: z.array(problemCardSchema).length(3),
-  splitSections: z.array(splitSectionSchema).length(2),
+  sections: z.array(landingSectionSchema).max(20),
   closingCta: closingCtaSchema,
 });
 

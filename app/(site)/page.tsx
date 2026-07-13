@@ -1,15 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CloudFog, HelpCircle, Newspaper, Sparkles, Users } from "lucide-react";
+import { Newspaper, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Section } from "@/components/site/section";
-import { SplitSection } from "@/components/site/split-section";
+import { LandingSectionView } from "@/components/site/landing-section-view";
 import { PostCard } from "@/components/site/post-card";
-import { EMPTY_LANDING_CONTENT, pick } from "@/lib/landing-content";
+import {
+  EMPTY_LANDING_CONTENT,
+  pick,
+  type LandingSection,
+} from "@/lib/landing-content";
 import { getPublishedPosts } from "@/lib/queries/content";
 import { getLandingPageContent } from "@/lib/queries/admin-settings";
 import type { Post } from "@/types/database";
@@ -18,6 +21,49 @@ import type { Post } from "@/types/database";
 // rufen bei Änderungen bereits revalidatePath() auf, dieser Wert ist nur
 // das zeitbasierte Sicherheitsnetz.
 export const revalidate = 3600;
+
+// Solange niemand eigene Abschnitte angelegt hat: dieselben zwei
+// Split-Sektionen, die es vorher fest gab.
+const DEFAULT_SECTIONS: LandingSection[] = [
+  {
+    id: "default-grundlagen",
+    layout: "image-left",
+    eyebrow: "Grundlagen",
+    title: "Die Basics, ohne Fachchinesisch",
+    text: "Was ist ein Sprachmodell? Was bedeutet Token, Prompt oder Halluzination? Kurze Kapitel erklären die Begriffe, die du wirklich brauchst – der Reihe nach, im eigenen Tempo.",
+    checklistItems: [
+      "Kurze Kapitel statt langer Texte",
+      "Verständlich auch ohne Vorwissen",
+    ],
+    imageUrl: null,
+    imageAlt: null,
+    button: {
+      label: "Grundlagen ansehen",
+      href: "/grundlagen",
+      color: "soft",
+      customColor: null,
+    },
+  },
+  {
+    id: "default-landschaft",
+    layout: "image-right",
+    eyebrow: "Landschaft",
+    title: "Ein neutraler Blick auf die aktuellen Tools",
+    text: "Welche Werkzeuge gibt es, wofür taugen sie, und worauf solltest du achten? Ohne Empfehlungen, ohne Bewertungen – nur eine klare Übersicht.",
+    checklistItems: [
+      "Neutral beschrieben, keine Empfehlungen",
+      "Nach Kategorie filterbar",
+    ],
+    imageUrl: null,
+    imageAlt: null,
+    button: {
+      label: "Landschaft ansehen",
+      href: "/landschaft",
+      color: "soft",
+      customColor: null,
+    },
+  },
+];
 
 export default async function Home() {
   let posts: Post[] = [];
@@ -36,8 +82,8 @@ export default async function Home() {
   );
 
   const hero = content.hero;
-  const [problemCard1, problemCard2, problemCard3] = content.problemCards;
-  const [splitGrundlagen, splitLandschaft] = content.splitSections;
+  const sections =
+    content.sections.length > 0 ? content.sections : DEFAULT_SECTIONS;
   const cta = content.closingCta;
 
   return (
@@ -102,147 +148,10 @@ export default async function Home() {
         </div>
       </Section>
 
-      <Section>
-        <div className="flex flex-col gap-3 text-center">
-          <h2 className="text-ink text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
-            Das Problem
-          </h2>
-          <p className="text-ink-soft mx-auto max-w-[55ch] text-[17px] leading-relaxed">
-            Drei Dinge hören wir immer wieder, egal ob privat oder im
-            Unternehmen.
-          </p>
-        </div>
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          <Card>
-            <CloudFog
-              className="text-ink-muted mb-3 size-6"
-              aria-hidden="true"
-            />
-            <h3 className="text-ink mb-2 text-[18px] font-semibold">
-              {pick(problemCard1.title, "Überflutung")}
-            </h3>
-            <p className="text-ink-soft text-[15px] leading-relaxed">
-              {pick(
-                problemCard1.text,
-                "Jede Woche neue Tools, neue Namen, neue Versprechen. Kaum macht man sich ein Bild, ist es schon wieder veraltet."
-              )}
-            </p>
-          </Card>
-          <Card>
-            <HelpCircle
-              className="text-ink-muted mb-3 size-6"
-              aria-hidden="true"
-            />
-            <h3 className="text-ink mb-2 text-[18px] font-semibold">
-              {pick(problemCard2.title, "Unsicherheit")}
-            </h3>
-            <p className="text-ink-soft text-[15px] leading-relaxed">
-              {pick(
-                problemCard2.text,
-                "Was darf ich mit meinen Daten überhaupt machen? Wo fange ich an, ohne etwas falsch zu machen?"
-              )}
-            </p>
-          </Card>
-          <Card>
-            <Users className="text-ink-muted mb-3 size-6" aria-hidden="true" />
-            <h3 className="text-ink mb-2 text-[18px] font-semibold">
-              {pick(problemCard3.title, "Uninformierte Teams")}
-            </h3>
-            <p className="text-ink-soft text-[15px] leading-relaxed">
-              {pick(
-                problemCard3.text,
-                "Im Unternehmen nutzt jeder KI anders – oder gar nicht. Ohne gemeinsames Verständnis bleibt das Potenzial ungenutzt."
-              )}
-            </p>
-          </Card>
-        </div>
-      </Section>
-
       <Section className="flex flex-col gap-16 md:gap-24">
-        <SplitSection
-          eyebrow={pick(splitGrundlagen.eyebrow, "Grundlagen")}
-          title={pick(splitGrundlagen.title, "Die Basics, ohne Fachchinesisch")}
-          checkListItems={[
-            pick(
-              splitGrundlagen.checklistItems[0],
-              "Kurze Kapitel statt langer Texte"
-            ),
-            pick(
-              splitGrundlagen.checklistItems[1],
-              "Verständlich auch ohne Vorwissen"
-            ),
-          ]}
-          action={
-            <Button variant="soft" arrow render={<Link href="/grundlagen" />}>
-              Grundlagen ansehen
-            </Button>
-          }
-          media={
-            splitGrundlagen.imageUrl ? (
-              <div className="relative size-full">
-                <Image
-                  src={splitGrundlagen.imageUrl}
-                  alt={splitGrundlagen.imageAlt ?? ""}
-                  fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
-            ) : (
-              <div className="text-ink-muted flex h-full items-center justify-center text-[14px]">
-                Grundlagen
-              </div>
-            )
-          }
-        >
-          {pick(
-            splitGrundlagen.text,
-            "Was ist ein Sprachmodell? Was bedeutet Token, Prompt oder Halluzination? Kurze Kapitel erklären die Begriffe, die du wirklich brauchst – der Reihe nach, im eigenen Tempo."
-          )}
-        </SplitSection>
-
-        <SplitSection
-          reverse
-          eyebrow={pick(splitLandschaft.eyebrow, "Landschaft")}
-          title={pick(
-            splitLandschaft.title,
-            "Ein neutraler Blick auf die aktuellen Tools"
-          )}
-          checkListItems={[
-            pick(
-              splitLandschaft.checklistItems[0],
-              "Neutral beschrieben, keine Empfehlungen"
-            ),
-            pick(splitLandschaft.checklistItems[1], "Nach Kategorie filterbar"),
-          ]}
-          action={
-            <Button variant="soft" arrow render={<Link href="/landschaft" />}>
-              Landschaft ansehen
-            </Button>
-          }
-          media={
-            splitLandschaft.imageUrl ? (
-              <div className="relative size-full">
-                <Image
-                  src={splitLandschaft.imageUrl}
-                  alt={splitLandschaft.imageAlt ?? ""}
-                  fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
-            ) : (
-              <div className="text-ink-muted flex h-full items-center justify-center text-[14px]">
-                Landschaft
-              </div>
-            )
-          }
-        >
-          {pick(
-            splitLandschaft.text,
-            "Welche Werkzeuge gibt es, wofür taugen sie, und worauf solltest du achten? Ohne Empfehlungen, ohne Bewertungen – nur eine klare Übersicht."
-          )}
-        </SplitSection>
+        {sections.map((section) => (
+          <LandingSectionView key={section.id} section={section} />
+        ))}
       </Section>
 
       <Section>

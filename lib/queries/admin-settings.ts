@@ -81,14 +81,9 @@ export async function getLandingPageContent(): Promise<LandingPageContent> {
   const stored = data.value as unknown as Partial<LandingPageContent>;
   return {
     hero: { ...EMPTY_LANDING_CONTENT.hero, ...stored.hero },
-    problemCards:
-      stored.problemCards?.length === 3
-        ? stored.problemCards
-        : EMPTY_LANDING_CONTENT.problemCards,
-    splitSections:
-      stored.splitSections?.length === 2
-        ? stored.splitSections
-        : EMPTY_LANDING_CONTENT.splitSections,
+    sections: Array.isArray(stored.sections)
+      ? stored.sections
+      : EMPTY_LANDING_CONTENT.sections,
     closingCta: { ...EMPTY_LANDING_CONTENT.closingCta, ...stored.closingCta },
   };
 }
