@@ -16,6 +16,8 @@ export interface GeneralSettings {
   emailSignoff: string;
   headerButtonColor: LandingButtonColor;
   headerButtonCustomColor: string | null;
+  logoUrl: string | null;
+  logoAlt: string | null;
 }
 
 const GENERAL_DEFAULTS: GeneralSettings = {
@@ -28,6 +30,8 @@ const GENERAL_DEFAULTS: GeneralSettings = {
   emailSignoff: "Bis dahin,\nKI-Drama",
   headerButtonColor: "accent",
   headerButtonCustomColor: null,
+  logoUrl: null,
+  logoAlt: null,
 };
 
 /**
@@ -74,6 +78,8 @@ export async function getGeneralSettings(): Promise<GeneralSettings> {
       "header_button_custom_color",
       GENERAL_DEFAULTS.headerButtonCustomColor
     ),
+    logoUrl: asNullableString("logo_url", GENERAL_DEFAULTS.logoUrl),
+    logoAlt: asNullableString("logo_alt", GENERAL_DEFAULTS.logoAlt),
   };
 }
 

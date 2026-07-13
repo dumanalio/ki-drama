@@ -4,6 +4,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
+import { ImagePickerField } from "@/components/admin/einstellungen/image-picker-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,8 @@ export function GeneralSettingsForm({
   const [headerButtonCustomColor, setHeaderButtonCustomColor] = React.useState(
     settings.headerButtonCustomColor
   );
+  const [logoUrl, setLogoUrl] = React.useState(settings.logoUrl);
+  const [logoAlt, setLogoAlt] = React.useState(settings.logoAlt);
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, startSaving] = React.useTransition();
 
@@ -49,6 +52,8 @@ export function GeneralSettingsForm({
         emailSignoff,
         headerButtonColor,
         headerButtonCustomColor,
+        logoUrl,
+        logoAlt,
       });
       if (!result.ok) {
         setError(result.error);
@@ -118,17 +123,36 @@ export function GeneralSettingsForm({
 
       <Card>
         <CardHeader title="Header" />
-        <p className="text-ink-muted mb-3 text-[13px]">
-          Farbe des Check-starten-Buttons oben rechts, auf jeder Seite.
-        </p>
-        <ButtonColorPicker
-          color={headerButtonColor}
-          customColor={headerButtonCustomColor}
-          onChange={(color, customColor) => {
-            setHeaderButtonColor(color);
-            setHeaderButtonCustomColor(customColor);
-          }}
-        />
+        <div className="flex flex-col gap-5">
+          <ImagePickerField
+            label='Logo (ersetzt den Schriftzug "KI-Drama" oben links und im Footer)'
+            imageUrl={logoUrl}
+            imageAlt={logoAlt}
+            onSelect={(url, alt) => {
+              setLogoUrl(url);
+              setLogoAlt(alt);
+            }}
+            onAltChange={setLogoAlt}
+            onRemove={() => {
+              setLogoUrl(null);
+              setLogoAlt(null);
+            }}
+          />
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-ink-muted text-[12px] font-medium">
+              Farbe des Check-starten-Buttons oben rechts, auf jeder Seite
+            </span>
+            <ButtonColorPicker
+              color={headerButtonColor}
+              customColor={headerButtonCustomColor}
+              onChange={(color, customColor) => {
+                setHeaderButtonColor(color);
+                setHeaderButtonCustomColor(customColor);
+              }}
+            />
+          </div>
+        </div>
       </Card>
 
       <Card>

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Dialog } from "@base-ui/react/dialog";
@@ -18,12 +19,44 @@ const NAV_ITEMS = [
   { href: "/ueber-mich", label: "Über mich" },
 ];
 
+function SiteLogo({
+  logoUrl,
+  logoAlt,
+  className,
+}: {
+  logoUrl: string | null;
+  logoAlt: string | null;
+  className?: string;
+}) {
+  if (logoUrl) {
+    return (
+      <Image
+        src={logoUrl}
+        alt={logoAlt ?? "KI-Drama"}
+        width={140}
+        height={32}
+        className={cn("h-8 w-auto object-contain", className)}
+        priority
+      />
+    );
+  }
+  return (
+    <span className={cn("font-display text-ink text-[18px] font-bold tracking-[-0.01em]", className)}>
+      KI-Drama
+    </span>
+  );
+}
+
 export function Header({
   buttonColor = "accent",
   buttonCustomColor = null,
+  logoUrl = null,
+  logoAlt = null,
 }: {
   buttonColor?: LandingButtonColor;
   buttonCustomColor?: string | null;
+  logoUrl?: string | null;
+  logoAlt?: string | null;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
@@ -32,11 +65,8 @@ export function Header({
   return (
     <header className="border-line bg-surface sticky top-0 z-40 border-b">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-        <Link
-          href="/"
-          className="font-display text-ink text-[18px] font-bold tracking-[-0.01em]"
-        >
-          KI-Drama
+        <Link href="/" aria-label="Zur Startseite">
+          <SiteLogo logoUrl={logoUrl} logoAlt={logoAlt} />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -89,9 +119,7 @@ export function Header({
             className="bg-surface fixed inset-0 z-50 flex flex-col p-6 transition-opacity duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0"
           >
             <div className="flex items-center justify-between">
-              <span className="font-display text-ink text-[18px] font-bold">
-                KI-Drama
-              </span>
+              <SiteLogo logoUrl={logoUrl} logoAlt={logoAlt} />
               <Dialog.Close
                 aria-label="Menü schließen"
                 className="text-ink flex size-10 items-center justify-center rounded-lg"

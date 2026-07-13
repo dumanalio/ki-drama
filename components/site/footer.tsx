@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const SITEMAP_LINKS = [
@@ -12,16 +13,32 @@ const ABOUT_LINKS = [
   { href: "/kontakt", label: "Kontakt" },
 ];
 
-export function Footer() {
+export function Footer({
+  logoUrl = null,
+  logoAlt = null,
+}: {
+  logoUrl?: string | null;
+  logoAlt?: string | null;
+}) {
   const year = new Date().getFullYear();
 
   return (
     <footer className="border-line bg-surface border-t">
       <div className="mx-auto grid max-w-[1200px] gap-10 px-6 py-14 sm:grid-cols-3">
         <div className="flex flex-col gap-2">
-          <span className="font-display text-ink text-[18px] font-bold">
-            KI-Drama
-          </span>
+          {logoUrl ? (
+            <Image
+              src={logoUrl}
+              alt={logoAlt ?? "KI-Drama"}
+              width={140}
+              height={32}
+              className="h-8 w-auto object-contain"
+            />
+          ) : (
+            <span className="font-display text-ink text-[18px] font-bold">
+              KI-Drama
+            </span>
+          )}
           <p className="text-ink-soft max-w-[32ch] text-[15px] leading-relaxed">
             Die Aufregung ist groß, die Erklärung fehlt.
           </p>
