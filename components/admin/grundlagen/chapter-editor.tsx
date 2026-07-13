@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ImagePlus, Trash2 } from "lucide-react";
+import { ArrowLeft, ImagePlus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
@@ -187,15 +187,31 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
                     />
                   </div>
                 ) : null}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-fit"
-                  onClick={() => setPickerOpen(true)}
-                >
-                  <ImagePlus className="size-4" aria-hidden="true" />
-                  {coverUrl ? "Bild ändern" : "Bild wählen"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-fit"
+                    onClick={() => setPickerOpen(true)}
+                  >
+                    <ImagePlus className="size-4" aria-hidden="true" />
+                    {coverUrl ? "Bild ändern" : "Bild wählen"}
+                  </Button>
+                  {coverUrl ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-fit"
+                      onClick={() => {
+                        setCoverUrl(null);
+                        setCoverAlt("");
+                      }}
+                    >
+                      <X className="size-4" aria-hidden="true" />
+                      Entfernen
+                    </Button>
+                  ) : null}
+                </div>
                 {coverUrl ? (
                   <Input
                     value={coverAlt}
