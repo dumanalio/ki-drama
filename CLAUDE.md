@@ -162,3 +162,16 @@ Storage — auch nicht "eigene" Testdaten. Testdaten werden beim Anlegen mit
 einem eindeutigen Präfix versehen (z.B. "**TEST**") und nur exakt darüber
 wieder entfernt. Nie über Namensmuster, nie über ILIKE auf Freitextfelder.
 Im Zweifel: Kandidaten auflisten und mich fragen, nicht löschen.
+
+## Lokale Entwicklung
+
+`npm run build` läuft NIEMALS parallel zu einem laufenden `npm run dev`
+(gleiches Repo, gleicher `.next`-Ordner) — das korrumpiert den Cache
+(typische Symptome: `ENOENT: ...vendor-chunks\*.js`, `__webpack_modules__[...]
+is not a function`, 500er auf zufälligen Routen). Vor jedem `npm run build`
+prüfen, ob ein Dev-Server auf diesem Repo läuft, und wenn ja: entweder den
+Build weglassen (Dev-Server reicht meist zur Verifikation) oder den
+Dev-Server sauber beenden, `.next` löschen, danach bauen. Tritt der Fehler
+trotzdem auf: alle node-Prozesse dieses Repos beenden, `.next` komplett
+löschen, sauber neu starten — bevor man anfängt, im Anwendungscode nach
+der Ursache zu suchen.
