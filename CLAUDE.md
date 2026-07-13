@@ -163,6 +163,30 @@ einem eindeutigen Präfix versehen (z.B. "**TEST**") und nur exakt darüber
 wieder entfernt. Nie über Namensmuster, nie über ILIKE auf Freitextfelder.
 Im Zweifel: Kandidaten auflisten und mich fragen, nicht löschen.
 
+## Testumgebung
+
+Drei Vorfälle (gelöschtes Bild, Test-Section in echten Einstellungen,
+verwaiste Test-Prozesse) haben gezeigt: interaktive Browser-Tests gegen
+die echte Datenbank sind zu riskant, egal wie sorgfältig aufgeräumt wird.
+
+**Ab sofort:** Solange keine getrennte Testumgebung eingerichtet ist,
+macht Claude Code keine interaktiven/schreibenden Browser-Tests (Puppeteer
+o. Ä., alles was Server Actions auslöst oder Formulare ausfüllt) gegen
+die Produktiv-Datenbank. Stattdessen: TypeScript-Check, ESLint, sorgfältige
+Code-Lektüre und — wo möglich — rein lesende Screenshots der bereits
+laufenden Seite. Reicht das nicht für echte Gewissheit, wird das offen
+gesagt, statt ungefragt doch gegen die echte DB zu testen.
+
+**Empfohlene Lösung, sobald zugestimmt:** zweites kostenloses
+Supabase-Projekt als Test-Datenbank (nicht Branching — kostet ab dem
+Pro-Plan und ist für dieses Projekt Overkill; nicht lokal via CLI, weil
+Docker auf dieser Maschine beim Testen einen Berechtigungsfehler geworfen
+hat). Aufwand einmalig ca. 15–30 Minuten: neues Projekt anlegen,
+`docs/supabase_schema.sql` einspielen, eigenen Storage-Bucket + Test-Admin
+anlegen, Zugangsdaten in eine git-ignorierte `.env.test` legen, Dev-Server
+für Tests auf einem eigenen Port damit starten. Laufender Aufwand:
+Schema-Änderungen müssen zusätzlich in die Test-DB übertragen werden.
+
 ## Lokale Entwicklung
 
 `npm run build` läuft NIEMALS parallel zu einem laufenden `npm run dev`
