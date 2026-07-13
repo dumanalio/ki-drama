@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -18,6 +19,7 @@ import { deleteTool, reorderTools } from "@/lib/actions/tools";
 import type { Tool } from "@/types/database";
 
 function ToolRow({ tool }: { tool: Tool }) {
+  const router = useRouter();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [isDeleting, startDeleting] = React.useTransition();
@@ -26,12 +28,13 @@ function ToolRow({ tool }: { tool: Tool }) {
     setError(null);
     startDeleting(async () => {
       const result = await deleteTool(tool.id);
+      setConfirmOpen(false);
       if (!result.ok) {
         setError(result.error);
-        setConfirmOpen(false);
         toast.error(result.error);
       } else {
         toast.success("Tool gelöscht");
+        router.refresh();
       }
     });
   }
@@ -91,6 +94,10 @@ function ToolRow({ tool }: { tool: Tool }) {
 
 export function ToolList({ tools }: { tools: Tool[] }) {
   const [items, setItems] = React.useState(tools);
+
+  React.useEffect(() => {
+    setItems(tools);
+  }, [tools]);
 
   function handleReorder(next: Tool[]) {
     setItems(next);

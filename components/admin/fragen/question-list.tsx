@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,6 +32,7 @@ const SEGMENT_LABELS: Record<QuizQuestion["segment"], string> = {
 };
 
 function QuestionRow({ question }: { question: QuizQuestion }) {
+  const router = useRouter();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [isDeleting, startDeleting] = React.useTransition();
@@ -39,12 +41,13 @@ function QuestionRow({ question }: { question: QuizQuestion }) {
     setError(null);
     startDeleting(async () => {
       const result = await deleteQuestion(question.id);
+      setConfirmOpen(false);
       if (!result.ok) {
         setError(result.error);
-        setConfirmOpen(false);
         toast.error(result.error);
       } else {
         toast.success("Frage gelöscht");
+        router.refresh();
       }
     });
   }
@@ -105,6 +108,10 @@ function QuestionRow({ question }: { question: QuizQuestion }) {
 
 export function QuestionList({ questions }: { questions: QuizQuestion[] }) {
   const [items, setItems] = React.useState(questions);
+
+  React.useEffect(() => {
+    setItems(questions);
+  }, [questions]);
 
   function handleReorder(next: QuizQuestion[]) {
     setItems(next);

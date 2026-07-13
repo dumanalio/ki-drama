@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ const LEVEL_LABELS: Record<Chapter["level"], string> = {
 };
 
 function ChapterRow({ chapter }: { chapter: Chapter }) {
+  const router = useRouter();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [isDeleting, startDeleting] = React.useTransition();
@@ -31,12 +33,13 @@ function ChapterRow({ chapter }: { chapter: Chapter }) {
     setError(null);
     startDeleting(async () => {
       const result = await deleteChapter(chapter.id);
+      setConfirmOpen(false);
       if (!result.ok) {
         setError(result.error);
-        setConfirmOpen(false);
         toast.error(result.error);
       } else {
         toast.success("Kapitel gelöscht");
+        router.refresh();
       }
     });
   }
@@ -100,6 +103,10 @@ function ChapterRow({ chapter }: { chapter: Chapter }) {
 
 export function ChapterList({ chapters }: { chapters: Chapter[] }) {
   const [items, setItems] = React.useState(chapters);
+
+  React.useEffect(() => {
+    setItems(chapters);
+  }, [chapters]);
 
   function handleReorder(next: Chapter[]) {
     setItems(next);
