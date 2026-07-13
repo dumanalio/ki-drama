@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
@@ -62,19 +61,6 @@ export default async function ChapterPage({
             {estimateReadingMinutes(chapter.body)} Min. Lesezeit
           </span>
         </div>
-
-        {chapter.cover_url ? (
-          <div className="bg-surface-alt overflow-hidden rounded-[20px]">
-            <Image
-              src={chapter.cover_url}
-              alt={chapter.cover_alt ?? ""}
-              width={1200}
-              height={675}
-              className="h-auto w-full"
-              priority
-            />
-          </div>
-        ) : null}
 
         <TiptapRender doc={chapter.body} />
 

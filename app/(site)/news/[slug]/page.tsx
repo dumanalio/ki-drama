@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -121,19 +120,6 @@ export default async function PostPage({
             {post.reading_min} Min. Lesezeit
           </span>
         </div>
-
-        {post.cover_url ? (
-          <div className="bg-surface-alt overflow-hidden rounded-[20px]">
-            <Image
-              src={post.cover_url}
-              alt={post.cover_alt ?? ""}
-              width={1200}
-              height={675}
-              className="h-auto w-full"
-              priority
-            />
-          </div>
-        ) : null}
 
         <TiptapRender doc={post.body} />
       </article>
