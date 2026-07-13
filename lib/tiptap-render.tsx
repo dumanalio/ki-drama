@@ -1,7 +1,16 @@
 import * as React from "react";
 import Image from "next/image";
+import { AlertTriangle, CheckCircle2, ChevronDown, Info } from "lucide-react";
 
+import { calloutClasses, type CalloutVariant } from "@/lib/callout-style";
+import { parseVideoEmbed } from "@/lib/video-embed";
 import type { Json } from "@/types/database";
+
+const CALLOUT_ICONS: Record<CalloutVariant, typeof Info> = {
+  info: Info,
+  warning: AlertTriangle,
+  success: CheckCircle2,
+};
 
 interface TiptapMark {
   type: string;
@@ -227,6 +236,147 @@ function renderNode(node: TiptapNode, key: React.Key): React.ReactNode {
 
     case "horizontalRule":
       return <hr key={key} className="border-line" />;
+
+    case "callout": {
+      const variant =
+        typeof node.attrs?.variant === "string"
+          ? (node.attrs.variant as CalloutVariant)
+          : "info";
+      const title =
+        typeof node.attrs?.title === "string" ? node.attrs.title : "";
+      const text =
+        typeof node.attrs?.text === "string" ? node.attrs.text : "";
+      if (!title && !text) return null;
+      const { box, icon } = calloutClasses(variant);
+      const Icon = CALLOUT_ICONS[variant];
+
+      return (
+        <div key={key} className={`flex items-start gap-2.5 rounded-xl p-4 ${box}`}>
+          <Icon className={`mt-0.5 size-5 shrink-0 ${icon}`} aria-hidden="true" />
+          <div className="flex flex-col gap-1">
+            {title ? (
+              <p className="text-ink text-[15px] font-semibold">{title}</p>
+            ) : null}
+            {text ? (
+              <p className="text-ink-soft text-[15px] leading-relaxed whitespace-pre-line">
+                {text}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      );
+    }
+
+    case "video": {
+      const url = typeof node.attrs?.url === "string" ? node.attrs.url : "";
+      const embed = parseVideoEmbed(url);
+      if (!embed) return null;
+
+      return (
+        <div
+          key={key}
+          className="bg-surface-alt aspect-video w-full overflow-hidden rounded-[20px]"
+        >
+          <iframe
+            src={embed.embedUrl}
+            className="h-full w-full"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
+            referrerPolicy="strict-origin-when-cross-origin"
+            loading="lazy"
+            title="Video-Einbettung"
+          />
+        </div>
+      );
+    }
+
+    case "columns":
+      return (
+        <div key={key} className="grid gap-6 sm:grid-cols-2">
+          {node.content?.map((column, index) => (
+            <div key={index} className="flex min-w-0 flex-col gap-4">
+              {column.content?.map((child, childIndex) =>
+                renderNode(child, childIndex)
+              )}
+            </div>
+          ))}
+        </div>
+      );
+
+    case "collapsible": {
+      const title =
+        typeof node.attrs?.title === "string" ? node.attrs.title : "";
+      return (
+        <details
+          key={key}
+          className="border-line bg-surface group rounded-xl border p-4"
+        >
+          <summary className="text-ink flex cursor-pointer list-none items-center justify-between gap-2 text-[16px] font-semibold [&::-webkit-details-marker]:hidden">
+            {title || "Mehr erfahren"}
+            <ChevronDown
+              className="text-ink-muted size-4 shrink-0 transition-transform duration-[120ms] group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <div className="border-line mt-3 flex flex-col gap-4 border-t pt-3">
+            {node.content?.map((child, index) => renderNode(child, index))}
+          </div>
+        </details>
+      );
+    }
+
+    case "table":
+      return (
+        <div key={key} className="overflow-x-auto">
+          <table className="border-line w-full border-collapse overflow-hidden rounded-xl border text-[15px]">
+            <tbody>
+              {node.content?.map((row, index) => renderNode(row, index))}
+            </tbody>
+          </table>
+        </div>
+      );
+
+    case "tableRow":
+      return (
+        <tr key={key} className="border-line border-b last:border-b-0">
+          {node.content?.map((cell, index) => renderNode(cell, index))}
+        </tr>
+      );
+
+    case "tableHeader":
+      return (
+        <th
+          key={key}
+          className="bg-surface-alt text-ink border-line border-r p-3 text-left text-[14px] font-semibold last:border-r-0"
+        >
+          {node.content?.map((child, index) =>
+            child.type === "paragraph" ? (
+              <React.Fragment key={index}>
+                {renderInline(child.content)}
+              </React.Fragment>
+            ) : (
+              renderNode(child, index)
+            )
+          )}
+        </th>
+      );
+
+    case "tableCell":
+      return (
+        <td
+          key={key}
+          className="text-ink-soft border-line border-r p-3 leading-relaxed last:border-r-0"
+        >
+          {node.content?.map((child, index) =>
+            child.type === "paragraph" ? (
+              <React.Fragment key={index}>
+                {renderInline(child.content)}
+              </React.Fragment>
+            ) : (
+              renderNode(child, index)
+            )
+          )}
+        </td>
+      );
 
     default:
       return null;

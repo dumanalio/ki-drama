@@ -4,18 +4,25 @@ import * as React from "react";
 import { EditorContent, type Editor } from "@tiptap/react";
 import {
   Bold,
+  ChevronsUpDown,
   Code,
+  Columns2,
   Heading2,
   Heading3,
   Image as ImageIcon,
+  Info,
   Italic,
   Link as LinkIcon,
   List,
   ListOrdered,
   Minus,
   Quote,
+  Table as TableIcon,
+  Trash2,
+  Video as VideoIcon,
 } from "lucide-react";
 
+import { insertColumnsContent } from "@/components/admin/tiptap/columns-extension";
 import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
 import { cn } from "@/lib/utils";
 
@@ -166,6 +173,108 @@ export function RichTextEditor({ editor }: { editor: Editor | null }) {
         >
           <Code className="size-4" aria-hidden="true" />
         </ToolbarButton>
+
+        <ToolbarDivider />
+
+        <ToolbarButton
+          label="Hinweisbox einfügen"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: "callout",
+                attrs: { variant: "info", title: "", text: "" },
+              })
+              .run()
+          }
+        >
+          <Info className="size-4" aria-hidden="true" />
+        </ToolbarButton>
+        <ToolbarButton
+          label="Video einbetten (YouTube/Vimeo)"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertContent({ type: "video", attrs: { url: "" } })
+              .run()
+          }
+        >
+          <VideoIcon className="size-4" aria-hidden="true" />
+        </ToolbarButton>
+        <ToolbarButton
+          label="Zwei-Spalten-Layout einfügen"
+          onClick={() =>
+            editor.chain().focus().insertContent(insertColumnsContent()).run()
+          }
+        >
+          <Columns2 className="size-4" aria-hidden="true" />
+        </ToolbarButton>
+        <ToolbarButton
+          label="Ausklappbaren Abschnitt einfügen"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: "collapsible",
+                attrs: { title: "" },
+                content: [{ type: "paragraph" }],
+              })
+              .run()
+          }
+        >
+          <ChevronsUpDown className="size-4" aria-hidden="true" />
+        </ToolbarButton>
+        <ToolbarButton
+          label="Vergleichstabelle einfügen"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertTable({ rows: 2, cols: 2, withHeaderRow: true })
+              .run()
+          }
+        >
+          <TableIcon className="size-4" aria-hidden="true" />
+        </ToolbarButton>
+
+        {editor.isActive("table") ? (
+          <>
+            <ToolbarDivider />
+            <ToolbarButton
+              label="Spalte einfügen"
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+            >
+              <span className="text-[13px] font-semibold">+Sp</span>
+            </ToolbarButton>
+            <ToolbarButton
+              label="Spalte löschen"
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+            >
+              <span className="text-[13px] font-semibold">−Sp</span>
+            </ToolbarButton>
+            <ToolbarButton
+              label="Zeile einfügen"
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+            >
+              <span className="text-[13px] font-semibold">+Z</span>
+            </ToolbarButton>
+            <ToolbarButton
+              label="Zeile löschen"
+              onClick={() => editor.chain().focus().deleteRow().run()}
+            >
+              <span className="text-[13px] font-semibold">−Z</span>
+            </ToolbarButton>
+            <ToolbarButton
+              label="Tabelle löschen"
+              onClick={() => editor.chain().focus().deleteTable().run()}
+            >
+              <Trash2 className="size-4" aria-hidden="true" />
+            </ToolbarButton>
+          </>
+        ) : null}
       </div>
 
       <div className="px-5 py-4">
