@@ -12,6 +12,8 @@ export const chapterSaveSchema = z.object({
     ),
   title: z.string().trim().max(200),
   summary: z.string().trim().max(400),
+  coverUrl: z.string().url().nullable(),
+  coverAlt: z.string().trim().max(200).nullable(),
   level: z.enum(["einsteiger", "fortgeschritten"]),
   status: z.enum(["entwurf", "veroeffentlicht"]),
   // Kommt als JSON-String an, nicht als Objekt — siehe lib/validation/post.ts

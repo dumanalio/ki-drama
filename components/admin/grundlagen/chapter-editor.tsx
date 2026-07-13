@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, ImagePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { RichTextEditor } from "@/components/admin/tiptap/rich-text-editor";
 import { useContentEditor } from "@/components/admin/tiptap/use-content-editor";
@@ -39,6 +41,11 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
     chapter.title.length > 0 && slugify(chapter.title) !== chapter.slug
   );
   const [summary, setSummary] = React.useState(chapter.summary);
+  const [coverUrl, setCoverUrl] = React.useState<string | null>(
+    chapter.cover_url
+  );
+  const [coverAlt, setCoverAlt] = React.useState(chapter.cover_alt ?? "");
+  const [pickerOpen, setPickerOpen] = React.useState(false);
   const [level, setLevel] = React.useState(chapter.level as Chapter["level"]);
   const [status, setStatus] = React.useState(chapter.status);
   const [readingMin, setReadingMin] = React.useState(
@@ -67,6 +74,8 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
         slug,
         title,
         summary,
+        coverUrl,
+        coverAlt: coverAlt.trim().length > 0 ? coverAlt.trim() : null,
         level,
         status,
         body: JSON.stringify(bodyRef.current),
@@ -163,6 +172,39 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
                 />
               </label>
 
+              <div className="flex flex-col gap-1.5">
+                <span className="text-ink-muted text-[12px] font-medium">
+                  Coverbild
+                </span>
+                {coverUrl ? (
+                  <div className="bg-surface-alt relative aspect-video overflow-hidden rounded-lg">
+                    <Image
+                      src={coverUrl}
+                      alt={coverAlt}
+                      fill
+                      sizes="320px"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : null}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-fit"
+                  onClick={() => setPickerOpen(true)}
+                >
+                  <ImagePlus className="size-4" aria-hidden="true" />
+                  {coverUrl ? "Bild ändern" : "Bild wählen"}
+                </Button>
+                {coverUrl ? (
+                  <Input
+                    value={coverAlt}
+                    onChange={(event) => setCoverAlt(event.target.value)}
+                    placeholder="Alt-Text für das Coverbild"
+                  />
+                ) : null}
+              </div>
+
               <label className="flex flex-col gap-1">
                 <span className="text-ink-muted text-[12px] font-medium">
                   Level
@@ -243,6 +285,16 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
           </Modal>
         </div>
       </div>
+
+      <MediaPickerModal
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        onSelect={(media) => {
+          setCoverUrl(media.url);
+          setCoverAlt(media.alt);
+          setPickerOpen(false);
+        }}
+      />
     </>
   );
 }

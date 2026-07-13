@@ -69,6 +69,8 @@ export async function saveChapter(input: unknown): Promise<ActionResult> {
         slug: data.slug,
         title: data.title,
         summary: data.summary,
+        cover_url: data.coverUrl,
+        cover_alt: data.coverAlt,
         level: data.level,
         status: data.status,
         body,

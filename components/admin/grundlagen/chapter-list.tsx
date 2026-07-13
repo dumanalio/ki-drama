@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { ImageOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { SortableList } from "@/components/admin/sortable-list";
@@ -46,16 +47,31 @@ function ChapterRow({ chapter }: { chapter: Chapter }) {
 
   return (
     <div className="border-line bg-surface flex items-center justify-between gap-4 rounded-xl border p-4">
-      <div className="min-w-0">
-        <Link
-          href={`/admin/grundlagen/${chapter.id}`}
-          className="text-ink hover:text-accent focus-visible:ring-accent truncate rounded font-medium outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-        >
-          {chapter.title || "Ohne Titel"}
-        </Link>
-        <p className="text-ink-muted truncate text-[13px]">
-          {LEVEL_LABELS[chapter.level as Chapter["level"]] ?? chapter.level}
-        </p>
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="bg-surface-alt relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+          {chapter.cover_url ? (
+            <Image
+              src={chapter.cover_url}
+              alt=""
+              fill
+              sizes="56px"
+              className="object-cover"
+            />
+          ) : (
+            <ImageOff className="text-ink-muted size-5" aria-hidden="true" />
+          )}
+        </div>
+        <div className="min-w-0">
+          <Link
+            href={`/admin/grundlagen/${chapter.id}`}
+            className="text-ink hover:text-accent focus-visible:ring-accent truncate rounded font-medium outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          >
+            {chapter.title || "Ohne Titel"}
+          </Link>
+          <p className="text-ink-muted truncate text-[13px]">
+            {LEVEL_LABELS[chapter.level as Chapter["level"]] ?? chapter.level}
+          </p>
+        </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <Badge

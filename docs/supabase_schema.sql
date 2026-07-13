@@ -180,6 +180,8 @@ create table chapters (                         -- Grundlagen-Kapitel
   title       text not null,
   summary     text not null,
   body        jsonb not null default '{}'::jsonb,
+  cover_url   text,
+  cover_alt   text,
   level       text not null default 'einsteiger',   -- einsteiger | fortgeschritten
   status      content_status not null default 'entwurf',
   created_at  timestamptz not null default now(),

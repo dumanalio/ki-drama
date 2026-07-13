@@ -357,6 +357,8 @@ export interface Database {
           title: string;
           summary: string;
           body: Json;
+          cover_url: string | null;
+          cover_alt: string | null;
           level: string;
           status: ContentStatus;
           created_at: string;
@@ -369,6 +371,8 @@ export interface Database {
           title: string;
           summary: string;
           body?: Json;
+          cover_url?: string | null;
+          cover_alt?: string | null;
           level?: string;
           status?: ContentStatus;
           created_at?: string;
@@ -381,6 +385,8 @@ export interface Database {
           title?: string;
           summary?: string;
           body?: Json;
+          cover_url?: string | null;
+          cover_alt?: string | null;
           level?: string;
           status?: ContentStatus;
           created_at?: string;
