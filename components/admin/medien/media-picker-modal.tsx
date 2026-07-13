@@ -4,10 +4,18 @@ import * as React from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 
+import { MediaUploader } from "@/components/admin/medien/media-uploader";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Modal, ModalContent } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tabs,
+  TabsIndicator,
+  TabsList,
+  TabsPanel,
+  TabsTab,
+} from "@/components/ui/tabs";
 import { listMediaForPicker } from "@/lib/actions/media";
 import type { Media } from "@/types/database";
 
@@ -44,54 +52,70 @@ export function MediaPickerModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent title="Bild aus der Medienbibliothek" className="max-w-3xl">
-        <div className="flex flex-col gap-4">
-          <div className="relative">
-            <Search
-              className="text-ink-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Nach Alt-Text oder Dateiname suchen…"
-              className="pl-9"
-            />
-          </div>
+      <ModalContent title="Bild auswählen" className="max-w-3xl">
+        <Tabs defaultValue="library">
+          <TabsList>
+            <TabsTab value="library">Aus Bibliothek wählen</TabsTab>
+            <TabsTab value="upload">Neu hochladen</TabsTab>
+            <TabsIndicator />
+          </TabsList>
 
-          {media === null ? (
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <Skeleton key={index} className="aspect-square" />
-              ))}
+          <TabsPanel value="library">
+            <div className="flex flex-col gap-4">
+              <div className="relative">
+                <Search
+                  className="text-ink-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+                  aria-hidden="true"
+                />
+                <Input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Nach Alt-Text oder Dateiname suchen…"
+                  className="pl-9"
+                />
+              </div>
+
+              {media === null ? (
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <Skeleton key={index} className="aspect-square" />
+                  ))}
+                </div>
+              ) : filtered.length === 0 ? (
+                <EmptyState
+                  icon={Search}
+                  title="Keine Bilder gefunden"
+                  description="Lade ein Bild über den Tab „Neu hochladen“ hoch."
+                />
+              ) : (
+                <div className="grid max-h-[60vh] grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4">
+                  {filtered.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => onSelect(item)}
+                      className="group focus-visible:ring-accent bg-surface-alt relative aspect-square overflow-hidden rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                      <Image
+                        src={item.url}
+                        alt={item.alt}
+                        fill
+                        sizes="200px"
+                        className="object-cover transition-transform duration-[180ms] group-hover:scale-105"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              icon={Search}
-              title="Keine Bilder gefunden"
-              description="Lade zuerst ein Bild in der Medienbibliothek hoch."
-            />
-          ) : (
-            <div className="grid max-h-[60vh] grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4">
-              {filtered.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onSelect(item)}
-                  className="group focus-visible:ring-accent bg-surface-alt relative aspect-square overflow-hidden rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                >
-                  <Image
-                    src={item.url}
-                    alt={item.alt}
-                    fill
-                    sizes="200px"
-                    className="object-cover transition-transform duration-[180ms] group-hover:scale-105"
-                  />
-                </button>
-              ))}
+          </TabsPanel>
+
+          <TabsPanel value="upload">
+            <div className="max-h-[60vh] overflow-y-auto">
+              <MediaUploader onSaved={(saved) => onSelect(saved)} />
             </div>
-          )}
-        </div>
+          </TabsPanel>
+        </Tabs>
       </ModalContent>
     </Modal>
   );

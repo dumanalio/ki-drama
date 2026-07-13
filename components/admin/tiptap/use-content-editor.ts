@@ -12,6 +12,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { Callout } from "@/components/admin/tiptap/callout-extension";
 import { Collapsible } from "@/components/admin/tiptap/collapsible-extension";
 import { Column, Columns } from "@/components/admin/tiptap/columns-extension";
+import { handleEditorImageDrop } from "@/components/admin/tiptap/editor-image-drop";
 import { EditableImage } from "@/components/admin/tiptap/image-extension";
 import { Video } from "@/components/admin/tiptap/video-extension";
 import type { Json } from "@/types/database";
@@ -52,6 +53,23 @@ export function useContentEditor({
     editorProps: {
       attributes: {
         class: "tiptap-content min-h-[400px] outline-none",
+      },
+      handleDrop(view, event, _slice, moved) {
+        if (moved) return false;
+        const files = Array.from(event.dataTransfer?.files ?? []).filter(
+          (file) => file.type.startsWith("image/")
+        );
+        if (files.length === 0) return false;
+
+        event.preventDefault();
+        const coords = { left: event.clientX, top: event.clientY };
+        const target = view.posAtCoords(coords);
+        const pos = target?.pos ?? view.state.selection.from;
+
+        for (const file of files) {
+          void handleEditorImageDrop(view, file, pos);
+        }
+        return true;
       },
     },
     onUpdate: ({ editor }) => onUpdate(editor.getJSON() as Json),
