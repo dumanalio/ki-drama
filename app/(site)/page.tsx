@@ -148,11 +148,11 @@ export default async function Home() {
         </div>
       </Section>
 
-      <Section className="flex flex-col gap-16 md:gap-24">
-        {sections.map((section) => (
-          <LandingSectionView key={section.id} section={section} />
-        ))}
-      </Section>
+      {sections.map((section) => (
+        <Section key={section.id}>
+          <LandingSectionView section={section} />
+        </Section>
+      ))}
 
       <Section>
         <h2 className="text-ink mb-8 text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
