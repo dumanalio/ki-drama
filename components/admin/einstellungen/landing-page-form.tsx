@@ -4,6 +4,7 @@ import * as React from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
+import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
 import { ImagePickerField } from "@/components/admin/einstellungen/image-picker-field";
 import { SectionEditor } from "@/components/admin/einstellungen/section-editor";
 import { SortableList } from "@/components/admin/sortable-list";
@@ -128,30 +129,54 @@ export function LandingPageForm({
             />
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1">
-              <span className="text-ink-muted text-[12px] font-medium">
-                Primärer Button (Text)
-              </span>
-              <Input
-                value={content.hero.primaryButtonLabel ?? ""}
-                onChange={(event) =>
-                  updateHero({ primaryButtonLabel: event.target.value })
+            <div className="flex flex-col gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-ink-muted text-[12px] font-medium">
+                  Primärer Button (Text)
+                </span>
+                <Input
+                  value={content.hero.primaryButtonLabel ?? ""}
+                  onChange={(event) =>
+                    updateHero({ primaryButtonLabel: event.target.value })
+                  }
+                  placeholder="Check starten"
+                />
+              </label>
+              <ButtonColorPicker
+                color={content.hero.primaryButtonColor}
+                customColor={content.hero.primaryButtonCustomColor}
+                onChange={(color, customColor) =>
+                  updateHero({
+                    primaryButtonColor: color,
+                    primaryButtonCustomColor: customColor,
+                  })
                 }
-                placeholder="Check starten"
               />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-ink-muted text-[12px] font-medium">
-                Sekundärer Button (Text)
-              </span>
-              <Input
-                value={content.hero.secondaryButtonLabel ?? ""}
-                onChange={(event) =>
-                  updateHero({ secondaryButtonLabel: event.target.value })
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-ink-muted text-[12px] font-medium">
+                  Sekundärer Button (Text)
+                </span>
+                <Input
+                  value={content.hero.secondaryButtonLabel ?? ""}
+                  onChange={(event) =>
+                    updateHero({ secondaryButtonLabel: event.target.value })
+                  }
+                  placeholder="Erst mal verstehen"
+                />
+              </label>
+              <ButtonColorPicker
+                color={content.hero.secondaryButtonColor}
+                customColor={content.hero.secondaryButtonCustomColor}
+                onChange={(color, customColor) =>
+                  updateHero({
+                    secondaryButtonColor: color,
+                    secondaryButtonCustomColor: customColor,
+                  })
                 }
-                placeholder="Erst mal verstehen"
               />
-            </label>
+            </div>
           </div>
           <ImagePickerField
             label="Bild"
@@ -237,6 +262,16 @@ export function LandingPageForm({
               placeholder="Check starten"
             />
           </label>
+          <ButtonColorPicker
+            color={content.closingCta.buttonColor}
+            customColor={content.closingCta.buttonCustomColor}
+            onChange={(color, customColor) =>
+              updateClosingCta({
+                buttonColor: color,
+                buttonCustomColor: customColor,
+              })
+            }
+          />
         </div>
       </Card>
 

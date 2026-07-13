@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckList } from "@/components/ui/check-list";
-import { buttonVariants } from "@/components/ui/button";
+import { resolveButtonStyle } from "@/lib/button-color";
 import { cn } from "@/lib/utils";
 import type { LandingSection } from "@/lib/landing-content";
 
@@ -14,24 +15,17 @@ function SectionButton({
 }) {
   if (!button || !button.label || !button.href) return null;
 
-  if (button.color === "custom" && button.customColor) {
-    return (
-      <Link
-        href={button.href}
-        className="inline-flex h-11 w-fit shrink-0 items-center justify-center gap-2 rounded-lg px-5 text-[15px] font-semibold whitespace-nowrap text-white transition-colors duration-[120ms]"
-        style={{ backgroundColor: button.customColor }}
-      >
-        {button.label}
-      </Link>
-    );
-  }
-
-  const variant = button.color === "custom" ? "primary" : button.color;
+  const resolved = resolveButtonStyle(button.color, button.customColor);
 
   return (
-    <Link href={button.href} className={buttonVariants({ variant })}>
+    <Button
+      variant={resolved.variant}
+      style={resolved.style}
+      className="w-fit"
+      render={<Link href={button.href} />}
+    >
       {button.label}
-    </Link>
+    </Button>
   );
 }
 

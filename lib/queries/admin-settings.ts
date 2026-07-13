@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   EMPTY_LANDING_CONTENT,
   normalizeSection,
+  type LandingButtonColor,
   type LandingPageContent,
 } from "@/lib/landing-content";
 
@@ -13,6 +14,8 @@ export interface GeneralSettings {
   notifyEmail: string;
   emailConfirmationNote: string;
   emailSignoff: string;
+  headerButtonColor: LandingButtonColor;
+  headerButtonCustomColor: string | null;
 }
 
 const GENERAL_DEFAULTS: GeneralSettings = {
@@ -23,6 +26,8 @@ const GENERAL_DEFAULTS: GeneralSettings = {
   notifyEmail: "",
   emailConfirmationNote: "",
   emailSignoff: "Bis dahin,\nKI-Drama",
+  headerButtonColor: "accent",
+  headerButtonCustomColor: null,
 };
 
 /**
@@ -45,6 +50,10 @@ export async function getGeneralSettings(): Promise<GeneralSettings> {
     const value = map.get(key);
     return typeof value === "number" ? value : fallback;
   };
+  const asNullableString = (key: string, fallback: string | null) => {
+    const value = map.get(key);
+    return typeof value === "string" ? value : fallback;
+  };
 
   return {
     meetingUrl: asString("meeting_url", GENERAL_DEFAULTS.meetingUrl),
@@ -57,6 +66,14 @@ export async function getGeneralSettings(): Promise<GeneralSettings> {
       GENERAL_DEFAULTS.emailConfirmationNote
     ),
     emailSignoff: asString("email_signoff", GENERAL_DEFAULTS.emailSignoff),
+    headerButtonColor: asString(
+      "header_button_color",
+      GENERAL_DEFAULTS.headerButtonColor
+    ) as LandingButtonColor,
+    headerButtonCustomColor: asNullableString(
+      "header_button_custom_color",
+      GENERAL_DEFAULTS.headerButtonCustomColor
+    ),
   };
 }
 

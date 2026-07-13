@@ -7,7 +7,9 @@ import { Dialog } from "@base-ui/react/dialog";
 import { Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { resolveButtonStyle } from "@/lib/button-color";
 import { cn } from "@/lib/utils";
+import type { LandingButtonColor } from "@/lib/landing-content";
 
 const NAV_ITEMS = [
   { href: "/grundlagen", label: "Grundlagen" },
@@ -16,9 +18,16 @@ const NAV_ITEMS = [
   { href: "/ueber-mich", label: "Über mich" },
 ];
 
-export function Header() {
+export function Header({
+  buttonColor = "accent",
+  buttonCustomColor = null,
+}: {
+  buttonColor?: LandingButtonColor;
+  buttonCustomColor?: string | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const buttonStyle = resolveButtonStyle(buttonColor, buttonCustomColor);
 
   return (
     <header className="border-line bg-surface sticky top-0 z-40 border-b">
@@ -52,7 +61,12 @@ export function Header() {
         </nav>
 
         <div className="hidden md:block">
-          <Button variant="accent" size="sm" render={<Link href="/check" />}>
+          <Button
+            variant={buttonStyle.variant}
+            style={buttonStyle.style}
+            size="sm"
+            render={<Link href="/check" />}
+          >
             Check starten
           </Button>
         </div>
@@ -99,7 +113,8 @@ export function Header() {
             </nav>
             <div className="mt-auto">
               <Button
-                variant="accent"
+                variant={buttonStyle.variant}
+                style={buttonStyle.style}
                 size="lg"
                 className="w-full"
                 render={<Link href="/check" onClick={() => setOpen(false)} />}

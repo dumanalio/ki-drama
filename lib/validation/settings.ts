@@ -2,20 +2,6 @@ import { z } from "zod";
 
 import { meetsWcagAA } from "@/lib/contrast";
 
-export const generalSettingsSchema = z.object({
-  meetingUrl: z
-    .string()
-    .trim()
-    .min(1, "Bitte einen Meeting-Link angeben.")
-    .url("Ungültige URL."),
-  slotMinutes: z.number().int().min(5).max(240),
-  leadTimeHours: z.number().int().min(0).max(720),
-  horizonDays: z.number().int().min(1).max(365),
-  notifyEmail: z.email("Ungültige E-Mail-Adresse."),
-  emailConfirmationNote: z.string().trim().max(2000),
-  emailSignoff: z.string().trim().max(500),
-});
-
 const emptyToNull = (value: string) =>
   value.trim().length === 0 ? null : value;
 
@@ -29,22 +15,6 @@ const nullableUrl = z.preprocess(
   z.string().url().nullable()
 );
 
-const heroSchema = z.object({
-  eyebrow: nullableString(60),
-  title: nullableString(200),
-  subtitle: nullableString(400),
-  primaryButtonLabel: nullableString(60),
-  secondaryButtonLabel: nullableString(60),
-  imageUrl: nullableUrl,
-  imageAlt: nullableString(200),
-});
-
-const closingCtaSchema = z.object({
-  title: nullableString(200),
-  text: nullableString(400),
-  buttonLabel: nullableString(60),
-});
-
 const nullableHexColor = z.preprocess(
   (value) => (typeof value === "string" ? emptyToNull(value) : value),
   z
@@ -53,11 +23,102 @@ const nullableHexColor = z.preprocess(
     .nullable()
 );
 
+const buttonColorEnum = z.enum([
+  "primary",
+  "accent",
+  "soft",
+  "outline",
+  "custom",
+]);
+
+const CONTRAST_MESSAGE =
+  "Diese Farbe hat zu wenig Kontrast zu weißem Text (WCAG AA verlangt mind. 4.5:1). Bitte eine dunklere Farbe wählen.";
+
+/** Prüft eine Farbe/Custom-Color-Kombination gegen WCAG AA und meldet ggf. am angegebenen Pfad. */
+function refineButtonContrast(
+  ctx: z.RefinementCtx,
+  color: string,
+  customColor: string | null,
+  path: (string | number)[]
+) {
+  if (color === "custom" && customColor && !meetsWcagAA(customColor)) {
+    ctx.addIssue({ code: "custom", path, message: CONTRAST_MESSAGE });
+  }
+}
+
+export const generalSettingsSchema = z
+  .object({
+    meetingUrl: z
+      .string()
+      .trim()
+      .min(1, "Bitte einen Meeting-Link angeben.")
+      .url("Ungültige URL."),
+    slotMinutes: z.number().int().min(5).max(240),
+    leadTimeHours: z.number().int().min(0).max(720),
+    horizonDays: z.number().int().min(1).max(365),
+    notifyEmail: z.email("Ungültige E-Mail-Adresse."),
+    emailConfirmationNote: z.string().trim().max(2000),
+    emailSignoff: z.string().trim().max(500),
+    headerButtonColor: buttonColorEnum,
+    headerButtonCustomColor: nullableHexColor,
+  })
+  .superRefine((settings, ctx) => {
+    refineButtonContrast(
+      ctx,
+      settings.headerButtonColor,
+      settings.headerButtonCustomColor,
+      ["headerButtonCustomColor"]
+    );
+  });
+
+const heroSchema = z
+  .object({
+    eyebrow: nullableString(60),
+    title: nullableString(200),
+    subtitle: nullableString(400),
+    primaryButtonLabel: nullableString(60),
+    primaryButtonColor: buttonColorEnum,
+    primaryButtonCustomColor: nullableHexColor,
+    secondaryButtonLabel: nullableString(60),
+    secondaryButtonColor: buttonColorEnum,
+    secondaryButtonCustomColor: nullableHexColor,
+    imageUrl: nullableUrl,
+    imageAlt: nullableString(200),
+  })
+  .superRefine((hero, ctx) => {
+    refineButtonContrast(
+      ctx,
+      hero.primaryButtonColor,
+      hero.primaryButtonCustomColor,
+      ["primaryButtonCustomColor"]
+    );
+    refineButtonContrast(
+      ctx,
+      hero.secondaryButtonColor,
+      hero.secondaryButtonCustomColor,
+      ["secondaryButtonCustomColor"]
+    );
+  });
+
+const closingCtaSchema = z
+  .object({
+    title: nullableString(200),
+    text: nullableString(400),
+    buttonLabel: nullableString(60),
+    buttonColor: buttonColorEnum,
+    buttonCustomColor: nullableHexColor,
+  })
+  .superRefine((cta, ctx) => {
+    refineButtonContrast(ctx, cta.buttonColor, cta.buttonCustomColor, [
+      "buttonCustomColor",
+    ]);
+  });
+
 const sectionButtonSchema = z
   .object({
     label: nullableString(60),
     href: nullableString(300),
-    color: z.enum(["primary", "accent", "soft", "outline", "custom"]),
+    color: buttonColorEnum,
     customColor: nullableHexColor,
   })
   .nullable()
@@ -67,10 +128,7 @@ const sectionButtonSchema = z
       button.color !== "custom" ||
       !button.customColor ||
       meetsWcagAA(button.customColor),
-    {
-      message:
-        "Diese Farbe hat zu wenig Kontrast zu weißem Text (WCAG AA verlangt mind. 4.5:1). Bitte eine dunklere Farbe wählen.",
-    }
+    { message: CONTRAST_MESSAGE }
   );
 
 const landingSectionColumnSchema = z.object({

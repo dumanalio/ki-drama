@@ -3,6 +3,7 @@
 import * as React from "react";
 import { toast } from "sonner";
 
+import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,12 @@ export function GeneralSettingsForm({
     settings.emailConfirmationNote
   );
   const [emailSignoff, setEmailSignoff] = React.useState(settings.emailSignoff);
+  const [headerButtonColor, setHeaderButtonColor] = React.useState(
+    settings.headerButtonColor
+  );
+  const [headerButtonCustomColor, setHeaderButtonCustomColor] = React.useState(
+    settings.headerButtonCustomColor
+  );
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, startSaving] = React.useTransition();
 
@@ -40,6 +47,8 @@ export function GeneralSettingsForm({
         notifyEmail,
         emailConfirmationNote,
         emailSignoff,
+        headerButtonColor,
+        headerButtonCustomColor,
       });
       if (!result.ok) {
         setError(result.error);
@@ -105,6 +114,21 @@ export function GeneralSettingsForm({
             />
           </label>
         </div>
+      </Card>
+
+      <Card>
+        <CardHeader title="Header" />
+        <p className="text-ink-muted mb-3 text-[13px]">
+          Farbe des Check-starten-Buttons oben rechts, auf jeder Seite.
+        </p>
+        <ButtonColorPicker
+          color={headerButtonColor}
+          customColor={headerButtonCustomColor}
+          onChange={(color, customColor) => {
+            setHeaderButtonColor(color);
+            setHeaderButtonCustomColor(customColor);
+          }}
+        />
       </Card>
 
       <Card>

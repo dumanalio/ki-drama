@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import { Section } from "@/components/site/section";
 import { LandingSectionView } from "@/components/site/landing-section-view";
 import { PostCard } from "@/components/site/post-card";
+import { resolveButtonStyle } from "@/lib/button-color";
 import {
   EMPTY_LANDING_CONTENT,
   pick,
@@ -89,6 +90,15 @@ export default async function Home() {
   const sections =
     content.sections.length > 0 ? content.sections : DEFAULT_SECTIONS;
   const cta = content.closingCta;
+  const heroPrimaryButton = resolveButtonStyle(
+    hero.primaryButtonColor,
+    hero.primaryButtonCustomColor
+  );
+  const heroSecondaryButton = resolveButtonStyle(
+    hero.secondaryButtonColor,
+    hero.secondaryButtonCustomColor
+  );
+  const ctaButton = resolveButtonStyle(cta.buttonColor, cta.buttonCustomColor);
 
   return (
     <>
@@ -111,14 +121,16 @@ export default async function Home() {
             </p>
             <div className="flex flex-wrap gap-3">
               <Button
-                variant="accent"
+                variant={heroPrimaryButton.variant}
+                style={heroPrimaryButton.style}
                 size="lg"
                 render={<Link href="/check" />}
               >
                 {pick(hero.primaryButtonLabel, "Check starten")}
               </Button>
               <Button
-                variant="soft"
+                variant={heroSecondaryButton.variant}
+                style={heroSecondaryButton.style}
                 size="lg"
                 arrow
                 render={<Link href="/grundlagen" />}
@@ -195,7 +207,12 @@ export default async function Home() {
               )}
             </p>
           </div>
-          <Button variant="accent" size="lg" render={<Link href="/check" />}>
+          <Button
+            variant={ctaButton.variant}
+            style={ctaButton.style}
+            size="lg"
+            render={<Link href="/check" />}
+          >
             {pick(cta.buttonLabel, "Check starten")}
           </Button>
         </div>

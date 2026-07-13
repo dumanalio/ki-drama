@@ -1,9 +1,20 @@
+export type LandingButtonColor =
+  | "primary"
+  | "accent"
+  | "soft"
+  | "outline"
+  | "custom";
+
 export interface LandingHero {
   eyebrow: string | null;
   title: string | null;
   subtitle: string | null;
   primaryButtonLabel: string | null;
+  primaryButtonColor: LandingButtonColor;
+  primaryButtonCustomColor: string | null;
   secondaryButtonLabel: string | null;
+  secondaryButtonColor: LandingButtonColor;
+  secondaryButtonCustomColor: string | null;
   imageUrl: string | null;
   imageAlt: string | null;
 }
@@ -13,13 +24,6 @@ export type LandingSectionLayout =
   | "image-right"
   | "image-top"
   | "no-image";
-
-export type LandingButtonColor =
-  | "primary"
-  | "accent"
-  | "soft"
-  | "outline"
-  | "custom";
 
 export interface LandingSectionButton {
   label: string | null;
@@ -62,6 +66,8 @@ export interface LandingClosingCta {
   title: string | null;
   text: string | null;
   buttonLabel: string | null;
+  buttonColor: LandingButtonColor;
+  buttonCustomColor: string | null;
 }
 
 export interface LandingPageContent {
@@ -76,12 +82,22 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
     title: null,
     subtitle: null,
     primaryButtonLabel: null,
+    primaryButtonColor: "accent",
+    primaryButtonCustomColor: null,
     secondaryButtonLabel: null,
+    secondaryButtonColor: "soft",
+    secondaryButtonCustomColor: null,
     imageUrl: null,
     imageAlt: null,
   },
   sections: [],
-  closingCta: { title: null, text: null, buttonLabel: null },
+  closingCta: {
+    title: null,
+    text: null,
+    buttonLabel: null,
+    buttonColor: "accent",
+    buttonCustomColor: null,
+  },
 };
 
 export function createEmptySection(): LandingSection {

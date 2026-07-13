@@ -40,6 +40,11 @@ export async function saveGeneralSettings(
       { key: "notify_email", value: data.notifyEmail },
       { key: "email_confirmation_note", value: data.emailConfirmationNote },
       { key: "email_signoff", value: data.emailSignoff },
+      { key: "header_button_color", value: data.headerButtonColor },
+      {
+        key: "header_button_custom_color",
+        value: data.headerButtonCustomColor,
+      },
     ];
 
     for (const row of rows) {
@@ -50,6 +55,9 @@ export async function saveGeneralSettings(
     }
 
     revalidatePath("/admin/einstellungen");
+    // Header/Footer stecken im geteilten Layout -- "layout" revalidiert sie
+    // für alle Seiten, nicht nur für "/".
+    revalidatePath("/", "layout");
     return { ok: true };
   } catch (error) {
     return fail(
