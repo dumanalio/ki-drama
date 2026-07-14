@@ -1,6 +1,16 @@
 "use client";
 
-import { PanelLeft, PanelRight, PanelTop, Plus, Trash2, Type, X } from "lucide-react";
+import { useState } from "react";
+import {
+  Maximize2,
+  PanelLeft,
+  PanelRight,
+  PanelTop,
+  Plus,
+  Trash2,
+  Type,
+  X,
+} from "lucide-react";
 
 import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
 import { ColumnEditor } from "@/components/admin/einstellungen/column-editor";
@@ -9,6 +19,7 @@ import { ScaledPreview } from "@/components/admin/einstellungen/scaled-preview";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Modal, ModalContent } from "@/components/ui/modal";
 import { Textarea } from "@/components/ui/textarea";
 import { LandingSectionView } from "@/components/site/landing-section-view";
 import { createEmptyColumn } from "@/lib/landing-content";
@@ -45,6 +56,8 @@ export function SectionEditor({
   onChange: (patch: Partial<LandingSection>) => void;
   onDelete: () => void;
 }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+
   function updateChecklistItem(index: number, value: string) {
     onChange({
       checklistItems: section.checklistItems.map((item, i) =>
@@ -97,7 +110,7 @@ export function SectionEditor({
 
   return (
     <div className="border-line bg-surface rounded-xl border p-5">
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <span className="text-ink-muted text-[12px] font-medium">
@@ -302,9 +315,19 @@ export function SectionEditor({
         </div>
 
         <div>
-          <p className="text-ink-muted mb-2 text-[13px] font-medium">
-            Live-Vorschau
-          </p>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-ink-muted text-[13px] font-medium">
+              Live-Vorschau
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPreviewOpen(true)}
+            >
+              <Maximize2 className="size-4" aria-hidden="true" />
+              Vergrößern
+            </Button>
+          </div>
           <div className="border-line bg-canvas overflow-hidden rounded-xl border">
             <ScaledPreview>
               <div className="mx-auto max-w-[1200px] px-6 py-14">
@@ -314,6 +337,18 @@ export function SectionEditor({
           </div>
         </div>
       </div>
+
+      <Modal open={previewOpen} onOpenChange={setPreviewOpen}>
+        <ModalContent title="Vorschau" className="w-[95vw] max-w-[1280px]">
+          <div className="border-line bg-canvas overflow-hidden rounded-xl border">
+            <ScaledPreview>
+              <div className="mx-auto max-w-[1200px] px-6 py-14">
+                <LandingSectionView section={section} />
+              </div>
+            </ScaledPreview>
+          </div>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
