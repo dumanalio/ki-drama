@@ -4,17 +4,82 @@ import { revalidatePath } from "next/cache";
 
 import type { ActionResult } from "@/lib/actions/types";
 import { AdminAuthError, requireAdmin } from "@/lib/auth/require-admin";
+import { formatZodError } from "@/lib/validation/format-zod-error";
 import {
   generalSettingsSchema,
   landingPageContentSchema,
 } from "@/lib/validation/settings";
 import type { Json } from "@/types/database";
 
-function fail(error: unknown, fallback: string): { ok: false; error: string } {
+const GENERAL_SETTINGS_LABELS: Record<string, string> = {
+  meetingUrl: "Meeting-Link",
+  slotMinutes: "Slotlänge",
+  leadTimeHours: "Vorlaufzeit",
+  horizonDays: "Buchungshorizont",
+  notifyEmail: "Benachrichtigungs-E-Mail",
+  emailConfirmationNote: "Zusätzlicher Hinweis (Bestätigungsmail)",
+  emailSignoff: "Grußformel",
+  headerButtonColor: "Header: Button-Farbe",
+  headerButtonCustomColor: "Header: eigene Button-Farbe",
+  headerLogoUrl: "Header-Logo",
+  headerLogoAlt: "Header-Logo: Alt-Text",
+  headerLogoHeight: "Header-Logo: Höhe",
+  footerLogoUrl: "Footer-Logo",
+  footerLogoAlt: "Footer-Logo: Alt-Text",
+  footerLogoHeight: "Footer-Logo: Höhe",
+};
+
+const LANDING_CONTENT_LABELS: Record<string, string> = {
+  hero: "Hero",
+  eyebrow: "Eyebrow",
+  title: "Überschrift",
+  subtitle: "Unterzeile",
+  text: "Text",
+  primaryButtonLabel: "Primärer Button: Beschriftung",
+  primaryButtonColor: "Primärer Button: Farbe",
+  primaryButtonCustomColor: "Primärer Button: eigene Farbe",
+  secondaryButtonLabel: "Sekundärer Button: Beschriftung",
+  secondaryButtonColor: "Sekundärer Button: Farbe",
+  secondaryButtonCustomColor: "Sekundärer Button: eigene Farbe",
+  imageUrl: "Bild",
+  imageAlt: "Bild: Alt-Text",
+  closingCta: "Abschluss-CTA",
+  buttonLabel: "Button: Beschriftung",
+  buttonColor: "Button: Farbe",
+  buttonCustomColor: "Button: eigene Farbe",
+  sections: "Abschnitt",
+  columns: "Spalte",
+  checklistItems: "Häkchenliste",
+  button: "Button",
+  label: "Beschriftung",
+  href: "Ziel-Link",
+  color: "Farbe",
+  customColor: "eigene Farbe",
+  layout: "Layout",
+  columnCount: "Spaltenzahl",
+};
+
+function fail(
+  error: unknown,
+  fallback: string,
+  context: string
+): { ok: false; error: string } {
   if (error instanceof AdminAuthError) {
     return { ok: false, error: "Kein Zugriff. Bitte melde dich erneut an." };
   }
-  console.error("[actions/settings]", error);
+  const supabaseError = error as {
+    message?: string;
+    code?: string;
+    details?: string;
+    hint?: string;
+  } | null;
+  console.error(`[actions/settings] ${context}`, {
+    message: supabaseError?.message,
+    code: supabaseError?.code,
+    details: supabaseError?.details,
+    hint: supabaseError?.hint,
+    raw: error,
+  });
   return { ok: false, error: fallback };
 }
 
@@ -25,14 +90,14 @@ export async function saveGeneralSettings(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Die Angaben sind ungültig.",
+      error: formatZodError(parsed.error, GENERAL_SETTINGS_LABELS),
     };
   }
 
   try {
     const { adminClient } = await requireAdmin();
     const data = parsed.data;
-    const rows: { key: string; value: Json }[] = [
+    const rows: { key: string; value: Json | null }[] = [
       { key: "meeting_url", value: data.meetingUrl },
       { key: "slot_minutes", value: data.slotMinutes },
       { key: "lead_time_hours", value: data.leadTimeHours },
@@ -54,6 +119,20 @@ export async function saveGeneralSettings(
     ];
 
     for (const row of rows) {
+      // settings.value ist jsonb NOT NULL. PostgREST kann in einem Upsert
+      // nicht zwischen "SQL NULL" und "JSON null" unterscheiden und würde
+      // bei value: null immer SQL NULL schicken -- das verletzt die
+      // Constraint. Ein logisch "leeres" Feld wird deshalb durch Entfernen
+      // der Zeile dargestellt statt durch einen Null-Wert; die Lesefunktion
+      // fällt bei fehlender Zeile ohnehin auf ihren Default zurück.
+      if (row.value === null) {
+        const { error } = await adminClient
+          .from("settings")
+          .delete()
+          .eq("key", row.key);
+        if (error) throw error;
+        continue;
+      }
       const { error } = await adminClient
         .from("settings")
         .upsert({ key: row.key, value: row.value }, { onConflict: "key" });
@@ -68,7 +147,8 @@ export async function saveGeneralSettings(
   } catch (error) {
     return fail(
       error,
-      "Die Einstellungen konnten nicht gespeichert werden. Bitte versuche es erneut."
+      "Die Einstellungen konnten nicht gespeichert werden. Bitte versuche es erneut.",
+      "saveGeneralSettings"
     );
   }
 }
@@ -80,7 +160,7 @@ export async function saveLandingPageContent(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Die Angaben sind ungültig.",
+      error: formatZodError(parsed.error, LANDING_CONTENT_LABELS),
     };
   }
 
@@ -100,7 +180,8 @@ export async function saveLandingPageContent(
   } catch (error) {
     return fail(
       error,
-      "Die Startseite konnte nicht gespeichert werden. Bitte versuche es erneut."
+      "Die Startseite konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      "saveLandingPageContent"
     );
   }
 }
