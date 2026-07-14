@@ -192,7 +192,7 @@ export function RichTextEditor({ editor }: { editor: Editor | null }) {
           <Info className="size-4" aria-hidden="true" />
         </ToolbarButton>
         <ToolbarButton
-          label="Video einbetten (YouTube/Vimeo)"
+          label="Video einfügen (YouTube/Vimeo oder Datei)"
           onClick={() =>
             editor
               .chain()

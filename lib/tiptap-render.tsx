@@ -3,6 +3,7 @@ import Image from "next/image";
 import { AlertTriangle, CheckCircle2, ChevronDown, Info } from "lucide-react";
 
 import { calloutClasses, type CalloutVariant } from "@/lib/callout-style";
+import { isVideoPath } from "@/lib/media-constants";
 import { parseVideoEmbed } from "@/lib/video-embed";
 import type { Json } from "@/types/database";
 
@@ -269,6 +270,25 @@ function renderNode(node: TiptapNode, key: React.Key): React.ReactNode {
 
     case "video": {
       const url = typeof node.attrs?.url === "string" ? node.attrs.url : "";
+
+      if (isVideoPath(url)) {
+        return (
+          <div
+            key={key}
+            className="bg-surface-alt aspect-video w-full overflow-hidden rounded-[20px]"
+          >
+            {/* Kein autoPlay -- Videos starten nie automatisch mit Ton. */}
+            <video
+              src={url}
+              controls
+              muted
+              preload="metadata"
+              className="size-full object-contain"
+            />
+          </div>
+        );
+      }
+
       const embed = parseVideoEmbed(url);
       if (!embed) return null;
 

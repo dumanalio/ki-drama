@@ -29,7 +29,8 @@ export async function compressImageFile(file: File): Promise<CompressedImage> {
   };
 }
 
-function readImageDimensions(
+/** Auch für GIFs geeignet -- Image() liest bei animierten GIFs die Maße des ersten Frames. */
+export function readImageDimensions(
   file: File
 ): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
@@ -44,6 +45,25 @@ function readImageDimensions(
       reject(new Error("Bildabmessungen konnten nicht gelesen werden."));
     };
     img.src = url;
+  });
+}
+
+export function readVideoDimensions(
+  file: File
+): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: video.videoWidth, height: video.videoHeight });
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Videoabmessungen konnten nicht gelesen werden."));
+    };
+    video.src = url;
   });
 }
 
@@ -92,7 +112,7 @@ export function uploadFileWithProgress(
         const message =
           body && typeof body === "object" && "error" in body
             ? String((body as { error: unknown }).error)
-            : "Das Bild konnte nicht hochgeladen werden. Bitte versuche es erneut.";
+            : "Die Datei konnte nicht hochgeladen werden. Bitte versuche es erneut.";
         reject(new Error(message));
       }
     };
@@ -100,7 +120,7 @@ export function uploadFileWithProgress(
     xhr.onerror = () => {
       reject(
         new Error(
-          "Das Bild konnte nicht hochgeladen werden. Prüfe deine Verbindung."
+          "Die Datei konnte nicht hochgeladen werden. Prüfe deine Verbindung."
         )
       );
     };

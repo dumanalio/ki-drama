@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { ImageOff, Search } from "lucide-react";
 
 import { MediaDetailModal } from "@/components/admin/medien/media-detail-modal";
+import { MediaThumbnail } from "@/components/admin/medien/media-thumbnail";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import type { Media } from "@/types/database";
@@ -66,10 +66,8 @@ export function MediaGrid({
               onClick={() => setOpenItem(item)}
               className="group focus-visible:ring-accent bg-surface-alt relative aspect-square overflow-hidden rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
-              <Image
-                src={item.url}
-                alt={item.alt}
-                fill
+              <MediaThumbnail
+                media={item}
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                 className="object-cover transition-transform duration-[180ms] group-hover:scale-105"
               />

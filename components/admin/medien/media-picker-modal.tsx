@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { Search } from "lucide-react";
 
-import { MediaUploader } from "@/components/admin/medien/media-uploader";
+import { MediaThumbnail } from "@/components/admin/medien/media-thumbnail";
+import { MediaUploader, type MediaAccept } from "@/components/admin/medien/media-uploader";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Modal, ModalContent } from "@/components/ui/modal";
@@ -17,16 +17,19 @@ import {
   TabsTab,
 } from "@/components/ui/tabs";
 import { listMediaForPicker } from "@/lib/actions/media";
+import { isVideoPath } from "@/lib/media-constants";
 import type { Media } from "@/types/database";
 
 export function MediaPickerModal({
   open,
   onOpenChange,
   onSelect,
+  accept = "image",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (media: Media) => void;
+  accept?: MediaAccept;
 }) {
   const [media, setMedia] = React.useState<Media[] | null>(null);
   const [search, setSearch] = React.useState("");
@@ -41,18 +44,24 @@ export function MediaPickerModal({
 
   const filtered = React.useMemo(() => {
     if (!media) return [];
+    const byKind = media.filter((item) =>
+      accept === "all" ? true : accept === "video" ? isVideoPath(item.path) : !isVideoPath(item.path)
+    );
     const query = search.trim().toLowerCase();
-    if (!query) return media;
-    return media.filter(
+    if (!query) return byKind;
+    return byKind.filter(
       (item) =>
         item.alt.toLowerCase().includes(query) ||
         item.path.toLowerCase().includes(query)
     );
-  }, [media, search]);
+  }, [media, search, accept]);
+
+  const title = accept === "video" ? "Video auswählen" : "Bild auswählen";
+  const emptyLabel = accept === "video" ? "Videos" : "Bilder";
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent title="Bild auswählen" className="max-w-3xl">
+      <ModalContent title={title} className="max-w-3xl">
         <Tabs defaultValue="library">
           <TabsList>
             <TabsTab value="library">Aus Bibliothek wählen</TabsTab>
@@ -84,8 +93,8 @@ export function MediaPickerModal({
               ) : filtered.length === 0 ? (
                 <EmptyState
                   icon={Search}
-                  title="Keine Bilder gefunden"
-                  description="Lade ein Bild über den Tab „Neu hochladen“ hoch."
+                  title={`Keine ${emptyLabel} gefunden`}
+                  description="Lade eine Datei über den Tab „Neu hochladen“ hoch."
                 />
               ) : (
                 <div className="grid max-h-[60vh] grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4">
@@ -96,10 +105,8 @@ export function MediaPickerModal({
                       onClick={() => onSelect(item)}
                       className="group focus-visible:ring-accent bg-surface-alt relative aspect-square overflow-hidden rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                     >
-                      <Image
-                        src={item.url}
-                        alt={item.alt}
-                        fill
+                      <MediaThumbnail
+                        media={item}
                         sizes="200px"
                         className="object-cover transition-transform duration-[180ms] group-hover:scale-105"
                       />
@@ -112,7 +119,7 @@ export function MediaPickerModal({
 
           <TabsPanel value="upload">
             <div className="max-h-[60vh] overflow-y-auto">
-              <MediaUploader onSaved={(saved) => onSelect(saved)} />
+              <MediaUploader accept={accept} onSaved={(saved) => onSelect(saved)} />
             </div>
           </TabsPanel>
         </Tabs>

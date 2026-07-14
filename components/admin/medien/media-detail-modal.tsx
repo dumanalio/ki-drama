@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Modal, ModalContent } from "@/components/ui/modal";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteMediaRecord, updateMediaRecord } from "@/lib/actions/media";
+import { isVideoPath } from "@/lib/media-constants";
 import type { Media } from "@/types/database";
 
 function formatBytes(bytes: number | null): string {
@@ -37,6 +38,7 @@ export function MediaDetailModal({
   const [confirmingDelete, setConfirmingDelete] = React.useState(false);
   const [isSaving, startSaving] = React.useTransition();
   const [isDeleting, startDeleting] = React.useTransition();
+  const isVideo = isVideoPath(media.path);
 
   function handleSave() {
     setError(null);
@@ -51,7 +53,7 @@ export function MediaDetailModal({
         toast.error(result.error);
         return;
       }
-      toast.success("Bild aktualisiert");
+      toast.success(isVideo ? "Video aktualisiert" : "Bild aktualisiert");
       onUpdated({
         ...media,
         alt: alt.trim(),
@@ -70,7 +72,7 @@ export function MediaDetailModal({
         toast.error(result.error);
         return;
       }
-      toast.success("Bild gelöscht");
+      toast.success(isVideo ? "Video gelöscht" : "Bild gelöscht");
       onDeleted(media.id);
     });
   }
@@ -83,16 +85,26 @@ export function MediaDetailModal({
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Bild bearbeiten" className="max-w-2xl">
+      <ModalContent title={isVideo ? "Video bearbeiten" : "Bild bearbeiten"} className="max-w-2xl">
         <div className="flex flex-col gap-5">
           <div className="bg-surface-alt relative aspect-video overflow-hidden rounded-xl">
-            <Image
-              src={media.url}
-              alt={media.alt}
-              fill
-              sizes="600px"
-              className="object-contain"
-            />
+            {isVideo ? (
+              <video
+                src={media.url}
+                controls
+                muted
+                preload="metadata"
+                className="size-full object-contain"
+              />
+            ) : (
+              <Image
+                src={media.url}
+                alt={media.alt}
+                fill
+                sizes="600px"
+                className="object-contain"
+              />
+            )}
           </div>
 
           <dl className="text-ink-muted grid grid-cols-2 gap-x-4 gap-y-1 text-[13px] sm:grid-cols-4">
@@ -153,9 +165,9 @@ export function MediaDetailModal({
           {confirmingDelete ? (
             <div className="border-danger/30 bg-danger-soft flex flex-col gap-3 rounded-lg border p-4">
               <p className="text-danger text-[14px]">
-                Dieses Bild wirklich löschen? Das lässt sich nicht rückgängig
-                machen. Falls es in Beiträgen verwendet wird, bleibt dort ein
-                defekter Link zurück.
+                {isVideo ? "Dieses Video" : "Dieses Bild"} wirklich löschen?
+                Das lässt sich nicht rückgängig machen. Falls es in Beiträgen
+                verwendet wird, bleibt dort ein defekter Link zurück.
               </p>
               <div className="flex justify-end gap-2">
                 <Button

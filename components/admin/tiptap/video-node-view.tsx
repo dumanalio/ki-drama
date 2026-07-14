@@ -2,9 +2,11 @@
 
 import * as React from "react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
-import { Trash2, Video as VideoIcon } from "lucide-react";
+import { Trash2, Upload, Video as VideoIcon } from "lucide-react";
 
+import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
 import { cn } from "@/lib/utils";
+import { isVideoPath } from "@/lib/media-constants";
 import { parseVideoEmbed } from "@/lib/video-embed";
 
 export function VideoNodeView({
@@ -15,7 +17,9 @@ export function VideoNodeView({
 }: NodeViewProps) {
   const url = (node.attrs.url as string | null) ?? "";
   const [draft, setDraft] = React.useState(url);
+  const [pickerOpen, setPickerOpen] = React.useState(false);
   const embed = parseVideoEmbed(url);
+  const isUploadedFile = isVideoPath(url);
 
   React.useEffect(() => setDraft(url), [url]);
 
@@ -27,7 +31,17 @@ export function VideoNodeView({
           selected && "ring-accent ring-2 ring-offset-2 rounded-[20px]"
         )}
       >
-        {embed ? (
+        {isUploadedFile ? (
+          <div className="bg-surface-alt aspect-video w-full overflow-hidden rounded-[20px]">
+            <video
+              src={url}
+              controls
+              muted
+              preload="metadata"
+              className="size-full object-contain"
+            />
+          </div>
+        ) : embed ? (
           <div className="bg-surface-alt aspect-video w-full overflow-hidden rounded-[20px]">
             <iframe
               src={embed.embedUrl}
@@ -42,8 +56,8 @@ export function VideoNodeView({
           <div className="bg-surface-alt text-ink-muted flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-[20px] p-6 text-center text-[14px]">
             <VideoIcon className="size-6" aria-hidden="true" />
             {url
-              ? "Diese URL wird nicht erkannt. Nur YouTube- und Vimeo-Links werden unterstützt."
-              : "Füge einen YouTube- oder Vimeo-Link ein."}
+              ? "Diese URL wird nicht erkannt. Nur YouTube- und Vimeo-Links sowie hochgeladene MP4/WebM-Dateien werden unterstützt."
+              : "Füge einen YouTube- oder Vimeo-Link ein, oder lade eine Datei hoch."}
           </div>
         )}
 
@@ -66,6 +80,14 @@ export function VideoNodeView({
           />
           <button
             type="button"
+            aria-label="Video hochladen oder aus Bibliothek wählen"
+            onClick={() => setPickerOpen(true)}
+            className="text-ink-soft hover:bg-surface-alt flex size-8 shrink-0 items-center justify-center rounded"
+          >
+            <Upload className="size-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
             aria-label="Video entfernen"
             onClick={() => deleteNode()}
             className="text-danger hover:bg-danger-soft flex size-8 shrink-0 items-center justify-center rounded"
@@ -74,6 +96,16 @@ export function VideoNodeView({
           </button>
         </div>
       </div>
+
+      <MediaPickerModal
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        accept="video"
+        onSelect={(media) => {
+          updateAttributes({ url: media.url });
+          setPickerOpen(false);
+        }}
+      />
     </NodeViewWrapper>
   );
 }

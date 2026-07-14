@@ -9,11 +9,26 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { createMediaRecord, discardUploadedFile } from "@/lib/actions/media";
-import { compressImageFile, uploadFileWithProgress } from "@/lib/media-client";
+import {
+  compressImageFile,
+  readImageDimensions,
+  readVideoDimensions,
+  uploadFileWithProgress,
+} from "@/lib/media-client";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  ACCEPTED_VIDEO_TYPES,
+  isGifMimeType,
+  isVideoMimeType,
+  MAX_UPLOAD_BYTES,
+} from "@/lib/media-constants";
 import type { Media } from "@/types/database";
+
+export type MediaAccept = "image" | "video" | "all";
 
 interface PendingUpload {
   id: string;
+  kind: "image" | "video";
   previewUrl: string;
   progress: number;
   status: "compressing" | "uploading" | "awaiting-alt" | "saving" | "error";
@@ -31,14 +46,27 @@ function createLocalId(): string {
   return `pending-${Math.random().toString(36).slice(2)}`;
 }
 
+function acceptedTypesFor(accept: MediaAccept): readonly string[] {
+  if (accept === "image") return ACCEPTED_IMAGE_TYPES;
+  if (accept === "video") return ACCEPTED_VIDEO_TYPES;
+  return [...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES];
+}
+
+function formatMaxSize(): string {
+  return `${Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))} MB`;
+}
+
 export function MediaUploader({
   onSaved,
+  accept = "all",
 }: {
   onSaved: (media: Media) => void;
+  accept?: MediaAccept;
 }) {
   const [pending, setPending] = React.useState<PendingUpload[]>([]);
   const [dragActive, setDragActive] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const acceptedTypes = acceptedTypesFor(accept);
 
   function patchPending(id: string, patch: Partial<PendingUpload>) {
     setPending((prev) =>
@@ -51,35 +79,82 @@ export function MediaUploader({
   }
 
   async function handleFiles(files: FileList | File[]) {
-    const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/")
+    const validFiles = Array.from(files).filter((file) =>
+      acceptedTypes.includes(file.type)
     );
 
-    for (const file of imageFiles) {
+    for (const file of validFiles) {
       const id = createLocalId();
+      const kind = isVideoMimeType(file.type) ? "video" : "image";
+
+      if (file.size > MAX_UPLOAD_BYTES) {
+        setPending((prev) => [
+          ...prev,
+          {
+            id,
+            kind,
+            previewUrl: "",
+            progress: 0,
+            status: "error",
+            error: `Die Datei ist zu groß (maximal ${formatMaxSize()}).`,
+            alt: "",
+            caption: "",
+          },
+        ]);
+        continue;
+      }
+
       const previewUrl = URL.createObjectURL(file);
       setPending((prev) => [
         ...prev,
         {
           id,
+          kind,
           previewUrl,
           progress: 0,
-          status: "compressing",
+          status: kind === "video" ? "uploading" : "compressing",
           alt: "",
           caption: "",
         },
       ]);
 
-      void processUpload(id, file, previewUrl);
+      void processUpload(id, file, previewUrl, kind);
     }
   }
 
   async function processUpload(
     id: string,
     file: File,
-    originalPreviewUrl: string
+    originalPreviewUrl: string,
+    kind: "image" | "video"
   ) {
     try {
+      // Videos und GIFs unverändert hochladen: Komprimierung würde die
+      // Animation (GIF) zerstören bzw. ist für Videos nicht implementiert.
+      if (kind === "video" || isGifMimeType(file.type)) {
+        const dimensions =
+          kind === "video"
+            ? await readVideoDimensions(file)
+            : await readImageDimensions(file);
+        patchPending(id, {
+          status: "uploading",
+          width: dimensions.width,
+          height: dimensions.height,
+          bytes: file.size,
+        });
+
+        const result = await uploadFileWithProgress(file, (percent) => {
+          patchPending(id, { progress: percent });
+        });
+
+        patchPending(id, {
+          status: "awaiting-alt",
+          path: result.path,
+          url: result.url,
+        });
+        return;
+      }
+
       const compressed = await compressImageFile(file);
       URL.revokeObjectURL(originalPreviewUrl);
       const compressedPreviewUrl = URL.createObjectURL(compressed.file);
@@ -109,13 +184,13 @@ export function MediaUploader({
         error:
           error instanceof Error
             ? error.message
-            : "Das Bild konnte nicht verarbeitet werden.",
+            : "Die Datei konnte nicht verarbeitet werden.",
       });
     }
   }
 
   async function handleDiscard(item: PendingUpload) {
-    URL.revokeObjectURL(item.previewUrl);
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
     removePending(item.id);
     if (item.path) {
       await discardUploadedFile(item.path);
@@ -147,8 +222,12 @@ export function MediaUploader({
       return;
     }
 
-    toast.success("Bild in der Bibliothek gespeichert");
-    URL.revokeObjectURL(item.previewUrl);
+    toast.success(
+      item.kind === "video"
+        ? "Video in der Bibliothek gespeichert"
+        : "Bild in der Bibliothek gespeichert"
+    );
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
     removePending(item.id);
     onSaved({
       id: result.id,
@@ -162,6 +241,13 @@ export function MediaUploader({
       created_at: new Date().toISOString(),
     });
   }
+
+  const dropzoneLabel =
+    accept === "image"
+      ? "Bilder oder GIFs hierher ziehen"
+      : accept === "video"
+        ? "Videos (MP4/WebM) hierher ziehen"
+        : "Bilder, GIFs oder Videos hierher ziehen";
 
   return (
     <div className="flex flex-col gap-4">
@@ -196,16 +282,14 @@ export function MediaUploader({
         <span className="bg-accent-soft flex size-12 items-center justify-center rounded-full">
           <Upload className="text-accent size-6" aria-hidden="true" />
         </span>
-        <p className="text-ink text-[16px] font-semibold">
-          Bilder hierher ziehen
-        </p>
+        <p className="text-ink text-[16px] font-semibold">{dropzoneLabel}</p>
         <p className="text-ink-muted text-[14px]">
-          oder klicken, um Dateien auszuwählen
+          oder klicken, um Dateien auszuwählen — bis {formatMaxSize()}
         </p>
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept={acceptedTypes.join(",")}
           multiple
           className="hidden"
           onChange={(event) => {
@@ -222,23 +306,34 @@ export function MediaUploader({
               key={item.id}
               className="border-line bg-surface flex flex-col gap-3 rounded-xl border p-4"
             >
-              <div className="bg-surface-alt relative aspect-video overflow-hidden rounded-lg">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.previewUrl}
-                  alt=""
-                  className="size-full object-cover"
-                />
-                {item.status === "compressing" ||
-                item.status === "uploading" ? (
-                  <div className="bg-ink/40 absolute inset-0 flex items-center justify-center">
-                    <Loader2
-                      className="size-6 animate-spin text-white"
-                      aria-hidden="true"
+              {item.previewUrl ? (
+                <div className="bg-surface-alt relative aspect-video overflow-hidden rounded-lg">
+                  {item.kind === "video" ? (
+                    <video
+                      src={item.previewUrl}
+                      muted
+                      preload="metadata"
+                      className="size-full object-cover"
                     />
-                  </div>
-                ) : null}
-              </div>
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.previewUrl}
+                      alt=""
+                      className="size-full object-cover"
+                    />
+                  )}
+                  {item.status === "compressing" ||
+                  item.status === "uploading" ? (
+                    <div className="bg-ink/40 absolute inset-0 flex items-center justify-center">
+                      <Loader2
+                        className="size-6 animate-spin text-white"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
 
               {item.status === "compressing" ? (
                 <p className="text-ink-muted text-[13px]">Wird verkleinert…</p>
@@ -268,7 +363,11 @@ export function MediaUploader({
                           error: undefined,
                         })
                       }
-                      placeholder="Was ist auf dem Bild zu sehen?"
+                      placeholder={
+                        item.kind === "video"
+                          ? "Was ist im Video zu sehen?"
+                          : "Was ist auf dem Bild zu sehen?"
+                      }
                       invalid={Boolean(item.error)}
                       disabled={item.status === "saving"}
                     />

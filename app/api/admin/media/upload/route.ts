@@ -3,9 +3,13 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { AdminAuthError, requireAdmin } from "@/lib/auth/require-admin";
+import {
+  ACCEPTED_UPLOAD_TYPES,
+  extensionForMimeType,
+  MAX_UPLOAD_BYTES,
+} from "@/lib/media-constants";
 
 const MEDIA_BUCKET = "media";
-const MAX_FILE_BYTES = 15 * 1024 * 1024;
 
 export async function POST(request: Request) {
   let adminClient;
@@ -26,24 +30,27 @@ export async function POST(request: Request) {
 
   if (!(file instanceof File)) {
     return NextResponse.json(
-      { error: "Es wurde keine Bilddatei übermittelt." },
+      { error: "Es wurde keine Datei übermittelt." },
       { status: 400 }
     );
   }
-  if (!file.type.startsWith("image/")) {
+  if (!ACCEPTED_UPLOAD_TYPES.includes(file.type)) {
     return NextResponse.json(
-      { error: "Nur Bilddateien können hochgeladen werden." },
+      {
+        error:
+          "Dieses Dateiformat wird nicht unterstützt. Erlaubt sind Bilder (JPEG, PNG, WebP, GIF) und Videos (MP4, WebM).",
+      },
       { status: 400 }
     );
   }
-  if (file.size > MAX_FILE_BYTES) {
+  if (file.size > MAX_UPLOAD_BYTES) {
     return NextResponse.json(
-      { error: "Die Datei ist zu groß (maximal 15 MB)." },
+      { error: "Die Datei ist zu groß (maximal 20 MB)." },
       { status: 400 }
     );
   }
 
-  const extension = file.type === "image/webp" ? "webp" : "jpg";
+  const extension = extensionForMimeType(file.type) ?? "jpg";
   const path = `uploads/${randomUUID()}.${extension}`;
 
   const { error: uploadError } = await adminClient.storage
