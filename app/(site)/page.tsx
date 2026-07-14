@@ -110,7 +110,7 @@ export default async function Home() {
                 {hero.eyebrow}
               </span>
             ) : null}
-            <h1 className="text-ink text-[34px] font-bold tracking-[-0.02em] md:text-[52px]">
+            <h1 className="text-ink text-[34px] font-bold tracking-[-0.02em] whitespace-pre-line md:text-[52px]">
               {pick(hero.title, "Erklärung statt Aufregung.")}
             </h1>
             <p className="text-ink-soft max-w-[55ch] text-[17px] leading-relaxed">

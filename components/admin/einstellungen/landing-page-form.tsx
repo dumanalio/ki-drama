@@ -112,11 +112,15 @@ export function LandingPageForm({
             <span className="text-ink-muted text-[12px] font-medium">
               Überschrift
             </span>
-            <Input
+            <Textarea
               value={content.hero.title ?? ""}
               onChange={(event) => updateHero({ title: event.target.value })}
-              placeholder="Erklärung statt Aufregung."
+              placeholder={"Erklärung statt\nAufregung."}
+              className="min-h-[70px]"
             />
+            <span className="text-ink-muted text-[12px]">
+              Zeilenumbrüche werden auf der Seite übernommen.
+            </span>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-ink-muted text-[12px] font-medium">
