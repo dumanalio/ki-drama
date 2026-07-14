@@ -117,6 +117,11 @@ export function computeAvailability(
     }
 
     const daySlots: Slot[] = [];
+    // Überlappende Regeln (z. B. zwei aktive Regeln für denselben Wochentag
+    // mit sich überschneidenden Zeitfenstern) können denselben Slot-Start
+    // aus verschiedenen Fenstern erzeugen. Ein Slot-Start kann nur einmal
+    // gebucht werden, also ist er auch nur einmal ein gültiges Ergebnis.
+    const seenStarts = new Set<string>();
 
     for (const window of windows) {
       const windowStartMs = toUtc(`${cursorDay}T${window.startTime}`).getTime();
@@ -139,10 +144,11 @@ export function computeAvailability(
         );
         if (conflicts) continue;
 
-        daySlots.push({
-          start: new Date(slotStart).toISOString(),
-          end: new Date(slotEnd).toISOString(),
-        });
+        const startIso = new Date(slotStart).toISOString();
+        if (seenStarts.has(startIso)) continue;
+        seenStarts.add(startIso);
+
+        daySlots.push({ start: startIso, end: new Date(slotEnd).toISOString() });
       }
     }
 
