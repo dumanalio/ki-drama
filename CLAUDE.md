@@ -169,23 +169,56 @@ Drei Vorfälle (gelöschtes Bild, Test-Section in echten Einstellungen,
 verwaiste Test-Prozesse) haben gezeigt: interaktive Browser-Tests gegen
 die echte Datenbank sind zu riskant, egal wie sorgfältig aufgeräumt wird.
 
-**Ab sofort:** Solange keine getrennte Testumgebung eingerichtet ist,
-macht Claude Code keine interaktiven/schreibenden Browser-Tests (Puppeteer
-o. Ä., alles was Server Actions auslöst oder Formulare ausfüllt) gegen
-die Produktiv-Datenbank. Stattdessen: TypeScript-Check, ESLint, sorgfältige
-Code-Lektüre und — wo möglich — rein lesende Screenshots der bereits
-laufenden Seite. Reicht das nicht für echte Gewissheit, wird das offen
-gesagt, statt ungefragt doch gegen die echte DB zu testen.
+**Ab sofort, verbindlich:** Claude Code macht KEINE interaktiven/schreibenden
+Browser-Tests (Puppeteer o. Ä., alles was Server Actions auslöst oder
+Formulare ausfüllt) mehr gegen die Produktiv-Datenbank — auch nicht
+versehentlich. Solche Tests laufen ausschließlich gegen den Dev-Server aus
+`npm run dev:test` (Port 3100, lädt `.env.test`, siehe unten). Ist
+`.env.test` nicht vorhanden oder nicht befüllt, gibt es keinen interaktiven
+Test — dann gilt wieder die alte Grenze: TypeScript-Check, ESLint,
+sorgfältige Code-Lektüre, rein lesende Screenshots der bereits laufenden
+Seite. Reicht das nicht für echte Gewissheit, wird das offen gesagt, statt
+ungefragt doch gegen die echte DB zu testen.
 
-**Empfohlene Lösung, sobald zugestimmt:** zweites kostenloses
-Supabase-Projekt als Test-Datenbank (nicht Branching — kostet ab dem
-Pro-Plan und ist für dieses Projekt Overkill; nicht lokal via CLI, weil
-Docker auf dieser Maschine beim Testen einen Berechtigungsfehler geworfen
-hat). Aufwand einmalig ca. 15–30 Minuten: neues Projekt anlegen,
-`docs/supabase_schema.sql` einspielen, eigenen Storage-Bucket + Test-Admin
-anlegen, Zugangsdaten in eine git-ignorierte `.env.test` legen, Dev-Server
-für Tests auf einem eigenen Port damit starten. Laufender Aufwand:
-Schema-Änderungen müssen zusätzlich in die Test-DB übertragen werden.
+### Einmalige Einrichtung (durch den Betreiber, im Supabase-Dashboard)
+
+Gewählte Lösung: zweites kostenloses Supabase-Projekt als Test-Datenbank
+(nicht Branching — kostet ab dem Pro-Plan, für dieses Projekt Overkill;
+nicht lokal via CLI, weil Docker auf dieser Maschine beim Testen einen
+Berechtigungsfehler geworfen hat). Aufwand ca. 15–30 Minuten:
+
+1. **Projekt anlegen:** [supabase.com/dashboard](https://supabase.com/dashboard)
+   → „New project" → eigene Organisation → Name z. B. `ki-drama-test` →
+   Region **identisch zur Produktiv-Instanz** wählen (Latenz spielt hier
+   keine Rolle, Konsistenz schon) → ein neues, zufälliges Datenbank-Passwort
+   generieren lassen und sicher notieren (separat von den Zugangsdaten aus
+   `.env`).
+2. **Schema einspielen:** im neuen Projekt → „SQL Editor" → „New query" →
+   Inhalt von `docs/supabase_schema.sql` einfügen → „Run". Das legt alle
+   Tabellen, RLS-Policies und Storage-Buckets aus dem Produktiv-Schema an.
+3. **Storage prüfen:** „Storage" im neuen Projekt → sicherstellen, dass der/die
+   Bucket(s) aus dem Schema-Skript existieren (sie sollten es nach Schritt 2
+   automatisch tun). Falls nicht: manuell mit denselben Namen/Public-Einstellungen
+   wie in der Produktiv-Instanz anlegen.
+4. **Test-Admin anlegen:** „Authentication" → „Users" → „Add user" → eigene
+   (Wegwerf-)Mailadresse + Passwort, „Auto Confirm User" aktivieren. Danach im
+   SQL Editor: `insert into admins (user_id, email) values ('<user-id aus der
+   Users-Liste>', '<die verwendete Mailadresse>');`
+5. **Zugangsdaten holen:** „Project Settings" → „API" → `Project URL`,
+   `anon public`-Key und `service_role`-Key kopieren.
+6. **In `.env.test` eintragen:** im Projekt-Root `.env.test.example` nach
+   `.env.test` kopieren (bleibt git-ignoriert) und die drei Werte aus Schritt 5
+   eintragen — plus optional `RESEND_API_KEY`/`ADMIN_NOTIFY_EMAIL`, falls
+   auch Mailversand getestet werden soll (sonst leer lassen, dann schlagen
+   nur Mail-Aktionen fehl, alles andere funktioniert).
+
+Damit ist die Einrichtung abgeschlossen. Ab dann startet
+`npm run dev:test` einen Dev-Server auf Port 3100 gegen diese Instanz;
+Claude Code nutzt ausschließlich diesen für schreibende/interaktive Tests.
+
+**Laufender Aufwand:** Schema-Änderungen (neue Spalten, Tabellen, Policies)
+müssen zusätzlich per SQL Editor in die Test-Instanz übertragen werden —
+Claude Code weist bei jeder Migration, die dies betrifft, aktiv darauf hin.
 
 ## Lokale Entwicklung
 
