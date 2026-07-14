@@ -8,6 +8,7 @@ import { formatZodError } from "@/lib/validation/format-zod-error";
 import {
   generalSettingsSchema,
   landingPageContentSchema,
+  navigationContentSchema,
 } from "@/lib/validation/settings";
 import type { Json } from "@/types/database";
 
@@ -57,6 +58,17 @@ const LANDING_CONTENT_LABELS: Record<string, string> = {
   customColor: "eigene Farbe",
   layout: "Layout",
   columnCount: "Spaltenzahl",
+};
+
+const NAVIGATION_LABELS: Record<string, string> = {
+  header: "Header-Navigation",
+  footerText: "Footer: Text unter dem Logo",
+  footerColumns: "Footer-Spalte",
+  heading: "Spaltenüberschrift",
+  links: "Link",
+  label: "Beschriftung",
+  href: "Ziel-Link",
+  visible: "Sichtbarkeit",
 };
 
 function fail(
@@ -182,6 +194,39 @@ export async function saveLandingPageContent(
       error,
       "Die Startseite konnte nicht gespeichert werden. Bitte versuche es erneut.",
       "saveLandingPageContent"
+    );
+  }
+}
+
+export async function saveNavigationContent(
+  input: unknown
+): Promise<ActionResult> {
+  const parsed = navigationContentSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: formatZodError(parsed.error, NAVIGATION_LABELS),
+    };
+  }
+
+  try {
+    const { adminClient } = await requireAdmin();
+    const { error } = await adminClient
+      .from("settings")
+      .upsert(
+        { key: "navigation", value: parsed.data as unknown as Json },
+        { onConflict: "key" }
+      );
+    if (error) throw error;
+
+    revalidatePath("/admin/einstellungen");
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (error) {
+    return fail(
+      error,
+      "Die Navigation konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      "saveNavigationContent"
     );
   }
 }

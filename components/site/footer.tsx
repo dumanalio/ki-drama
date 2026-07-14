@@ -1,26 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const SITEMAP_LINKS = [
-  { href: "/grundlagen", label: "Grundlagen" },
-  { href: "/landschaft", label: "Landschaft" },
-  { href: "/news", label: "News" },
-  { href: "/check", label: "Der Check" },
-];
-
-const ABOUT_LINKS = [
-  { href: "/ueber-mich", label: "Über mich" },
-  { href: "/kontakt", label: "Kontakt" },
-];
+import { DEFAULT_NAVIGATION, type FooterColumn } from "@/lib/navigation";
 
 export function Footer({
   logoUrl = null,
   logoAlt = null,
   logoHeight = 32,
+  footerText = DEFAULT_NAVIGATION.footerText,
+  footerColumns = DEFAULT_NAVIGATION.footerColumns,
 }: {
   logoUrl?: string | null;
   logoAlt?: string | null;
   logoHeight?: number;
+  footerText?: string;
+  footerColumns?: FooterColumn[];
 }) {
   const year = new Date().getFullYear();
 
@@ -43,39 +37,28 @@ export function Footer({
             </span>
           )}
           <p className="text-ink-soft max-w-[32ch] text-[15px] leading-relaxed">
-            Die Aufregung ist groß, die Erklärung fehlt.
+            {footerText}
           </p>
         </div>
 
-        <nav className="flex flex-col gap-2">
-          <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">
-            Wissen
-          </span>
-          {SITEMAP_LINKS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-ink-soft hover:text-ink text-[15px] transition-colors duration-[120ms]"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <nav className="flex flex-col gap-2">
-          <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">
-            Kontakt
-          </span>
-          {ABOUT_LINKS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-ink-soft hover:text-ink text-[15px] transition-colors duration-[120ms]"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {footerColumns.map((column) => (
+          <nav key={column.id} className="flex flex-col gap-2">
+            <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">
+              {column.heading}
+            </span>
+            {column.links
+              .filter((item) => item.visible)
+              .map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="text-ink-soft hover:text-ink text-[15px] transition-colors duration-[120ms]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+          </nav>
+        ))}
       </div>
 
       <div className="border-line border-t">

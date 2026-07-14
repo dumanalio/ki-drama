@@ -183,5 +183,44 @@ export const landingPageContentSchema = z
   })
   .pipe(landingPageContentShape);
 
+const navLinkSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().trim().min(1, "Bitte eine Beschriftung angeben.").max(60),
+  href: z.string().trim().min(1, "Bitte ein Ziel angeben.").max(300),
+  visible: z.boolean(),
+});
+
+const footerColumnSchema = z.object({
+  id: z.string().min(1),
+  heading: z
+    .string()
+    .trim()
+    .min(1, "Bitte eine Spaltenüberschrift angeben.")
+    .max(60),
+  links: z.array(navLinkSchema).max(10),
+});
+
+const navigationContentShape = z.object({
+  header: z.array(navLinkSchema).max(10),
+  footerText: z.string().trim().max(300),
+  footerColumns: z.array(footerColumnSchema).max(4),
+});
+
+// Derselbe JSON-String-Rundgang wie landingPageContentSchema -- aus demselben
+// Grund (verschachtelte Arrays verlieren sonst Attribute).
+export const navigationContentSchema = z
+  .string()
+  .min(1)
+  .transform((value, ctx) => {
+    try {
+      return JSON.parse(value) as unknown;
+    } catch {
+      ctx.addIssue({ code: "custom", message: "Der Inhalt ist ungültig." });
+      return z.NEVER;
+    }
+  })
+  .pipe(navigationContentShape);
+
 export type GeneralSettingsInput = z.infer<typeof generalSettingsSchema>;
 export type LandingPageContentInput = z.infer<typeof landingPageContentShape>;
+export type NavigationContentInput = z.infer<typeof navigationContentShape>;

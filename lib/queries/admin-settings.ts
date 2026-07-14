@@ -5,6 +5,11 @@ import {
   type LandingButtonColor,
   type LandingPageContent,
 } from "@/lib/landing-content";
+import {
+  DEFAULT_NAVIGATION,
+  normalizeNavigation,
+  type NavigationContent,
+} from "@/lib/navigation";
 
 export interface GeneralSettings {
   meetingUrl: string;
@@ -140,4 +145,24 @@ export async function getLandingPageContent(): Promise<LandingPageContent> {
       : EMPTY_LANDING_CONTENT.sections,
     closingCta: { ...EMPTY_LANDING_CONTENT.closingCta, ...stored.closingCta },
   };
+}
+
+export async function getNavigationContent(): Promise<NavigationContent> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "navigation")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (
+    !data?.value ||
+    typeof data.value !== "object" ||
+    Array.isArray(data.value)
+  ) {
+    return DEFAULT_NAVIGATION;
+  }
+
+  return normalizeNavigation(data.value as Partial<NavigationContent>);
 }

@@ -11,13 +11,7 @@ import { Button } from "@/components/ui/button";
 import { resolveButtonStyle } from "@/lib/button-color";
 import { cn } from "@/lib/utils";
 import type { LandingButtonColor } from "@/lib/landing-content";
-
-const NAV_ITEMS = [
-  { href: "/grundlagen", label: "Grundlagen" },
-  { href: "/landschaft", label: "Landschaft" },
-  { href: "/news", label: "News" },
-  { href: "/ueber-mich", label: "Über mich" },
-];
+import { DEFAULT_NAVIGATION, type NavLink } from "@/lib/navigation";
 
 function SiteLogo({
   logoUrl,
@@ -56,16 +50,19 @@ export function Header({
   logoUrl = null,
   logoAlt = null,
   logoHeight = 32,
+  navItems = DEFAULT_NAVIGATION.header,
 }: {
   buttonColor?: LandingButtonColor;
   buttonCustomColor?: string | null;
   logoUrl?: string | null;
   logoAlt?: string | null;
   logoHeight?: number;
+  navItems?: NavLink[];
 }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const buttonStyle = resolveButtonStyle(buttonColor, buttonCustomColor);
+  const visibleNavItems = navItems.filter((item) => item.visible);
 
   return (
     <header className="border-line bg-surface sticky top-0 z-40 border-b">
@@ -75,12 +72,12 @@ export function Header({
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {NAV_ITEMS.map((item) => {
+          {visibleNavItems.map((item) => {
             const active =
               pathname === item.href || pathname?.startsWith(`${item.href}/`);
             return (
               <Link
-                key={item.href}
+                key={item.id}
                 href={item.href}
                 className={cn(
                   "rounded-lg px-3 py-2 text-[15px] transition-colors duration-[120ms]",
@@ -133,9 +130,9 @@ export function Header({
               </Dialog.Close>
             </div>
             <nav className="mt-10 flex flex-col gap-6">
-              {NAV_ITEMS.map((item) => (
+              {visibleNavItems.map((item) => (
                 <Link
-                  key={item.href}
+                  key={item.id}
                   href={item.href}
                   onClick={() => setOpen(false)}
                   className="text-ink text-[22px] font-semibold"
