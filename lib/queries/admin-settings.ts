@@ -16,8 +16,12 @@ export interface GeneralSettings {
   emailSignoff: string;
   headerButtonColor: LandingButtonColor;
   headerButtonCustomColor: string | null;
-  logoUrl: string | null;
-  logoAlt: string | null;
+  headerLogoUrl: string | null;
+  headerLogoAlt: string | null;
+  headerLogoHeight: number;
+  footerLogoUrl: string | null;
+  footerLogoAlt: string | null;
+  footerLogoHeight: number;
 }
 
 const GENERAL_DEFAULTS: GeneralSettings = {
@@ -30,8 +34,12 @@ const GENERAL_DEFAULTS: GeneralSettings = {
   emailSignoff: "Bis dahin,\nKI-Drama",
   headerButtonColor: "accent",
   headerButtonCustomColor: null,
-  logoUrl: null,
-  logoAlt: null,
+  headerLogoUrl: null,
+  headerLogoAlt: null,
+  headerLogoHeight: 32,
+  footerLogoUrl: null,
+  footerLogoAlt: null,
+  footerLogoHeight: 32,
 };
 
 /**
@@ -78,8 +86,30 @@ export async function getGeneralSettings(): Promise<GeneralSettings> {
       "header_button_custom_color",
       GENERAL_DEFAULTS.headerButtonCustomColor
     ),
-    logoUrl: asNullableString("logo_url", GENERAL_DEFAULTS.logoUrl),
-    logoAlt: asNullableString("logo_alt", GENERAL_DEFAULTS.logoAlt),
+    headerLogoUrl: asNullableString(
+      "header_logo_url",
+      GENERAL_DEFAULTS.headerLogoUrl
+    ),
+    headerLogoAlt: asNullableString(
+      "header_logo_alt",
+      GENERAL_DEFAULTS.headerLogoAlt
+    ),
+    headerLogoHeight: asNumber(
+      "header_logo_height",
+      GENERAL_DEFAULTS.headerLogoHeight
+    ),
+    footerLogoUrl: asNullableString(
+      "footer_logo_url",
+      GENERAL_DEFAULTS.footerLogoUrl
+    ),
+    footerLogoAlt: asNullableString(
+      "footer_logo_alt",
+      GENERAL_DEFAULTS.footerLogoAlt
+    ),
+    footerLogoHeight: asNumber(
+      "footer_logo_height",
+      GENERAL_DEFAULTS.footerLogoHeight
+    ),
   };
 }
 

@@ -16,9 +16,11 @@ const ABOUT_LINKS = [
 export function Footer({
   logoUrl = null,
   logoAlt = null,
+  logoHeight = 32,
 }: {
   logoUrl?: string | null;
   logoAlt?: string | null;
+  logoHeight?: number;
 }) {
   const year = new Date().getFullYear();
 
@@ -30,9 +32,10 @@ export function Footer({
             <Image
               src={logoUrl}
               alt={logoAlt ?? "KI-Drama"}
-              width={140}
-              height={32}
-              className="h-8 w-auto object-contain"
+              width={logoHeight * 4}
+              height={logoHeight}
+              style={{ height: logoHeight, width: "auto" }}
+              className="object-contain"
             />
           ) : (
             <span className="font-display text-ink text-[18px] font-bold">

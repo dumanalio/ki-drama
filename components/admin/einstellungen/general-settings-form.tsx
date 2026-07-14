@@ -4,7 +4,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
-import { ImagePickerField } from "@/components/admin/einstellungen/image-picker-field";
+import { LogoField } from "@/components/admin/einstellungen/logo-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,8 +34,24 @@ export function GeneralSettingsForm({
   const [headerButtonCustomColor, setHeaderButtonCustomColor] = React.useState(
     settings.headerButtonCustomColor
   );
-  const [logoUrl, setLogoUrl] = React.useState(settings.logoUrl);
-  const [logoAlt, setLogoAlt] = React.useState(settings.logoAlt);
+  const [headerLogoUrl, setHeaderLogoUrl] = React.useState(
+    settings.headerLogoUrl
+  );
+  const [headerLogoAlt, setHeaderLogoAlt] = React.useState(
+    settings.headerLogoAlt
+  );
+  const [headerLogoHeight, setHeaderLogoHeight] = React.useState(
+    settings.headerLogoHeight
+  );
+  const [footerLogoUrl, setFooterLogoUrl] = React.useState(
+    settings.footerLogoUrl
+  );
+  const [footerLogoAlt, setFooterLogoAlt] = React.useState(
+    settings.footerLogoAlt
+  );
+  const [footerLogoHeight, setFooterLogoHeight] = React.useState(
+    settings.footerLogoHeight
+  );
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, startSaving] = React.useTransition();
 
@@ -52,8 +68,12 @@ export function GeneralSettingsForm({
         emailSignoff,
         headerButtonColor,
         headerButtonCustomColor,
-        logoUrl,
-        logoAlt,
+        headerLogoUrl,
+        headerLogoAlt,
+        headerLogoHeight,
+        footerLogoUrl,
+        footerLogoAlt,
+        footerLogoHeight,
       });
       if (!result.ok) {
         setError(result.error);
@@ -124,19 +144,21 @@ export function GeneralSettingsForm({
       <Card>
         <CardHeader title="Header" />
         <div className="flex flex-col gap-5">
-          <ImagePickerField
-            label='Logo (ersetzt den Schriftzug "KI-Drama" oben links und im Footer)'
-            imageUrl={logoUrl}
-            imageAlt={logoAlt}
+          <LogoField
+            label='Logo (ersetzt den Schriftzug "KI-Drama" oben links)'
+            imageUrl={headerLogoUrl}
+            imageAlt={headerLogoAlt}
+            height={headerLogoHeight}
             onSelect={(url, alt) => {
-              setLogoUrl(url);
-              setLogoAlt(alt);
+              setHeaderLogoUrl(url);
+              setHeaderLogoAlt(alt);
             }}
-            onAltChange={setLogoAlt}
+            onAltChange={setHeaderLogoAlt}
             onRemove={() => {
-              setLogoUrl(null);
-              setLogoAlt(null);
+              setHeaderLogoUrl(null);
+              setHeaderLogoAlt(null);
             }}
+            onHeightChange={setHeaderLogoHeight}
           />
 
           <div className="flex flex-col gap-1.5">
@@ -153,6 +175,26 @@ export function GeneralSettingsForm({
             />
           </div>
         </div>
+      </Card>
+
+      <Card>
+        <CardHeader title="Footer" />
+        <LogoField
+          label='Logo (ersetzt den Schriftzug "KI-Drama" unten links)'
+          imageUrl={footerLogoUrl}
+          imageAlt={footerLogoAlt}
+          height={footerLogoHeight}
+          onSelect={(url, alt) => {
+            setFooterLogoUrl(url);
+            setFooterLogoAlt(alt);
+          }}
+          onAltChange={setFooterLogoAlt}
+          onRemove={() => {
+            setFooterLogoUrl(null);
+            setFooterLogoAlt(null);
+          }}
+          onHeightChange={setFooterLogoHeight}
+        />
       </Card>
 
       <Card>

@@ -18,11 +18,16 @@ export default async function SiteLayout({
       <Header
         buttonColor={settings?.headerButtonColor}
         buttonCustomColor={settings?.headerButtonCustomColor}
-        logoUrl={settings?.logoUrl}
-        logoAlt={settings?.logoAlt}
+        logoUrl={settings?.headerLogoUrl}
+        logoAlt={settings?.headerLogoAlt}
+        logoHeight={settings?.headerLogoHeight}
       />
       <main className="flex-1">{children}</main>
-      <Footer logoUrl={settings?.logoUrl} logoAlt={settings?.logoAlt} />
+      <Footer
+        logoUrl={settings?.footerLogoUrl}
+        logoAlt={settings?.footerLogoAlt}
+        logoHeight={settings?.footerLogoHeight}
+      />
     </>
   );
 }

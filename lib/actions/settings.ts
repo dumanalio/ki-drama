@@ -45,8 +45,12 @@ export async function saveGeneralSettings(
         key: "header_button_custom_color",
         value: data.headerButtonCustomColor,
       },
-      { key: "logo_url", value: data.logoUrl },
-      { key: "logo_alt", value: data.logoAlt },
+      { key: "header_logo_url", value: data.headerLogoUrl },
+      { key: "header_logo_alt", value: data.headerLogoAlt },
+      { key: "header_logo_height", value: data.headerLogoHeight },
+      { key: "footer_logo_url", value: data.footerLogoUrl },
+      { key: "footer_logo_alt", value: data.footerLogoAlt },
+      { key: "footer_logo_height", value: data.footerLogoHeight },
     ];
 
     for (const row of rows) {

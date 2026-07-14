@@ -61,8 +61,12 @@ export const generalSettingsSchema = z
     emailSignoff: z.string().trim().max(500),
     headerButtonColor: buttonColorEnum,
     headerButtonCustomColor: nullableHexColor,
-    logoUrl: nullableUrl,
-    logoAlt: nullableString(200),
+    headerLogoUrl: nullableUrl,
+    headerLogoAlt: nullableString(200),
+    headerLogoHeight: z.number().int().min(16).max(120),
+    footerLogoUrl: nullableUrl,
+    footerLogoAlt: nullableString(200),
+    footerLogoHeight: z.number().int().min(16).max(120),
   })
   .superRefine((settings, ctx) => {
     refineButtonContrast(

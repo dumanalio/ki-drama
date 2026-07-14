@@ -22,10 +22,12 @@ const NAV_ITEMS = [
 function SiteLogo({
   logoUrl,
   logoAlt,
+  logoHeight,
   className,
 }: {
   logoUrl: string | null;
   logoAlt: string | null;
+  logoHeight: number;
   className?: string;
 }) {
   if (logoUrl) {
@@ -33,9 +35,10 @@ function SiteLogo({
       <Image
         src={logoUrl}
         alt={logoAlt ?? "KI-Drama"}
-        width={140}
-        height={32}
-        className={cn("h-8 w-auto object-contain", className)}
+        width={logoHeight * 4}
+        height={logoHeight}
+        style={{ height: logoHeight, width: "auto" }}
+        className={cn("object-contain", className)}
         priority
       />
     );
@@ -52,11 +55,13 @@ export function Header({
   buttonCustomColor = null,
   logoUrl = null,
   logoAlt = null,
+  logoHeight = 32,
 }: {
   buttonColor?: LandingButtonColor;
   buttonCustomColor?: string | null;
   logoUrl?: string | null;
   logoAlt?: string | null;
+  logoHeight?: number;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
@@ -66,7 +71,7 @@ export function Header({
     <header className="border-line bg-surface sticky top-0 z-40 border-b">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
         <Link href="/" aria-label="Zur Startseite">
-          <SiteLogo logoUrl={logoUrl} logoAlt={logoAlt} />
+          <SiteLogo logoUrl={logoUrl} logoAlt={logoAlt} logoHeight={logoHeight} />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -119,7 +124,7 @@ export function Header({
             className="bg-surface fixed inset-0 z-50 flex flex-col p-6 transition-opacity duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0"
           >
             <div className="flex items-center justify-between">
-              <SiteLogo logoUrl={logoUrl} logoAlt={logoAlt} />
+              <SiteLogo logoUrl={logoUrl} logoAlt={logoAlt} logoHeight={logoHeight} />
               <Dialog.Close
                 aria-label="Menü schließen"
                 className="text-ink flex size-10 items-center justify-center rounded-lg"
