@@ -94,8 +94,8 @@ export function LandingPageForm({
   }
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
-      <Card>
+    <div className="flex flex-col gap-6">
+      <Card className="max-w-[720px]">
         <CardHeader title="Hero" />
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-1">
@@ -241,7 +241,7 @@ export function LandingPageForm({
         )}
       </div>
 
-      <Card>
+      <Card className="max-w-[720px]">
         <CardHeader title="Abschluss-CTA" />
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-1">

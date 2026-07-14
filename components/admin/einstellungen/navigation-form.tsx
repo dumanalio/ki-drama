@@ -61,7 +61,7 @@ export function NavigationForm({
   }
 
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
+    <div className="flex max-w-[720px] flex-col gap-6">
       <Card>
         <CardHeader title="Header-Navigation" />
         <div className="flex flex-col gap-3">

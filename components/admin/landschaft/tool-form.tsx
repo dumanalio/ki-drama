@@ -117,7 +117,7 @@ export function ToolForm({ tool }: { tool: Tool }) {
         </p>
       ) : null}
 
-      <div className="border-line bg-surface shadow-card max-w-2xl rounded-xl border p-6">
+      <div className="border-line bg-surface shadow-card max-w-[720px] rounded-xl border p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1">
             <span className="text-ink-muted text-[12px] font-medium">Name</span>

@@ -80,7 +80,7 @@ export function GeneralSettingsForm({
   }
 
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
+    <div className="flex max-w-[720px] flex-col gap-6">
       <Card>
         <CardHeader title="Kalender" />
         <div className="grid gap-4 sm:grid-cols-2">
