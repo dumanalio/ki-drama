@@ -184,7 +184,10 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
     <div
       className={cn(
         "flex flex-col gap-10 md:flex-row md:items-center md:gap-16",
-        section.layout === "image-right" && "md:flex-row-reverse"
+        // Text steht im DOM vor dem Bild (für "Bild zuerst" auf Mobil per
+        // order-Klassen unten). Ohne Umkehrung stünde das Bild auf Desktop
+        // also rechts -- das ist "image-left", darum hier umkehren.
+        section.layout === "image-left" && "md:flex-row-reverse"
       )}
     >
       <div className="order-2 flex flex-1 flex-col items-start gap-5 md:order-none">
