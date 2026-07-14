@@ -24,6 +24,8 @@ export default async function SiteLayout({
       <Header
         buttonColor={settings?.headerButtonColor}
         buttonCustomColor={settings?.headerButtonCustomColor}
+        buttonTextColor={settings?.headerButtonTextColor}
+        buttonTextCustomColor={settings?.headerButtonTextCustomColor}
         logoUrl={settings?.headerLogoUrl}
         logoAlt={settings?.headerLogoAlt}
         logoHeight={settings?.headerLogoHeight}

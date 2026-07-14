@@ -34,6 +34,11 @@ export function GeneralSettingsForm({
   const [headerButtonCustomColor, setHeaderButtonCustomColor] = React.useState(
     settings.headerButtonCustomColor
   );
+  const [headerButtonTextColor, setHeaderButtonTextColor] = React.useState(
+    settings.headerButtonTextColor
+  );
+  const [headerButtonTextCustomColor, setHeaderButtonTextCustomColor] =
+    React.useState(settings.headerButtonTextCustomColor);
   const [headerLogoUrl, setHeaderLogoUrl] = React.useState(
     settings.headerLogoUrl
   );
@@ -68,6 +73,8 @@ export function GeneralSettingsForm({
         emailSignoff,
         headerButtonColor,
         headerButtonCustomColor,
+        headerButtonTextColor,
+        headerButtonTextCustomColor,
         headerLogoUrl,
         headerLogoAlt,
         headerLogoHeight,
@@ -166,11 +173,17 @@ export function GeneralSettingsForm({
               Farbe des Check-starten-Buttons oben rechts, auf jeder Seite
             </span>
             <ButtonColorPicker
-              color={headerButtonColor}
-              customColor={headerButtonCustomColor}
-              onChange={(color, customColor) => {
-                setHeaderButtonColor(color);
-                setHeaderButtonCustomColor(customColor);
+              value={{
+                color: headerButtonColor,
+                customColor: headerButtonCustomColor,
+                textColor: headerButtonTextColor,
+                textCustomColor: headerButtonTextCustomColor,
+              }}
+              onChange={(next) => {
+                setHeaderButtonColor(next.color);
+                setHeaderButtonCustomColor(next.customColor);
+                setHeaderButtonTextColor(next.textColor);
+                setHeaderButtonTextCustomColor(next.textCustomColor);
               }}
             />
           </div>

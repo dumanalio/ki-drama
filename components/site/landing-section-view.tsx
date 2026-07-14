@@ -15,7 +15,12 @@ function SectionButton({
 }) {
   if (!button || !button.label || !button.href) return null;
 
-  const resolved = resolveButtonStyle(button.color, button.customColor);
+  const resolved = resolveButtonStyle(
+    button.color,
+    button.customColor,
+    button.textColor,
+    button.textCustomColor
+  );
 
   return (
     <Button

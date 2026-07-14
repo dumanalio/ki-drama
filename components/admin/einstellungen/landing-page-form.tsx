@@ -147,12 +147,18 @@ export function LandingPageForm({
                 />
               </label>
               <ButtonColorPicker
-                color={content.hero.primaryButtonColor}
-                customColor={content.hero.primaryButtonCustomColor}
-                onChange={(color, customColor) =>
+                value={{
+                  color: content.hero.primaryButtonColor,
+                  customColor: content.hero.primaryButtonCustomColor,
+                  textColor: content.hero.primaryButtonTextColor,
+                  textCustomColor: content.hero.primaryButtonTextCustomColor,
+                }}
+                onChange={(next) =>
                   updateHero({
-                    primaryButtonColor: color,
-                    primaryButtonCustomColor: customColor,
+                    primaryButtonColor: next.color,
+                    primaryButtonCustomColor: next.customColor,
+                    primaryButtonTextColor: next.textColor,
+                    primaryButtonTextCustomColor: next.textCustomColor,
                   })
                 }
               />
@@ -171,12 +177,18 @@ export function LandingPageForm({
                 />
               </label>
               <ButtonColorPicker
-                color={content.hero.secondaryButtonColor}
-                customColor={content.hero.secondaryButtonCustomColor}
-                onChange={(color, customColor) =>
+                value={{
+                  color: content.hero.secondaryButtonColor,
+                  customColor: content.hero.secondaryButtonCustomColor,
+                  textColor: content.hero.secondaryButtonTextColor,
+                  textCustomColor: content.hero.secondaryButtonTextCustomColor,
+                }}
+                onChange={(next) =>
                   updateHero({
-                    secondaryButtonColor: color,
-                    secondaryButtonCustomColor: customColor,
+                    secondaryButtonColor: next.color,
+                    secondaryButtonCustomColor: next.customColor,
+                    secondaryButtonTextColor: next.textColor,
+                    secondaryButtonTextCustomColor: next.textCustomColor,
                   })
                 }
               />
@@ -267,12 +279,18 @@ export function LandingPageForm({
             />
           </label>
           <ButtonColorPicker
-            color={content.closingCta.buttonColor}
-            customColor={content.closingCta.buttonCustomColor}
-            onChange={(color, customColor) =>
+            value={{
+              color: content.closingCta.buttonColor,
+              customColor: content.closingCta.buttonCustomColor,
+              textColor: content.closingCta.buttonTextColor,
+              textCustomColor: content.closingCta.buttonTextCustomColor,
+            }}
+            onChange={(next) =>
               updateClosingCta({
-                buttonColor: color,
-                buttonCustomColor: customColor,
+                buttonColor: next.color,
+                buttonCustomColor: next.customColor,
+                buttonTextColor: next.textColor,
+                buttonTextCustomColor: next.textCustomColor,
               })
             }
           />

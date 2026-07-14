@@ -4,6 +4,7 @@ import {
   normalizeSection,
   type LandingButtonColor,
   type LandingPageContent,
+  type LandingTextColor,
 } from "@/lib/landing-content";
 import {
   DEFAULT_NAVIGATION,
@@ -21,6 +22,8 @@ export interface GeneralSettings {
   emailSignoff: string;
   headerButtonColor: LandingButtonColor;
   headerButtonCustomColor: string | null;
+  headerButtonTextColor: LandingTextColor;
+  headerButtonTextCustomColor: string | null;
   headerLogoUrl: string | null;
   headerLogoAlt: string | null;
   headerLogoHeight: number;
@@ -39,6 +42,8 @@ const GENERAL_DEFAULTS: GeneralSettings = {
   emailSignoff: "Bis dahin,\nKI-Drama",
   headerButtonColor: "accent",
   headerButtonCustomColor: null,
+  headerButtonTextColor: "auto",
+  headerButtonTextCustomColor: null,
   headerLogoUrl: null,
   headerLogoAlt: null,
   headerLogoHeight: 32,
@@ -90,6 +95,14 @@ export async function getGeneralSettings(): Promise<GeneralSettings> {
     headerButtonCustomColor: asNullableString(
       "header_button_custom_color",
       GENERAL_DEFAULTS.headerButtonCustomColor
+    ),
+    headerButtonTextColor: asString(
+      "header_button_text_color",
+      GENERAL_DEFAULTS.headerButtonTextColor
+    ) as LandingTextColor,
+    headerButtonTextCustomColor: asNullableString(
+      "header_button_text_custom_color",
+      GENERAL_DEFAULTS.headerButtonTextCustomColor
     ),
     headerLogoUrl: asNullableString(
       "header_logo_url",

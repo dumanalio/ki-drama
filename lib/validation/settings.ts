@@ -1,6 +1,8 @@
 import { z } from "zod";
 
+import { resolveButtonBackgroundHex } from "@/lib/button-color";
 import { meetsWcagAA } from "@/lib/contrast";
+import type { LandingButtonColor, LandingTextColor } from "@/lib/landing-content";
 
 const emptyToNull = (value: string) =>
   value.trim().length === 0 ? null : value;
@@ -31,18 +33,36 @@ const buttonColorEnum = z.enum([
   "custom",
 ]);
 
-const CONTRAST_MESSAGE =
-  "Diese Farbe hat zu wenig Kontrast zu weißem Text (WCAG AA verlangt mind. 4.5:1). Bitte eine dunklere Farbe wählen.";
+const textColorEnum = z.enum(["auto", "custom"]);
 
-/** Prüft eine Farbe/Custom-Color-Kombination gegen WCAG AA und meldet ggf. am angegebenen Pfad. */
+const CONTRAST_MESSAGE =
+  "Diese Farbe hat zu wenig Kontrast zur Schriftfarbe (WCAG AA verlangt mind. 4.5:1). Bitte eine andere Farbe wählen.";
+
+/**
+ * Prüft Hintergrund-/Schriftfarbe eines Buttons gegen WCAG AA und meldet
+ * ggf. am angegebenen Pfad. Bei eigener Schriftfarbe wird gegen die
+ * tatsächliche Hintergrundfarbe geprüft (Token oder eigene Farbe); bei
+ * automatischer Schriftfarbe nur der alte Fall (eigener Hintergrund, dafür
+ * automatisch weißer Text).
+ */
 function refineButtonContrast(
   ctx: z.RefinementCtx,
-  color: string,
+  color: LandingButtonColor,
   customColor: string | null,
-  path: (string | number)[]
+  textColor: LandingTextColor,
+  textCustomColor: string | null,
+  bgPath: (string | number)[],
+  textPath: (string | number)[]
 ) {
+  if (textColor === "custom" && textCustomColor) {
+    const backgroundHex = resolveButtonBackgroundHex(color, customColor);
+    if (!meetsWcagAA(textCustomColor, backgroundHex)) {
+      ctx.addIssue({ code: "custom", path: textPath, message: CONTRAST_MESSAGE });
+    }
+    return;
+  }
   if (color === "custom" && customColor && !meetsWcagAA(customColor)) {
-    ctx.addIssue({ code: "custom", path, message: CONTRAST_MESSAGE });
+    ctx.addIssue({ code: "custom", path: bgPath, message: CONTRAST_MESSAGE });
   }
 }
 
@@ -61,6 +81,8 @@ export const generalSettingsSchema = z
     emailSignoff: z.string().trim().max(500),
     headerButtonColor: buttonColorEnum,
     headerButtonCustomColor: nullableHexColor,
+    headerButtonTextColor: textColorEnum,
+    headerButtonTextCustomColor: nullableHexColor,
     headerLogoUrl: nullableUrl,
     headerLogoAlt: nullableString(200),
     headerLogoHeight: z.number().int().min(16).max(120),
@@ -73,7 +95,10 @@ export const generalSettingsSchema = z
       ctx,
       settings.headerButtonColor,
       settings.headerButtonCustomColor,
-      ["headerButtonCustomColor"]
+      settings.headerButtonTextColor,
+      settings.headerButtonTextCustomColor,
+      ["headerButtonCustomColor"],
+      ["headerButtonTextCustomColor"]
     );
   });
 
@@ -85,9 +110,13 @@ const heroSchema = z
     primaryButtonLabel: nullableString(60),
     primaryButtonColor: buttonColorEnum,
     primaryButtonCustomColor: nullableHexColor,
+    primaryButtonTextColor: textColorEnum,
+    primaryButtonTextCustomColor: nullableHexColor,
     secondaryButtonLabel: nullableString(60),
     secondaryButtonColor: buttonColorEnum,
     secondaryButtonCustomColor: nullableHexColor,
+    secondaryButtonTextColor: textColorEnum,
+    secondaryButtonTextCustomColor: nullableHexColor,
     imageUrl: nullableUrl,
     imageAlt: nullableString(200),
   })
@@ -96,13 +125,19 @@ const heroSchema = z
       ctx,
       hero.primaryButtonColor,
       hero.primaryButtonCustomColor,
-      ["primaryButtonCustomColor"]
+      hero.primaryButtonTextColor,
+      hero.primaryButtonTextCustomColor,
+      ["primaryButtonCustomColor"],
+      ["primaryButtonTextCustomColor"]
     );
     refineButtonContrast(
       ctx,
       hero.secondaryButtonColor,
       hero.secondaryButtonCustomColor,
-      ["secondaryButtonCustomColor"]
+      hero.secondaryButtonTextColor,
+      hero.secondaryButtonTextCustomColor,
+      ["secondaryButtonCustomColor"],
+      ["secondaryButtonTextCustomColor"]
     );
   });
 
@@ -113,11 +148,19 @@ const closingCtaSchema = z
     buttonLabel: nullableString(60),
     buttonColor: buttonColorEnum,
     buttonCustomColor: nullableHexColor,
+    buttonTextColor: textColorEnum,
+    buttonTextCustomColor: nullableHexColor,
   })
   .superRefine((cta, ctx) => {
-    refineButtonContrast(ctx, cta.buttonColor, cta.buttonCustomColor, [
-      "buttonCustomColor",
-    ]);
+    refineButtonContrast(
+      ctx,
+      cta.buttonColor,
+      cta.buttonCustomColor,
+      cta.buttonTextColor,
+      cta.buttonTextCustomColor,
+      ["buttonCustomColor"],
+      ["buttonTextCustomColor"]
+    );
   });
 
 const sectionButtonSchema = z
@@ -126,16 +169,22 @@ const sectionButtonSchema = z
     href: nullableString(300),
     color: buttonColorEnum,
     customColor: nullableHexColor,
+    textColor: textColorEnum,
+    textCustomColor: nullableHexColor,
   })
   .nullable()
-  .refine(
-    (button) =>
-      !button ||
-      button.color !== "custom" ||
-      !button.customColor ||
-      meetsWcagAA(button.customColor),
-    { message: CONTRAST_MESSAGE }
-  );
+  .superRefine((button, ctx) => {
+    if (!button) return;
+    refineButtonContrast(
+      ctx,
+      button.color,
+      button.customColor,
+      button.textColor,
+      button.textCustomColor,
+      ["customColor"],
+      ["textCustomColor"]
+    );
+  });
 
 const landingSectionColumnSchema = z.object({
   id: z.string().min(1),

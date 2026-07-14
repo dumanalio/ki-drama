@@ -5,6 +5,9 @@ export type LandingButtonColor =
   | "outline"
   | "custom";
 
+/** "auto" = die zur Variante gehörende Standard-Schriftfarbe, "custom" = eigene Hex-Farbe. */
+export type LandingTextColor = "auto" | "custom";
+
 export interface LandingHero {
   eyebrow: string | null;
   title: string | null;
@@ -12,9 +15,13 @@ export interface LandingHero {
   primaryButtonLabel: string | null;
   primaryButtonColor: LandingButtonColor;
   primaryButtonCustomColor: string | null;
+  primaryButtonTextColor: LandingTextColor;
+  primaryButtonTextCustomColor: string | null;
   secondaryButtonLabel: string | null;
   secondaryButtonColor: LandingButtonColor;
   secondaryButtonCustomColor: string | null;
+  secondaryButtonTextColor: LandingTextColor;
+  secondaryButtonTextCustomColor: string | null;
   imageUrl: string | null;
   imageAlt: string | null;
 }
@@ -31,6 +38,9 @@ export interface LandingSectionButton {
   color: LandingButtonColor;
   /** Nur relevant, wenn color === "custom". Hex, z. B. "#5b4ee3". */
   customColor: string | null;
+  textColor: LandingTextColor;
+  /** Nur relevant, wenn textColor === "custom". Hex, z. B. "#1e1b39". */
+  textCustomColor: string | null;
 }
 
 export type LandingSectionColumnCount = 1 | 2 | 3;
@@ -68,6 +78,8 @@ export interface LandingClosingCta {
   buttonLabel: string | null;
   buttonColor: LandingButtonColor;
   buttonCustomColor: string | null;
+  buttonTextColor: LandingTextColor;
+  buttonTextCustomColor: string | null;
 }
 
 export interface LandingPageContent {
@@ -84,9 +96,13 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
     primaryButtonLabel: null,
     primaryButtonColor: "accent",
     primaryButtonCustomColor: null,
+    primaryButtonTextColor: "auto",
+    primaryButtonTextCustomColor: null,
     secondaryButtonLabel: null,
     secondaryButtonColor: "soft",
     secondaryButtonCustomColor: null,
+    secondaryButtonTextColor: "auto",
+    secondaryButtonTextCustomColor: null,
     imageUrl: null,
     imageAlt: null,
   },
@@ -97,6 +113,8 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
     buttonLabel: null,
     buttonColor: "accent",
     buttonCustomColor: null,
+    buttonTextColor: "auto",
+    buttonTextCustomColor: null,
   },
 };
 
@@ -127,6 +145,21 @@ export function createEmptyColumn(): LandingSectionColumn {
   };
 }
 
+/** Ergänzt fehlende Button-Felder (z. B. textColor aus einer späteren Erweiterung) mit Defaults. */
+export function normalizeButton(
+  button: Partial<LandingSectionButton> | null | undefined
+): LandingSectionButton | null {
+  if (!button) return null;
+  return {
+    label: button.label ?? null,
+    href: button.href ?? null,
+    color: button.color ?? "soft",
+    customColor: button.customColor ?? null,
+    textColor: button.textColor ?? "auto",
+    textCustomColor: button.textCustomColor ?? null,
+  };
+}
+
 /**
  * Ergänzt fehlende Felder (z. B. columnCount/columns aus einer späteren
  * Erweiterung) mit Defaults, damit ältere gespeicherte Abschnitte nicht zu
@@ -140,10 +173,17 @@ export function normalizeSection(
     ...empty,
     ...section,
     columnCount: section.columnCount ?? empty.columnCount,
-    columns: Array.isArray(section.columns) ? section.columns : empty.columns,
+    columns: Array.isArray(section.columns)
+      ? section.columns.map((column) => ({
+          ...createEmptyColumn(),
+          ...column,
+          button: normalizeButton(column.button),
+        }))
+      : empty.columns,
     checklistItems: Array.isArray(section.checklistItems)
       ? section.checklistItems
       : empty.checklistItems,
+    button: normalizeButton(section.button),
   };
 }
 

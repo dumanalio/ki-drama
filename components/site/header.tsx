@@ -10,7 +10,7 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { resolveButtonStyle } from "@/lib/button-color";
 import { cn } from "@/lib/utils";
-import type { LandingButtonColor } from "@/lib/landing-content";
+import type { LandingButtonColor, LandingTextColor } from "@/lib/landing-content";
 import { DEFAULT_NAVIGATION, type NavLink } from "@/lib/navigation";
 
 function SiteLogo({
@@ -47,6 +47,8 @@ function SiteLogo({
 export function Header({
   buttonColor = "accent",
   buttonCustomColor = null,
+  buttonTextColor = "auto",
+  buttonTextCustomColor = null,
   logoUrl = null,
   logoAlt = null,
   logoHeight = 32,
@@ -54,6 +56,8 @@ export function Header({
 }: {
   buttonColor?: LandingButtonColor;
   buttonCustomColor?: string | null;
+  buttonTextColor?: LandingTextColor;
+  buttonTextCustomColor?: string | null;
   logoUrl?: string | null;
   logoAlt?: string | null;
   logoHeight?: number;
@@ -61,7 +65,12 @@ export function Header({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
-  const buttonStyle = resolveButtonStyle(buttonColor, buttonCustomColor);
+  const buttonStyle = resolveButtonStyle(
+    buttonColor,
+    buttonCustomColor,
+    buttonTextColor,
+    buttonTextCustomColor
+  );
   const visibleNavItems = navItems.filter((item) => item.visible);
 
   return (

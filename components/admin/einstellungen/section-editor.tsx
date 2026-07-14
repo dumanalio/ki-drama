@@ -79,7 +79,14 @@ export function SectionEditor({
   function toggleButton(enabled: boolean) {
     onChange({
       button: enabled
-        ? { label: "", href: "", color: "soft", customColor: null }
+        ? {
+            label: "",
+            href: "",
+            color: "soft",
+            customColor: null,
+            textColor: "auto",
+            textCustomColor: null,
+          }
         : null,
     });
   }
@@ -277,10 +284,19 @@ export function SectionEditor({
                       </label>
                     </div>
                     <ButtonColorPicker
-                      color={section.button.color}
-                      customColor={section.button.customColor}
-                      onChange={(color, customColor) =>
-                        updateButton({ color, customColor })
+                      value={{
+                        color: section.button.color,
+                        customColor: section.button.customColor,
+                        textColor: section.button.textColor,
+                        textCustomColor: section.button.textCustomColor,
+                      }}
+                      onChange={(next) =>
+                        updateButton({
+                          color: next.color,
+                          customColor: next.customColor,
+                          textColor: next.textColor,
+                          textCustomColor: next.textCustomColor,
+                        })
                       }
                     />
                   </div>

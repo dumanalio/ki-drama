@@ -19,7 +19,14 @@ export function ColumnEditor({
   function toggleButton(enabled: boolean) {
     onChange({
       button: enabled
-        ? { label: "", href: "", color: "soft", customColor: null }
+        ? {
+            label: "",
+            href: "",
+            color: "soft",
+            customColor: null,
+            textColor: "auto",
+            textCustomColor: null,
+          }
         : null,
     });
   }
@@ -99,10 +106,19 @@ export function ColumnEditor({
               </label>
             </div>
             <ButtonColorPicker
-              color={column.button.color}
-              customColor={column.button.customColor}
-              onChange={(color, customColor) =>
-                updateButton({ color, customColor })
+              value={{
+                color: column.button.color,
+                customColor: column.button.customColor,
+                textColor: column.button.textColor,
+                textCustomColor: column.button.textCustomColor,
+              }}
+              onChange={(next) =>
+                updateButton({
+                  color: next.color,
+                  customColor: next.customColor,
+                  textColor: next.textColor,
+                  textCustomColor: next.textCustomColor,
+                })
               }
             />
           </div>

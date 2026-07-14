@@ -45,6 +45,8 @@ const DEFAULT_SECTIONS: LandingSection[] = [
       href: "/grundlagen",
       color: "soft",
       customColor: null,
+      textColor: "auto",
+      textCustomColor: null,
     },
   },
   {
@@ -66,6 +68,8 @@ const DEFAULT_SECTIONS: LandingSection[] = [
       href: "/landschaft",
       color: "soft",
       customColor: null,
+      textColor: "auto",
+      textCustomColor: null,
     },
   },
 ];
@@ -92,13 +96,22 @@ export default async function Home() {
   const cta = content.closingCta;
   const heroPrimaryButton = resolveButtonStyle(
     hero.primaryButtonColor,
-    hero.primaryButtonCustomColor
+    hero.primaryButtonCustomColor,
+    hero.primaryButtonTextColor,
+    hero.primaryButtonTextCustomColor
   );
   const heroSecondaryButton = resolveButtonStyle(
     hero.secondaryButtonColor,
-    hero.secondaryButtonCustomColor
+    hero.secondaryButtonCustomColor,
+    hero.secondaryButtonTextColor,
+    hero.secondaryButtonTextCustomColor
   );
-  const ctaButton = resolveButtonStyle(cta.buttonColor, cta.buttonCustomColor);
+  const ctaButton = resolveButtonStyle(
+    cta.buttonColor,
+    cta.buttonCustomColor,
+    cta.buttonTextColor,
+    cta.buttonTextCustomColor
+  );
 
   return (
     <>
