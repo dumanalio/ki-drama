@@ -6,10 +6,12 @@ import type { ActionResult } from "@/lib/actions/types";
 import { AdminAuthError, requireAdmin } from "@/lib/auth/require-admin";
 import { formatZodError } from "@/lib/validation/format-zod-error";
 import {
+  footerSettingsSchema,
   generalSettingsSchema,
   landingPageContentSchema,
   navigationContentSchema,
 } from "@/lib/validation/settings";
+import { getNavigationContent } from "@/lib/queries/admin-settings";
 import type { Json } from "@/types/database";
 
 const GENERAL_SETTINGS_LABELS: Record<string, string> = {
@@ -27,9 +29,6 @@ const GENERAL_SETTINGS_LABELS: Record<string, string> = {
   headerLogoUrl: "Header-Logo",
   headerLogoAlt: "Header-Logo: Alt-Text",
   headerLogoHeight: "Header-Logo: Höhe",
-  footerLogoUrl: "Footer-Logo",
-  footerLogoAlt: "Footer-Logo: Alt-Text",
-  footerLogoHeight: "Footer-Logo: Höhe",
 };
 
 const LANDING_CONTENT_LABELS: Record<string, string> = {
@@ -73,6 +72,19 @@ const LANDING_CONTENT_LABELS: Record<string, string> = {
 const NAVIGATION_LABELS: Record<string, string> = {
   header: "Header-Navigation",
   footerText: "Footer: Text unter dem Logo",
+  footerColumns: "Footer-Spalte",
+  heading: "Spaltenüberschrift",
+  links: "Link",
+  label: "Beschriftung",
+  href: "Ziel-Link",
+  visible: "Sichtbarkeit",
+};
+
+const FOOTER_SETTINGS_LABELS: Record<string, string> = {
+  footerLogoUrl: "Footer-Logo",
+  footerLogoAlt: "Footer-Logo: Alt-Text",
+  footerLogoHeight: "Footer-Logo: Höhe",
+  footerText: "Text unter dem Logo",
   footerColumns: "Footer-Spalte",
   heading: "Spaltenüberschrift",
   links: "Link",
@@ -140,9 +152,6 @@ export async function saveGeneralSettings(
       { key: "header_logo_url", value: data.headerLogoUrl },
       { key: "header_logo_alt", value: data.headerLogoAlt },
       { key: "header_logo_height", value: data.headerLogoHeight },
-      { key: "footer_logo_url", value: data.footerLogoUrl },
-      { key: "footer_logo_alt", value: data.footerLogoAlt },
-      { key: "footer_logo_height", value: data.footerLogoHeight },
     ];
 
     for (const row of rows) {
@@ -242,6 +251,73 @@ export async function saveNavigationContent(
       error,
       "Die Navigation konnte nicht gespeichert werden. Bitte versuche es erneut.",
       "saveNavigationContent"
+    );
+  }
+}
+
+export async function saveFooterSettings(
+  input: unknown
+): Promise<ActionResult> {
+  const parsed = footerSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: formatZodError(parsed.error, FOOTER_SETTINGS_LABELS),
+    };
+  }
+
+  try {
+    const { adminClient } = await requireAdmin();
+    const data = parsed.data;
+
+    const logoRows: { key: string; value: Json | null }[] = [
+      { key: "footer_logo_url", value: data.footerLogoUrl },
+      { key: "footer_logo_alt", value: data.footerLogoAlt },
+      { key: "footer_logo_height", value: data.footerLogoHeight },
+    ];
+    for (const row of logoRows) {
+      // Gleicher Grund wie in saveGeneralSettings: settings.value ist jsonb
+      // NOT NULL, PostgREST würde value: null als SQL NULL schicken.
+      if (row.value === null) {
+        const { error } = await adminClient
+          .from("settings")
+          .delete()
+          .eq("key", row.key);
+        if (error) throw error;
+        continue;
+      }
+      const { error } = await adminClient
+        .from("settings")
+        .upsert({ key: row.key, value: row.value }, { onConflict: "key" });
+      if (error) throw error;
+    }
+
+    // "navigation" ist ein einzelner JSON-Datensatz (header + footerText +
+    // footerColumns zusammen). Dieses Formular bearbeitet nur die
+    // Footer-Teile, also den aktuellen header unverändert mitschreiben statt
+    // ihn zu überschreiben.
+    const currentNavigation = await getNavigationContent();
+    const { error } = await adminClient.from("settings").upsert(
+      {
+        key: "navigation",
+        value: {
+          header: currentNavigation.header,
+          footerText: data.footerText,
+          footerColumns: data.footerColumns,
+        } as unknown as Json,
+      },
+      { onConflict: "key" }
+    );
+    if (error) throw error;
+
+    revalidatePath("/admin/footer");
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (error) {
+    return fail(
+      error,
+      "Der Footer konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      "saveFooterSettings"
     );
   }
 }

@@ -48,15 +48,6 @@ export function GeneralSettingsForm({
   const [headerLogoHeight, setHeaderLogoHeight] = React.useState(
     settings.headerLogoHeight
   );
-  const [footerLogoUrl, setFooterLogoUrl] = React.useState(
-    settings.footerLogoUrl
-  );
-  const [footerLogoAlt, setFooterLogoAlt] = React.useState(
-    settings.footerLogoAlt
-  );
-  const [footerLogoHeight, setFooterLogoHeight] = React.useState(
-    settings.footerLogoHeight
-  );
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, startSaving] = React.useTransition();
 
@@ -78,9 +69,6 @@ export function GeneralSettingsForm({
         headerLogoUrl,
         headerLogoAlt,
         headerLogoHeight,
-        footerLogoUrl,
-        footerLogoAlt,
-        footerLogoHeight,
       });
       if (!result.ok) {
         setError(result.error);
@@ -188,26 +176,6 @@ export function GeneralSettingsForm({
             />
           </div>
         </div>
-      </Card>
-
-      <Card>
-        <CardHeader title="Footer" />
-        <LogoField
-          label='Logo (ersetzt den Schriftzug "KI-Drama" unten links)'
-          imageUrl={footerLogoUrl}
-          imageAlt={footerLogoAlt}
-          height={footerLogoHeight}
-          onSelect={(url, alt) => {
-            setFooterLogoUrl(url);
-            setFooterLogoAlt(alt);
-          }}
-          onAltChange={setFooterLogoAlt}
-          onRemove={() => {
-            setFooterLogoUrl(null);
-            setFooterLogoAlt(null);
-          }}
-          onHeightChange={setFooterLogoHeight}
-        />
       </Card>
 
       <Card>

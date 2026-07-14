@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Layers,
   Newspaper,
+  PanelBottom,
   Settings,
   Users,
   type LucideIcon,
@@ -26,5 +27,6 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: "/admin/grundlagen", label: "Grundlagen", icon: BookOpen },
   { href: "/admin/fragen", label: "Fragen", icon: HelpCircle },
   { href: "/admin/medien", label: "Medien", icon: ImageIcon },
+  { href: "/admin/footer", label: "Footer", icon: PanelBottom },
   { href: "/admin/einstellungen", label: "Einstellungen", icon: Settings },
 ];

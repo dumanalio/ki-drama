@@ -86,9 +86,6 @@ export const generalSettingsSchema = z
     headerLogoUrl: nullableUrl,
     headerLogoAlt: nullableString(200),
     headerLogoHeight: z.number().int().min(16).max(120),
-    footerLogoUrl: nullableUrl,
-    footerLogoAlt: nullableString(200),
-    footerLogoHeight: z.number().int().min(16).max(120),
   })
   .superRefine((settings, ctx) => {
     refineButtonContrast(
@@ -270,6 +267,30 @@ export const navigationContentSchema = z
   })
   .pipe(navigationContentShape);
 
+const footerSettingsShape = z.object({
+  footerLogoUrl: nullableUrl,
+  footerLogoAlt: nullableString(200),
+  footerLogoHeight: z.number().int().min(16).max(120),
+  footerText: z.string().trim().max(300),
+  footerColumns: z.array(footerColumnSchema).max(4),
+});
+
+// Derselbe JSON-String-Rundgang wie landingPageContentSchema -- aus demselben
+// Grund (verschachtelte Arrays verlieren sonst Attribute).
+export const footerSettingsSchema = z
+  .string()
+  .min(1)
+  .transform((value, ctx) => {
+    try {
+      return JSON.parse(value) as unknown;
+    } catch {
+      ctx.addIssue({ code: "custom", message: "Der Inhalt ist ungültig." });
+      return z.NEVER;
+    }
+  })
+  .pipe(footerSettingsShape);
+
 export type GeneralSettingsInput = z.infer<typeof generalSettingsSchema>;
 export type LandingPageContentInput = z.infer<typeof landingPageContentShape>;
 export type NavigationContentInput = z.infer<typeof navigationContentShape>;
+export type FooterSettingsInput = z.infer<typeof footerSettingsShape>;
