@@ -5,6 +5,7 @@ import { PanelLeft, PanelRight, PanelTop, Plus, Trash2, Type, X } from "lucide-r
 import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
 import { ColumnEditor } from "@/components/admin/einstellungen/column-editor";
 import { ImagePickerField } from "@/components/admin/einstellungen/image-picker-field";
+import { ScaledPreview } from "@/components/admin/einstellungen/scaled-preview";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -304,8 +305,12 @@ export function SectionEditor({
           <p className="text-ink-muted mb-2 text-[13px] font-medium">
             Live-Vorschau
           </p>
-          <div className="border-line bg-canvas overflow-hidden rounded-xl border p-4">
-            <LandingSectionView section={section} />
+          <div className="border-line bg-canvas overflow-hidden rounded-xl border">
+            <ScaledPreview>
+              <div className="mx-auto max-w-[1200px] px-6 py-14">
+                <LandingSectionView section={section} />
+              </div>
+            </ScaledPreview>
           </div>
         </div>
       </div>
