@@ -41,7 +41,9 @@ export default async function AdminProtectedLayout({
     <NuqsAdapter>
       <div className="bg-canvas flex min-h-screen flex-col md:flex-row">
         <AdminSidebar adminEmail={admin.email} />
-        <main className="flex-1 px-6 py-8 md:px-10 md:py-10">{children}</main>
+        <main className="flex-1 px-6 py-8 md:px-10 md:py-10">
+          <div className="mx-auto max-w-[1800px]">{children}</div>
+        </main>
         <CommandPalette />
         <Toaster
           position="bottom-right"
