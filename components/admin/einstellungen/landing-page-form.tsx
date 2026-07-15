@@ -16,10 +16,25 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { saveLandingPageContent } from "@/lib/actions/settings";
 import { VARIANT_BACKGROUND_HEX } from "@/lib/button-color";
-import { createEmptySection } from "@/lib/landing-content";
-import type { LandingPageContent, LandingSection } from "@/lib/landing-content";
+import {
+  createEmptySection,
+  HERO_TITLE_SIZE_CLASSES,
+  pick,
+} from "@/lib/landing-content";
+import type {
+  LandingHeroTitleSize,
+  LandingPageContent,
+  LandingSection,
+} from "@/lib/landing-content";
+import { cn } from "@/lib/utils";
 
 const AUTOSAVE_DELAY_MS = 1200;
+
+const HERO_TITLE_SIZE_OPTIONS: { value: LandingHeroTitleSize; label: string }[] = [
+  { value: "small", label: "Klein" },
+  { value: "medium", label: "Mittel" },
+  { value: "large", label: "Groß" },
+];
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -129,6 +144,37 @@ export function LandingPageForm({
               Zeilenumbrüche werden auf der Seite übernommen.
             </span>
           </label>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-ink-muted text-[12px] font-medium">
+              Schriftgröße der Überschrift
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {HERO_TITLE_SIZE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={content.hero.titleSize === option.value}
+                  onClick={() => updateHero({ titleSize: option.value })}
+                  className={cn(
+                    "flex h-9 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-colors duration-[120ms]",
+                    content.hero.titleSize === option.value
+                      ? "border-accent bg-accent-soft text-accent"
+                      : "border-line text-ink-soft hover:border-line-strong"
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <p
+              className={cn(
+                "text-ink font-bold tracking-[-0.02em]",
+                HERO_TITLE_SIZE_CLASSES[content.hero.titleSize]
+              )}
+            >
+              {pick(content.hero.title, "Erklärung statt Aufregung.")}
+            </p>
+          </div>
           <label className="flex flex-col gap-1">
             <span className="text-ink-muted text-[12px] font-medium">
               Untertitel

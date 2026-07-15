@@ -12,12 +12,14 @@ import { PostCard } from "@/components/site/post-card";
 import { resolveButtonStyle } from "@/lib/button-color";
 import {
   EMPTY_LANDING_CONTENT,
+  HERO_TITLE_SIZE_CLASSES,
   pick,
   type LandingSection,
 } from "@/lib/landing-content";
 import { isVideoPath, videoPlaybackAttrs } from "@/lib/media-constants";
 import { getPublishedPosts } from "@/lib/queries/content";
 import { getLandingPageContent } from "@/lib/queries/admin-settings";
+import { cn } from "@/lib/utils";
 import type { Post } from "@/types/database";
 
 // Rein öffentliche Inhalte (Beiträge, Startseiten-Texte) — Admin-Aktionen
@@ -128,7 +130,12 @@ export default async function Home() {
                 {hero.eyebrow}
               </span>
             ) : null}
-            <h1 className="text-ink text-[34px] font-bold tracking-[-0.02em] whitespace-pre-line md:text-[52px]">
+            <h1
+              className={cn(
+                "text-ink font-bold tracking-[-0.02em] whitespace-pre-line",
+                HERO_TITLE_SIZE_CLASSES[hero.titleSize]
+              )}
+            >
               {pick(hero.title, "Erklärung statt Aufregung.")}
             </h1>
             <p className="text-ink-soft max-w-[55ch] text-[17px] leading-relaxed">

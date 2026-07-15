@@ -107,6 +107,7 @@ const heroSchema = z
   .object({
     eyebrow: nullableString(60),
     title: nullableString(200),
+    titleSize: z.enum(["small", "medium", "large"]),
     subtitle: nullableString(400),
     primaryButtonLabel: nullableString(60),
     primaryButtonColor: buttonColorEnum,

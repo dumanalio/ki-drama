@@ -10,9 +10,19 @@ export type LandingButtonColor =
 /** "auto" = die zur Variante gehörende Standard-Schriftfarbe, "custom" = eigene Hex-Farbe. */
 export type LandingTextColor = "auto" | "custom";
 
+export type LandingHeroTitleSize = "small" | "medium" | "large";
+
+/** Tailwind-Klassen je Größe (Desktop/Mobil) -- "large" entspricht der bisherigen festen Größe. */
+export const HERO_TITLE_SIZE_CLASSES: Record<LandingHeroTitleSize, string> = {
+  small: "text-[26px] md:text-[38px]",
+  medium: "text-[30px] md:text-[44px]",
+  large: "text-[34px] md:text-[52px]",
+};
+
 export interface LandingHero {
   eyebrow: string | null;
   title: string | null;
+  titleSize: LandingHeroTitleSize;
   subtitle: string | null;
   primaryButtonLabel: string | null;
   primaryButtonColor: LandingButtonColor;
@@ -117,6 +127,7 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
   hero: {
     eyebrow: null,
     title: null,
+    titleSize: "large",
     subtitle: null,
     primaryButtonLabel: null,
     primaryButtonColor: "accent",
