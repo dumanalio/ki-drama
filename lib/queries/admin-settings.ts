@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   EMPTY_LANDING_CONTENT,
+  normalizeFaq,
   normalizeSection,
   type LandingButtonColor,
   type LandingPageContent,
@@ -156,6 +157,7 @@ export async function getLandingPageContent(): Promise<LandingPageContent> {
     sections: Array.isArray(stored.sections)
       ? stored.sections.map(normalizeSection)
       : EMPTY_LANDING_CONTENT.sections,
+    faq: normalizeFaq(stored.faq),
     closingCta: { ...EMPTY_LANDING_CONTENT.closingCta, ...stored.closingCta },
   };
 }

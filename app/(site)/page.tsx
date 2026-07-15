@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Section } from "@/components/site/section";
+import { LandingFaqView } from "@/components/site/landing-faq-view";
 import { LandingSectionView } from "@/components/site/landing-section-view";
 import { PostCard } from "@/components/site/post-card";
 import { resolveButtonStyle } from "@/lib/button-color";
@@ -96,6 +97,7 @@ export default async function Home() {
   const hero = content.hero;
   const sections =
     content.sections.length > 0 ? content.sections : DEFAULT_SECTIONS;
+  const faq = content.faq;
   const cta = content.closingCta;
   const heroPrimaryButton = resolveButtonStyle(
     hero.primaryButtonColor,
@@ -217,6 +219,12 @@ export default async function Home() {
           />
         )}
       </Section>
+
+      {faq.items.some((item) => item.question?.trim()) ? (
+        <Section>
+          <LandingFaqView faq={faq} />
+        </Section>
+      ) : null}
 
       <Section>
         <div className="bg-ink flex flex-col items-start gap-6 rounded-[20px] px-8 py-12 text-white md:flex-row md:items-center md:justify-between md:px-12">

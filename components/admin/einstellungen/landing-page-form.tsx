@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
+import { FaqEditor } from "@/components/admin/einstellungen/faq-editor";
 import { ImagePickerField } from "@/components/admin/einstellungen/image-picker-field";
 import { SectionEditor } from "@/components/admin/einstellungen/section-editor";
 import { SortableList } from "@/components/admin/sortable-list";
@@ -69,6 +70,10 @@ export function LandingPageForm({
 
   function updateClosingCta(patch: Partial<LandingPageContent["closingCta"]>) {
     update({ closingCta: { ...content.closingCta, ...patch } });
+  }
+
+  function updateFaq(patch: Partial<LandingPageContent["faq"]>) {
+    update({ faq: { ...content.faq, ...patch } });
   }
 
   function updateSection(id: string, patch: Partial<LandingSection>) {
@@ -245,6 +250,8 @@ export function LandingPageForm({
           />
         )}
       </div>
+
+      <FaqEditor faq={content.faq} onChange={updateFaq} />
 
       <Card className="max-w-[720px]">
         <CardHeader title="Abschluss-CTA" />

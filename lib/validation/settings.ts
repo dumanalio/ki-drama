@@ -210,9 +210,22 @@ const landingSectionSchema = z.object({
   button: sectionButtonSchema,
 });
 
+const faqItemSchema = z.object({
+  id: z.string().min(1),
+  question: nullableString(200),
+  answer: nullableString(600),
+});
+
+const faqSchema = z.object({
+  title: nullableString(200),
+  displayStyle: z.enum(["accordion", "grid", "numbered"]),
+  items: z.array(faqItemSchema).max(30),
+});
+
 const landingPageContentShape = z.object({
   hero: heroSchema,
   sections: z.array(landingSectionSchema).max(20),
+  faq: faqSchema,
   closingCta: closingCtaSchema,
 });
 

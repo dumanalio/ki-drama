@@ -88,9 +88,25 @@ export interface LandingClosingCta {
   buttonTextCustomColor: string | null;
 }
 
+export type FaqDisplayStyle = "accordion" | "grid" | "numbered";
+
+export interface LandingFaqItem {
+  /** Stabile Client-ID für Drag&Drop/React-Keys, kein DB-Primärschlüssel. */
+  id: string;
+  question: string | null;
+  answer: string | null;
+}
+
+export interface LandingFaq {
+  title: string | null;
+  displayStyle: FaqDisplayStyle;
+  items: LandingFaqItem[];
+}
+
 export interface LandingPageContent {
   hero: LandingHero;
   sections: LandingSection[];
+  faq: LandingFaq;
   closingCta: LandingClosingCta;
 }
 
@@ -114,6 +130,11 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
     imageVideoPlaybackMode: DEFAULT_VIDEO_PLAYBACK_MODE,
   },
   sections: [],
+  faq: {
+    title: null,
+    displayStyle: "accordion",
+    items: [],
+  },
   closingCta: {
     title: null,
     text: null,
@@ -151,6 +172,27 @@ export function createEmptyColumn(): LandingSectionColumn {
     title: null,
     text: null,
     button: null,
+  };
+}
+
+export function createEmptyFaqItem(): LandingFaqItem {
+  return {
+    id: crypto.randomUUID(),
+    question: null,
+    answer: null,
+  };
+}
+
+/** Ergänzt fehlende Felder (z. B. aus einer späteren Erweiterung) mit Defaults. */
+export function normalizeFaq(faq: Partial<LandingFaq> | null | undefined): LandingFaq {
+  const empty = EMPTY_LANDING_CONTENT.faq;
+  if (!faq) return empty;
+  return {
+    title: faq.title ?? empty.title,
+    displayStyle: faq.displayStyle ?? empty.displayStyle,
+    items: Array.isArray(faq.items)
+      ? faq.items.map((item) => ({ ...createEmptyFaqItem(), ...item }))
+      : empty.items,
   };
 }
 
