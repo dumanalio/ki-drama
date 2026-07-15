@@ -3,6 +3,7 @@ import {
   Calendar,
   FileText,
   HelpCircle,
+  Home,
   Image as ImageIcon,
   LayoutDashboard,
   Layers,
@@ -21,6 +22,7 @@ export interface AdminNavItem {
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/startseite", label: "Startseite", icon: Home },
   { href: "/admin/leads", label: "Leads", icon: Users },
   { href: "/admin/termine", label: "Termine", icon: Calendar },
   { href: "/admin/news", label: "News", icon: Newspaper },
