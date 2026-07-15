@@ -43,3 +43,35 @@ export function extensionForMimeType(type: string): string | null {
 export function isVideoPath(pathOrUrl: string): boolean {
   return /\.(mp4|webm)(\?|$)/i.test(pathOrUrl);
 }
+
+/**
+ * "controls": wie ein normales Video -- Steuerleiste sichtbar, Start nur auf
+ * Klick, stummgeschaltet ist nur der Startzustand (Ton per Steuerleiste
+ * möglich).
+ * "auto": Hintergrund/Deko -- Autoplay, Loop, dauerhaft stumm (Browser
+ * erlauben Autoplay nur ohne Ton), keine Steuerleiste, nicht anhaltbar.
+ */
+export type VideoPlaybackMode = "controls" | "auto";
+
+export const DEFAULT_VIDEO_PLAYBACK_MODE: VideoPlaybackMode = "controls";
+
+export function videoPlaybackAttrs(mode: VideoPlaybackMode) {
+  if (mode === "auto") {
+    return {
+      autoPlay: true,
+      loop: true,
+      muted: true,
+      controls: false,
+      playsInline: true,
+      preload: "auto" as const,
+    };
+  }
+  return {
+    autoPlay: false,
+    loop: false,
+    muted: true,
+    controls: true,
+    playsInline: true,
+    preload: "metadata" as const,
+  };
+}

@@ -6,8 +6,17 @@ import { Trash2, Upload, Video as VideoIcon } from "lucide-react";
 
 import { MediaPickerModal } from "@/components/admin/medien/media-picker-modal";
 import { cn } from "@/lib/utils";
-import { isVideoPath } from "@/lib/media-constants";
+import {
+  isVideoPath,
+  videoPlaybackAttrs,
+  type VideoPlaybackMode,
+} from "@/lib/media-constants";
 import { parseVideoEmbed } from "@/lib/video-embed";
+
+const PLAYBACK_OPTIONS: { value: VideoPlaybackMode; label: string }[] = [
+  { value: "controls", label: "Mit Steuerung" },
+  { value: "auto", label: "Läuft automatisch" },
+];
 
 export function VideoNodeView({
   node,
@@ -16,6 +25,7 @@ export function VideoNodeView({
   selected,
 }: NodeViewProps) {
   const url = (node.attrs.url as string | null) ?? "";
+  const playbackMode = (node.attrs.playbackMode as VideoPlaybackMode) ?? "controls";
   const [draft, setDraft] = React.useState(url);
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const embed = parseVideoEmbed(url);
@@ -34,10 +44,9 @@ export function VideoNodeView({
         {isUploadedFile ? (
           <div className="bg-surface-alt aspect-video w-full overflow-hidden rounded-[20px]">
             <video
+              key={playbackMode}
               src={url}
-              controls
-              muted
-              preload="metadata"
+              {...videoPlaybackAttrs(playbackMode)}
               className="size-full object-contain"
             />
           </div>
@@ -60,6 +69,30 @@ export function VideoNodeView({
               : "Füge einen YouTube- oder Vimeo-Link ein, oder lade eine Datei hoch."}
           </div>
         )}
+
+        {isUploadedFile ? (
+          <div
+            contentEditable={false}
+            className="flex flex-wrap items-center gap-2"
+          >
+            {PLAYBACK_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={playbackMode === option.value}
+                onClick={() => updateAttributes({ playbackMode: option.value })}
+                className={cn(
+                  "flex h-8 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-colors duration-[120ms]",
+                  playbackMode === option.value
+                    ? "border-accent bg-accent-soft text-accent"
+                    : "border-line text-ink-soft hover:border-line-strong"
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
 
         <div
           contentEditable={false}

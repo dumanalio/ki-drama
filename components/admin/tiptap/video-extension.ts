@@ -12,6 +12,8 @@ export const Video = Node.create({
   addAttributes() {
     return {
       url: { default: "" },
+      // Nur relevant für hochgeladene Dateien, nicht für YouTube/Vimeo-Embeds.
+      playbackMode: { default: "controls" },
     };
   },
 

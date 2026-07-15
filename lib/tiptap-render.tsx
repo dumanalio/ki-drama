@@ -3,7 +3,11 @@ import Image from "next/image";
 import { AlertTriangle, CheckCircle2, ChevronDown, Info } from "lucide-react";
 
 import { calloutClasses, type CalloutVariant } from "@/lib/callout-style";
-import { isVideoPath } from "@/lib/media-constants";
+import {
+  isVideoPath,
+  videoPlaybackAttrs,
+  type VideoPlaybackMode,
+} from "@/lib/media-constants";
 import { parseVideoEmbed } from "@/lib/video-embed";
 import type { Json } from "@/types/database";
 
@@ -270,6 +274,8 @@ function renderNode(node: TiptapNode, key: React.Key): React.ReactNode {
 
     case "video": {
       const url = typeof node.attrs?.url === "string" ? node.attrs.url : "";
+      const playbackMode: VideoPlaybackMode =
+        node.attrs?.playbackMode === "auto" ? "auto" : "controls";
 
       if (isVideoPath(url)) {
         return (
@@ -277,12 +283,12 @@ function renderNode(node: TiptapNode, key: React.Key): React.ReactNode {
             key={key}
             className="bg-surface-alt aspect-video w-full overflow-hidden rounded-[20px]"
           >
-            {/* Kein autoPlay -- Videos starten nie automatisch mit Ton. */}
+            {/* "auto": Autoplay+Loop, aber immer stumm -- Browser erlauben
+                Autoplay ohnehin nur ohne Ton. "controls": kein Autoplay,
+                Ton nur auf Klick über die Steuerleiste. */}
             <video
               src={url}
-              controls
-              muted
-              preload="metadata"
+              {...videoPlaybackAttrs(playbackMode)}
               className="size-full object-contain"
             />
           </div>
