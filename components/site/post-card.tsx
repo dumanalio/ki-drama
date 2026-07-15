@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { isVideoPath } from "@/lib/media-constants";
 import { formatBerlin } from "@/lib/time";
 import type { Post } from "@/types/database";
 
@@ -12,7 +13,14 @@ export function PostCard({ post }: { post: Post }) {
       className="group border-line bg-surface shadow-card hover:border-line-strong flex flex-col overflow-hidden rounded-xl border transition-colors duration-[120ms]"
     >
       <div className="bg-surface-alt aspect-16/9 w-full overflow-hidden">
-        {post.cover_url ? (
+        {post.cover_url && isVideoPath(post.cover_url) ? (
+          <video
+            src={post.cover_url}
+            muted
+            preload="metadata"
+            className="h-full w-full object-cover"
+          />
+        ) : post.cover_url ? (
           <Image
             src={post.cover_url}
             alt={post.cover_alt ?? ""}

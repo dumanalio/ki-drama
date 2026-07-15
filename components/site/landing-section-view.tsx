@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { CheckList } from "@/components/ui/check-list";
 import { resolveButtonStyle } from "@/lib/button-color";
 import { cn } from "@/lib/utils";
+import { isVideoPath, videoPlaybackAttrs } from "@/lib/media-constants";
 import type { LandingSection } from "@/lib/landing-content";
 
 function SectionButton({
@@ -37,10 +38,22 @@ function SectionButton({
 function SectionMedia({
   imageUrl,
   imageAlt,
+  videoPlaybackMode = "controls",
 }: {
   imageUrl: string | null;
   imageAlt: string | null;
+  videoPlaybackMode?: LandingSection["imageVideoPlaybackMode"];
 }) {
+  if (imageUrl && isVideoPath(imageUrl)) {
+    return (
+      <video
+        src={imageUrl}
+        {...videoPlaybackAttrs(videoPlaybackMode)}
+        className="size-full object-cover"
+      />
+    );
+  }
+
   return (
     <div className="relative size-full">
       {imageUrl ? (
@@ -68,7 +81,11 @@ function SectionColumnView({
   return (
     <div className="flex flex-col items-start gap-4">
       <div className="bg-accent-soft aspect-4/3 w-full overflow-hidden rounded-[20px]">
-        <SectionMedia imageUrl={column.imageUrl} imageAlt={column.imageAlt} />
+        <SectionMedia
+          imageUrl={column.imageUrl}
+          imageAlt={column.imageAlt}
+          videoPlaybackMode={column.imageVideoPlaybackMode}
+        />
       </div>
       {column.title ? (
         <h3 className="text-ink text-[20px] font-semibold tracking-[-0.01em]">
@@ -158,7 +175,11 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
     return (
       <div className="flex flex-col gap-6">
         <div className="bg-accent-soft aspect-16/9 w-full overflow-hidden rounded-[20px]">
-          <SectionMedia imageUrl={section.imageUrl} imageAlt={section.imageAlt} />
+          <SectionMedia
+            imageUrl={section.imageUrl}
+            imageAlt={section.imageAlt}
+            videoPlaybackMode={section.imageVideoPlaybackMode}
+          />
         </div>
         <div className="flex flex-col items-start gap-4">
           {section.eyebrow ? (
@@ -218,7 +239,11 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
       </div>
       <div className="order-1 flex-1 md:order-none">
         <div className="bg-accent-soft aspect-4/3 w-full overflow-hidden rounded-[20px]">
-          <SectionMedia imageUrl={section.imageUrl} imageAlt={section.imageAlt} />
+          <SectionMedia
+            imageUrl={section.imageUrl}
+            imageAlt={section.imageAlt}
+            videoPlaybackMode={section.imageVideoPlaybackMode}
+          />
         </div>
       </div>
     </div>

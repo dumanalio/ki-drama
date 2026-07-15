@@ -34,6 +34,7 @@ const buttonColorEnum = z.enum([
 ]);
 
 const textColorEnum = z.enum(["auto", "custom"]);
+const videoPlaybackModeEnum = z.enum(["controls", "auto"]);
 
 const CONTRAST_MESSAGE =
   "Diese Farbe hat zu wenig Kontrast zur Schriftfarbe (WCAG AA verlangt mind. 4.5:1). Bitte eine andere Farbe wählen.";
@@ -116,6 +117,7 @@ const heroSchema = z
     secondaryButtonTextCustomColor: nullableHexColor,
     imageUrl: nullableUrl,
     imageAlt: nullableString(200),
+    imageVideoPlaybackMode: videoPlaybackModeEnum,
   })
   .superRefine((hero, ctx) => {
     refineButtonContrast(
@@ -187,6 +189,7 @@ const landingSectionColumnSchema = z.object({
   id: z.string().min(1),
   imageUrl: nullableUrl,
   imageAlt: nullableString(200),
+  imageVideoPlaybackMode: videoPlaybackModeEnum,
   title: nullableString(200),
   text: nullableString(400),
   button: sectionButtonSchema,
@@ -203,6 +206,7 @@ const landingSectionSchema = z.object({
   checklistItems: z.array(nullableString(120)).max(6),
   imageUrl: nullableUrl,
   imageAlt: nullableString(200),
+  imageVideoPlaybackMode: videoPlaybackModeEnum,
   button: sectionButtonSchema,
 });
 

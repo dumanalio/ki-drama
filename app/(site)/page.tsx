@@ -14,6 +14,7 @@ import {
   pick,
   type LandingSection,
 } from "@/lib/landing-content";
+import { isVideoPath, videoPlaybackAttrs } from "@/lib/media-constants";
 import { getPublishedPosts } from "@/lib/queries/content";
 import { getLandingPageContent } from "@/lib/queries/admin-settings";
 import type { Post } from "@/types/database";
@@ -40,6 +41,7 @@ const DEFAULT_SECTIONS: LandingSection[] = [
     ],
     imageUrl: null,
     imageAlt: null,
+    imageVideoPlaybackMode: "controls",
     button: {
       label: "Grundlagen ansehen",
       href: "/grundlagen",
@@ -63,6 +65,7 @@ const DEFAULT_SECTIONS: LandingSection[] = [
     ],
     imageUrl: null,
     imageAlt: null,
+    imageVideoPlaybackMode: "controls",
     button: {
       label: "Landschaft ansehen",
       href: "/landschaft",
@@ -153,7 +156,15 @@ export default async function Home() {
             </div>
           </div>
           <div className="w-full flex-1">
-            {hero.imageUrl ? (
+            {hero.imageUrl && isVideoPath(hero.imageUrl) ? (
+              <div className="bg-surface-alt relative aspect-4/3 w-full overflow-hidden rounded-[20px]">
+                <video
+                  src={hero.imageUrl}
+                  {...videoPlaybackAttrs(hero.imageVideoPlaybackMode)}
+                  className="size-full object-cover"
+                />
+              </div>
+            ) : hero.imageUrl ? (
               <div className="bg-surface-alt relative aspect-4/3 w-full overflow-hidden rounded-[20px]">
                 <Image
                   src={hero.imageUrl}

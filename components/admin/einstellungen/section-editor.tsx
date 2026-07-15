@@ -247,6 +247,11 @@ export function SectionEditor({
                   }
                   onAltChange={(alt) => onChange({ imageAlt: alt })}
                   onRemove={() => onChange({ imageUrl: null, imageAlt: null })}
+                  allowVideo
+                  videoPlaybackMode={section.imageVideoPlaybackMode}
+                  onVideoPlaybackModeChange={(mode) =>
+                    onChange({ imageVideoPlaybackMode: mode })
+                  }
                 />
               ) : null}
 

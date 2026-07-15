@@ -1,3 +1,5 @@
+import { DEFAULT_VIDEO_PLAYBACK_MODE, type VideoPlaybackMode } from "@/lib/media-constants";
+
 export type LandingButtonColor =
   | "primary"
   | "accent"
@@ -24,6 +26,8 @@ export interface LandingHero {
   secondaryButtonTextCustomColor: string | null;
   imageUrl: string | null;
   imageAlt: string | null;
+  /** Nur relevant, wenn imageUrl ein hochgeladenes Video (MP4/WebM) ist. */
+  imageVideoPlaybackMode: VideoPlaybackMode;
 }
 
 export type LandingSectionLayout =
@@ -50,6 +54,7 @@ export interface LandingSectionColumn {
   id: string;
   imageUrl: string | null;
   imageAlt: string | null;
+  imageVideoPlaybackMode: VideoPlaybackMode;
   title: string | null;
   text: string | null;
   button: LandingSectionButton | null;
@@ -69,6 +74,7 @@ export interface LandingSection {
   checklistItems: (string | null)[];
   imageUrl: string | null;
   imageAlt: string | null;
+  imageVideoPlaybackMode: VideoPlaybackMode;
   button: LandingSectionButton | null;
 }
 
@@ -105,6 +111,7 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
     secondaryButtonTextCustomColor: null,
     imageUrl: null,
     imageAlt: null,
+    imageVideoPlaybackMode: DEFAULT_VIDEO_PLAYBACK_MODE,
   },
   sections: [],
   closingCta: {
@@ -130,6 +137,7 @@ export function createEmptySection(): LandingSection {
     checklistItems: [],
     imageUrl: null,
     imageAlt: null,
+    imageVideoPlaybackMode: DEFAULT_VIDEO_PLAYBACK_MODE,
     button: null,
   };
 }
@@ -139,6 +147,7 @@ export function createEmptyColumn(): LandingSectionColumn {
     id: crypto.randomUUID(),
     imageUrl: null,
     imageAlt: null,
+    imageVideoPlaybackMode: DEFAULT_VIDEO_PLAYBACK_MODE,
     title: null,
     text: null,
     button: null,

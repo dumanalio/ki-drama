@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { isVideoPath } from "@/lib/media-constants";
 import type { Chapter } from "@/types/database";
 
 export function ChapterCard({ chapter }: { chapter: Chapter }) {
@@ -11,7 +12,14 @@ export function ChapterCard({ chapter }: { chapter: Chapter }) {
       className="group border-line bg-surface shadow-card hover:border-line-strong flex flex-col overflow-hidden rounded-xl border transition-colors duration-[120ms]"
     >
       <div className="bg-surface-alt aspect-16/9 w-full overflow-hidden">
-        {chapter.cover_url ? (
+        {chapter.cover_url && isVideoPath(chapter.cover_url) ? (
+          <video
+            src={chapter.cover_url}
+            muted
+            preload="metadata"
+            className="h-full w-full object-cover"
+          />
+        ) : chapter.cover_url ? (
           <Image
             src={chapter.cover_url}
             alt={chapter.cover_alt ?? ""}

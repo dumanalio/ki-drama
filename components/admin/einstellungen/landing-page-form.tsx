@@ -201,6 +201,11 @@ export function LandingPageForm({
             onSelect={(url, alt) => updateHero({ imageUrl: url, imageAlt: alt })}
             onAltChange={(alt) => updateHero({ imageAlt: alt })}
             onRemove={() => updateHero({ imageUrl: null, imageAlt: null })}
+            allowVideo
+            videoPlaybackMode={content.hero.imageVideoPlaybackMode}
+            onVideoPlaybackModeChange={(mode) =>
+              updateHero({ imageVideoPlaybackMode: mode })
+            }
           />
         </div>
       </Card>

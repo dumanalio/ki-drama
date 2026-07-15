@@ -51,6 +51,11 @@ export function ColumnEditor({
         onSelect={(url, alt) => onChange({ imageUrl: url, imageAlt: alt })}
         onAltChange={(alt) => onChange({ imageAlt: alt })}
         onRemove={() => onChange({ imageUrl: null, imageAlt: null })}
+        allowVideo
+        videoPlaybackMode={column.imageVideoPlaybackMode}
+        onVideoPlaybackModeChange={(mode) =>
+          onChange({ imageVideoPlaybackMode: mode })
+        }
       />
 
       <label className="flex flex-col gap-1">

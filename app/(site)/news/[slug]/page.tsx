@@ -6,6 +6,7 @@ import { Callout } from "@/components/ui/callout";
 import { ErrorState } from "@/components/ui/error-state";
 import { Section } from "@/components/site/section";
 import { AdminAuthError, requireAdmin } from "@/lib/auth/require-admin";
+import { isVideoPath } from "@/lib/media-constants";
 import { formatBerlin } from "@/lib/time";
 import { TiptapRender } from "@/lib/tiptap-render";
 import { getPostBySlug } from "@/lib/queries/content";
@@ -52,7 +53,11 @@ export async function generateMetadata({
         title: post.title,
         description: post.excerpt,
         type: "article",
-        images: post.cover_url ? [{ url: post.cover_url }] : undefined,
+        // Video kann kein og:image sein -- nur ein Bild-Cover als Vorschaubild anbieten.
+        images:
+          post.cover_url && !isVideoPath(post.cover_url)
+            ? [{ url: post.cover_url }]
+            : undefined,
       },
     };
   } catch {

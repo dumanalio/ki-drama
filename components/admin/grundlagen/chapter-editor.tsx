@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteChapter, saveChapter } from "@/lib/actions/chapters";
+import { isVideoPath } from "@/lib/media-constants";
 import { slugify } from "@/lib/slugify";
 import { estimateReadingMinutes } from "@/lib/tiptap-render";
 import type { Chapter, Json } from "@/types/database";
@@ -174,17 +175,26 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
 
               <div className="flex flex-col gap-1.5">
                 <span className="text-ink-muted text-[12px] font-medium">
-                  Coverbild
+                  Cover (Bild oder Video)
                 </span>
                 {coverUrl ? (
                   <div className="bg-surface-alt relative aspect-video overflow-hidden rounded-lg">
-                    <Image
-                      src={coverUrl}
-                      alt={coverAlt}
-                      fill
-                      sizes="320px"
-                      className="object-cover"
-                    />
+                    {isVideoPath(coverUrl) ? (
+                      <video
+                        src={coverUrl}
+                        muted
+                        preload="metadata"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={coverUrl}
+                        alt={coverAlt}
+                        fill
+                        sizes="320px"
+                        className="object-cover"
+                      />
+                    )}
                   </div>
                 ) : null}
                 <div className="flex items-center gap-2">
@@ -195,7 +205,7 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
                     onClick={() => setPickerOpen(true)}
                   >
                     <ImagePlus className="size-4" aria-hidden="true" />
-                    {coverUrl ? "Bild ändern" : "Bild wählen"}
+                    {coverUrl ? "Bild/Video ändern" : "Bild oder Video wählen"}
                   </Button>
                   {coverUrl ? (
                     <Button
@@ -216,7 +226,7 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
                   <Input
                     value={coverAlt}
                     onChange={(event) => setCoverAlt(event.target.value)}
-                    placeholder="Alt-Text für das Coverbild"
+                    placeholder="Alt-Text für das Cover"
                   />
                 ) : null}
               </div>
@@ -305,6 +315,7 @@ export function ChapterEditor({ chapter }: { chapter: Chapter }) {
       <MediaPickerModal
         open={pickerOpen}
         onOpenChange={setPickerOpen}
+        accept="all"
         onSelect={(media) => {
           setCoverUrl(media.url);
           setCoverAlt(media.alt);
