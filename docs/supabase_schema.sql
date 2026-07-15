@@ -220,6 +220,7 @@ create table pages (                            -- Frei angelegte Seiten (aus de
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+create index on pages (status);
 create trigger t_pages_touch before update on pages for each row execute function touch_updated_at();
 
 create table media (                            -- Bildbibliothek
@@ -304,6 +305,12 @@ create policy adm_maillog    on email_log               for all using (is_admin(
 -- HINWEIS: leads, quiz_responses, bookings haben BEWUSST keine anon-Policy.
 -- Sie sind aus dem Browser weder les- noch schreibbar. Schreiben erfolgt
 -- ausschließlich über Next.js Route Handlers mit dem service_role-Key.
+
+-- Supabase vergibt SELECT für anon/authenticated auf neue Tabellen im
+-- public-Schema normalerweise automatisch über projektweite Default
+-- Privileges (deshalb steht das bei posts/chapters/tools & Co. nirgendwo
+-- explizit) -- hier trotzdem explizit, zur Sicherheit:
+grant select on pages to anon, authenticated;
 
 -- =====================================================================
 -- STORAGE

@@ -8,11 +8,27 @@ import { AdminAuthError, requireAdmin } from "@/lib/auth/require-admin";
 import { pageSaveSchema } from "@/lib/validation/page";
 import type { Json } from "@/types/database";
 
-function fail(error: unknown, fallback: string): { ok: false; error: string } {
+function fail(
+  error: unknown,
+  fallback: string,
+  context: string
+): { ok: false; error: string } {
   if (error instanceof AdminAuthError) {
     return { ok: false, error: "Kein Zugriff. Bitte melde dich erneut an." };
   }
-  console.error("[actions/pages]", error);
+  const supabaseError = error as {
+    message?: string;
+    code?: string;
+    details?: string;
+    hint?: string;
+  } | null;
+  console.error(`[actions/pages] ${context}`, {
+    message: supabaseError?.message,
+    code: supabaseError?.code,
+    details: supabaseError?.details,
+    hint: supabaseError?.hint,
+    raw: error,
+  });
   return { ok: false, error: fallback };
 }
 
@@ -31,7 +47,15 @@ export async function createDraftPage(): Promise<void> {
     .select("id")
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error("[actions/pages] createDraftPage", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+    throw error;
+  }
 
   redirect(`/admin/seiten/${data.id}`);
 }
@@ -65,7 +89,8 @@ export async function createDraftPageForLink(): Promise<CreateForLinkResult> {
   } catch (error) {
     return fail(
       error,
-      "Die Seite konnte nicht angelegt werden. Bitte versuche es erneut."
+      "Die Seite konnte nicht angelegt werden. Bitte versuche es erneut.",
+      "createDraftPageForLink"
     );
   }
 }
@@ -124,7 +149,8 @@ export async function savePage(input: unknown): Promise<ActionResult> {
   } catch (error) {
     return fail(
       error,
-      "Die Seite konnte nicht gespeichert werden. Bitte versuche es erneut."
+      "Die Seite konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      "savePage"
     );
   }
 }
@@ -147,7 +173,8 @@ export async function deletePage(id: string): Promise<ActionResult> {
   } catch (error) {
     return fail(
       error,
-      "Die Seite konnte nicht gelöscht werden. Bitte versuche es erneut."
+      "Die Seite konnte nicht gelöscht werden. Bitte versuche es erneut.",
+      "deletePage"
     );
   }
 }
