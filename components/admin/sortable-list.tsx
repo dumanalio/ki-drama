@@ -72,6 +72,15 @@ export function SortableList<T extends { id: string }>({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
+  // dnd-kit generiert die aria-describedby-ID für den Drag-Handle intern
+  // über einen global fortlaufenden Zähler. Bei mehreren SortableList-
+  // Instanzen auf einer Seite kann die Zählreihenfolge zwischen SSR und
+  // Client-Hydration auseinanderlaufen -> Hydration-Mismatch. React.useId()
+  // liefert stattdessen eine deterministische, pro Komponenten-Instanz
+  // stabile ID (genau dafür gedacht), die serverseitig und clientseitig
+  // übereinstimmt -- von dnd-kit selbst für SSR-Fälle empfohlen.
+  const dndContextId = React.useId();
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -85,6 +94,7 @@ export function SortableList<T extends { id: string }>({
 
   return (
     <DndContext
+      id={dndContextId}
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
