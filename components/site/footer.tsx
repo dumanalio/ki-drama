@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { DEFAULT_NAVIGATION, type FooterColumn } from "@/lib/navigation";
@@ -23,13 +22,21 @@ export function Footer({
       <div className="mx-auto grid max-w-[1200px] gap-10 px-6 py-14 sm:grid-cols-3">
         <div className="flex flex-col gap-2">
           {logoUrl ? (
-            <Image
+            // Bewusst next/image umgangen: das Logo hat ein unbekanntes,
+            // variables Seitenverhältnis. next/image verlangt feste
+            // width/height-Attribute, die der Browser (unabhängig vom
+            // tatsächlichen Bildinhalt) zur Berechnung von "width: auto"
+            // heranzieht -- ein geratener Wert führte zu sichtbarem,
+            // ungewolltem Leerraum links/rechts neben dem Logo (object-fit:
+            // contain zentrierte das Bild in der falsch proportionierten
+            // Box), sodass Logo und Text darunter nicht bündig standen.
+            // Ein normales <img> mit nur der Höhe fest gesetzt übernimmt
+            // stattdessen einfach das echte Seitenverhältnis.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={logoUrl}
               alt={logoAlt ?? "KI-Drama"}
-              width={logoHeight * 4}
-              height={logoHeight}
               style={{ height: logoHeight, width: "auto" }}
-              className="object-contain"
             />
           ) : (
             <span className="font-display text-ink text-[18px] font-bold">

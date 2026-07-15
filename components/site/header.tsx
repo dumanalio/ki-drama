@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Dialog } from "@base-ui/react/dialog";
@@ -25,15 +24,21 @@ function SiteLogo({
   className?: string;
 }) {
   if (logoUrl) {
+    // Bewusst next/image umgangen: das Logo hat ein unbekanntes, variables
+    // Seitenverhältnis. next/image verlangt feste width/height-Attribute,
+    // die der Browser (unabhängig vom tatsächlichen Bildinhalt) zur
+    // Berechnung von "width: auto" heranzieht -- ein geratener Wert hier
+    // führte zu sichtbarem, ungewolltem Leerraum links/rechts neben dem
+    // Logo (object-fit: contain zentrierte das Bild in der falsch
+    // proportionierten Box). Ein normales <img> mit nur der Höhe fest
+    // gesetzt übernimmt stattdessen einfach das echte Seitenverhältnis.
     return (
-      <Image
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
         src={logoUrl}
         alt={logoAlt ?? "KI-Drama"}
-        width={logoHeight * 4}
-        height={logoHeight}
         style={{ height: logoHeight, width: "auto" }}
-        className={cn("object-contain", className)}
-        priority
+        className={className}
       />
     );
   }
