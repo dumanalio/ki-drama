@@ -1,3 +1,4 @@
+import { HeaderForm } from "@/components/admin/startseite/header-form";
 import { LandingPageForm } from "@/components/admin/einstellungen/landing-page-form";
 import { NavigationForm } from "@/components/admin/einstellungen/navigation-form";
 import { AdminPageHeader } from "@/components/admin/page-header";
@@ -10,11 +11,14 @@ import {
   TabsTab,
 } from "@/components/ui/tabs";
 import {
+  getGeneralSettings,
   getLandingPageContent,
   getNavigationContent,
 } from "@/lib/queries/admin-settings";
 
 export default async function AdminStartseitePage() {
+  let generalSettings: Awaited<ReturnType<typeof getGeneralSettings>> | null =
+    null;
   let landingPageContent: Awaited<
     ReturnType<typeof getLandingPageContent>
   > | null = null;
@@ -24,15 +28,22 @@ export default async function AdminStartseitePage() {
   let loadError = false;
 
   try {
-    [landingPageContent, navigationContent] = await Promise.all([
-      getLandingPageContent(),
-      getNavigationContent(),
-    ]);
+    [generalSettings, landingPageContent, navigationContent] =
+      await Promise.all([
+        getGeneralSettings(),
+        getLandingPageContent(),
+        getNavigationContent(),
+      ]);
   } catch {
     loadError = true;
   }
 
-  if (loadError || !landingPageContent || !navigationContent) {
+  if (
+    loadError ||
+    !generalSettings ||
+    !landingPageContent ||
+    !navigationContent
+  ) {
     return (
       <>
         <AdminPageHeader title="Startseite" />
@@ -51,12 +62,25 @@ export default async function AdminStartseitePage() {
       <Tabs defaultValue="inhalt">
         <TabsList>
           <TabsTab value="inhalt">Inhalt</TabsTab>
+          <TabsTab value="header">Header</TabsTab>
           <TabsTab value="navigation">Navigation</TabsTab>
           <TabsIndicator />
         </TabsList>
 
         <TabsPanel value="inhalt">
           <LandingPageForm content={landingPageContent} />
+        </TabsPanel>
+
+        <TabsPanel value="header">
+          <HeaderForm
+            logoUrl={generalSettings.headerLogoUrl}
+            logoAlt={generalSettings.headerLogoAlt}
+            logoHeight={generalSettings.headerLogoHeight}
+            buttonColor={generalSettings.headerButtonColor}
+            buttonCustomColor={generalSettings.headerButtonCustomColor}
+            buttonTextColor={generalSettings.headerButtonTextColor}
+            buttonTextCustomColor={generalSettings.headerButtonTextCustomColor}
+          />
         </TabsPanel>
 
         <TabsPanel value="navigation">

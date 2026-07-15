@@ -67,19 +67,22 @@ function refineButtonContrast(
   }
 }
 
-export const generalSettingsSchema = z
+export const generalSettingsSchema = z.object({
+  meetingUrl: z
+    .string()
+    .trim()
+    .min(1, "Bitte einen Meeting-Link angeben.")
+    .url("Ungültige URL."),
+  slotMinutes: z.number().int().min(5).max(240),
+  leadTimeHours: z.number().int().min(0).max(720),
+  horizonDays: z.number().int().min(1).max(365),
+  notifyEmail: z.email("Ungültige E-Mail-Adresse."),
+  emailConfirmationNote: z.string().trim().max(2000),
+  emailSignoff: z.string().trim().max(500),
+});
+
+export const headerSettingsSchema = z
   .object({
-    meetingUrl: z
-      .string()
-      .trim()
-      .min(1, "Bitte einen Meeting-Link angeben.")
-      .url("Ungültige URL."),
-    slotMinutes: z.number().int().min(5).max(240),
-    leadTimeHours: z.number().int().min(0).max(720),
-    horizonDays: z.number().int().min(1).max(365),
-    notifyEmail: z.email("Ungültige E-Mail-Adresse."),
-    emailConfirmationNote: z.string().trim().max(2000),
-    emailSignoff: z.string().trim().max(500),
     headerButtonColor: buttonColorEnum,
     headerButtonCustomColor: nullableHexColor,
     headerButtonTextColor: textColorEnum,
@@ -308,6 +311,7 @@ export const footerSettingsSchema = z
   .pipe(footerSettingsShape);
 
 export type GeneralSettingsInput = z.infer<typeof generalSettingsSchema>;
+export type HeaderSettingsInput = z.infer<typeof headerSettingsSchema>;
 export type LandingPageContentInput = z.infer<typeof landingPageContentShape>;
 export type NavigationContentInput = z.infer<typeof navigationContentShape>;
 export type FooterSettingsInput = z.infer<typeof footerSettingsShape>;

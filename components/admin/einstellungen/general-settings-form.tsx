@@ -3,8 +3,6 @@
 import * as React from "react";
 import { toast } from "sonner";
 
-import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color-picker";
-import { LogoField } from "@/components/admin/einstellungen/logo-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,26 +26,6 @@ export function GeneralSettingsForm({
     settings.emailConfirmationNote
   );
   const [emailSignoff, setEmailSignoff] = React.useState(settings.emailSignoff);
-  const [headerButtonColor, setHeaderButtonColor] = React.useState(
-    settings.headerButtonColor
-  );
-  const [headerButtonCustomColor, setHeaderButtonCustomColor] = React.useState(
-    settings.headerButtonCustomColor
-  );
-  const [headerButtonTextColor, setHeaderButtonTextColor] = React.useState(
-    settings.headerButtonTextColor
-  );
-  const [headerButtonTextCustomColor, setHeaderButtonTextCustomColor] =
-    React.useState(settings.headerButtonTextCustomColor);
-  const [headerLogoUrl, setHeaderLogoUrl] = React.useState(
-    settings.headerLogoUrl
-  );
-  const [headerLogoAlt, setHeaderLogoAlt] = React.useState(
-    settings.headerLogoAlt
-  );
-  const [headerLogoHeight, setHeaderLogoHeight] = React.useState(
-    settings.headerLogoHeight
-  );
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, startSaving] = React.useTransition();
 
@@ -62,13 +40,6 @@ export function GeneralSettingsForm({
         notifyEmail,
         emailConfirmationNote,
         emailSignoff,
-        headerButtonColor,
-        headerButtonCustomColor,
-        headerButtonTextColor,
-        headerButtonTextCustomColor,
-        headerLogoUrl,
-        headerLogoAlt,
-        headerLogoHeight,
       });
       if (!result.ok) {
         setError(result.error);
@@ -133,48 +104,6 @@ export function GeneralSettingsForm({
               onChange={(event) => setHorizonDays(Number(event.target.value))}
             />
           </label>
-        </div>
-      </Card>
-
-      <Card>
-        <CardHeader title="Header" />
-        <div className="flex flex-col gap-5">
-          <LogoField
-            label='Logo (ersetzt den Schriftzug "KI-Drama" oben links)'
-            imageUrl={headerLogoUrl}
-            imageAlt={headerLogoAlt}
-            height={headerLogoHeight}
-            onSelect={(url, alt) => {
-              setHeaderLogoUrl(url);
-              setHeaderLogoAlt(alt);
-            }}
-            onAltChange={setHeaderLogoAlt}
-            onRemove={() => {
-              setHeaderLogoUrl(null);
-              setHeaderLogoAlt(null);
-            }}
-            onHeightChange={setHeaderLogoHeight}
-          />
-
-          <div className="flex flex-col gap-1.5">
-            <span className="text-ink-muted text-[12px] font-medium">
-              Farbe des Check-starten-Buttons oben rechts, auf jeder Seite
-            </span>
-            <ButtonColorPicker
-              value={{
-                color: headerButtonColor,
-                customColor: headerButtonCustomColor,
-                textColor: headerButtonTextColor,
-                textCustomColor: headerButtonTextCustomColor,
-              }}
-              onChange={(next) => {
-                setHeaderButtonColor(next.color);
-                setHeaderButtonCustomColor(next.customColor);
-                setHeaderButtonTextColor(next.textColor);
-                setHeaderButtonTextCustomColor(next.textCustomColor);
-              }}
-            />
-          </div>
         </div>
       </Card>
 

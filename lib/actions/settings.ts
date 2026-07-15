@@ -8,6 +8,7 @@ import { formatZodError } from "@/lib/validation/format-zod-error";
 import {
   footerSettingsSchema,
   generalSettingsSchema,
+  headerSettingsSchema,
   landingPageContentSchema,
   navigationContentSchema,
 } from "@/lib/validation/settings";
@@ -22,6 +23,9 @@ const GENERAL_SETTINGS_LABELS: Record<string, string> = {
   notifyEmail: "Benachrichtigungs-E-Mail",
   emailConfirmationNote: "Zusätzlicher Hinweis (Bestätigungsmail)",
   emailSignoff: "Grußformel",
+};
+
+const HEADER_SETTINGS_LABELS: Record<string, string> = {
   headerButtonColor: "Header: Button-Hintergrund",
   headerButtonCustomColor: "Header: eigener Button-Hintergrund",
   headerButtonTextColor: "Header: Button-Schrift",
@@ -93,6 +97,34 @@ const FOOTER_SETTINGS_LABELS: Record<string, string> = {
   visible: "Sichtbarkeit",
 };
 
+/**
+ * settings.value ist jsonb NOT NULL. PostgREST kann in einem Upsert nicht
+ * zwischen "SQL NULL" und "JSON null" unterscheiden und würde bei
+ * value: null immer SQL NULL schicken -- das verletzt die Constraint. Ein
+ * logisch "leeres" Feld wird deshalb durch Entfernen der Zeile dargestellt
+ * statt durch einen Null-Wert; die Lesefunktion fällt bei fehlender Zeile
+ * ohnehin auf ihren Default zurück.
+ */
+async function upsertSettingsRows(
+  adminClient: Awaited<ReturnType<typeof requireAdmin>>["adminClient"],
+  rows: { key: string; value: Json | null }[]
+) {
+  for (const row of rows) {
+    if (row.value === null) {
+      const { error } = await adminClient
+        .from("settings")
+        .delete()
+        .eq("key", row.key);
+      if (error) throw error;
+      continue;
+    }
+    const { error } = await adminClient
+      .from("settings")
+      .upsert({ key: row.key, value: row.value }, { onConflict: "key" });
+    if (error) throw error;
+  }
+}
+
 function fail(
   error: unknown,
   fallback: string,
@@ -131,7 +163,8 @@ export async function saveGeneralSettings(
   try {
     const { adminClient } = await requireAdmin();
     const data = parsed.data;
-    const rows: { key: string; value: Json | null }[] = [
+
+    await upsertSettingsRows(adminClient, [
       { key: "meeting_url", value: data.meetingUrl },
       { key: "slot_minutes", value: data.slotMinutes },
       { key: "lead_time_hours", value: data.leadTimeHours },
@@ -139,6 +172,35 @@ export async function saveGeneralSettings(
       { key: "notify_email", value: data.notifyEmail },
       { key: "email_confirmation_note", value: data.emailConfirmationNote },
       { key: "email_signoff", value: data.emailSignoff },
+    ]);
+
+    revalidatePath("/admin/einstellungen");
+    return { ok: true };
+  } catch (error) {
+    return fail(
+      error,
+      "Die Einstellungen konnten nicht gespeichert werden. Bitte versuche es erneut.",
+      "saveGeneralSettings"
+    );
+  }
+}
+
+export async function saveHeaderSettings(
+  input: unknown
+): Promise<ActionResult> {
+  const parsed = headerSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: formatZodError(parsed.error, HEADER_SETTINGS_LABELS),
+    };
+  }
+
+  try {
+    const { adminClient } = await requireAdmin();
+    const data = parsed.data;
+
+    await upsertSettingsRows(adminClient, [
       { key: "header_button_color", value: data.headerButtonColor },
       {
         key: "header_button_custom_color",
@@ -152,39 +214,18 @@ export async function saveGeneralSettings(
       { key: "header_logo_url", value: data.headerLogoUrl },
       { key: "header_logo_alt", value: data.headerLogoAlt },
       { key: "header_logo_height", value: data.headerLogoHeight },
-    ];
+    ]);
 
-    for (const row of rows) {
-      // settings.value ist jsonb NOT NULL. PostgREST kann in einem Upsert
-      // nicht zwischen "SQL NULL" und "JSON null" unterscheiden und würde
-      // bei value: null immer SQL NULL schicken -- das verletzt die
-      // Constraint. Ein logisch "leeres" Feld wird deshalb durch Entfernen
-      // der Zeile dargestellt statt durch einen Null-Wert; die Lesefunktion
-      // fällt bei fehlender Zeile ohnehin auf ihren Default zurück.
-      if (row.value === null) {
-        const { error } = await adminClient
-          .from("settings")
-          .delete()
-          .eq("key", row.key);
-        if (error) throw error;
-        continue;
-      }
-      const { error } = await adminClient
-        .from("settings")
-        .upsert({ key: row.key, value: row.value }, { onConflict: "key" });
-      if (error) throw error;
-    }
-
-    revalidatePath("/admin/einstellungen");
-    // Header/Footer stecken im geteilten Layout -- "layout" revalidiert sie
-    // für alle Seiten, nicht nur für "/".
+    revalidatePath("/admin/startseite");
+    // Header steckt im geteilten Layout -- "layout" revalidiert ihn für
+    // alle Seiten, nicht nur für "/".
     revalidatePath("/", "layout");
     return { ok: true };
   } catch (error) {
     return fail(
       error,
-      "Die Einstellungen konnten nicht gespeichert werden. Bitte versuche es erneut.",
-      "saveGeneralSettings"
+      "Der Header konnte nicht gespeichert werden. Bitte versuche es erneut.",
+      "saveHeaderSettings"
     );
   }
 }
@@ -270,27 +311,11 @@ export async function saveFooterSettings(
     const { adminClient } = await requireAdmin();
     const data = parsed.data;
 
-    const logoRows: { key: string; value: Json | null }[] = [
+    await upsertSettingsRows(adminClient, [
       { key: "footer_logo_url", value: data.footerLogoUrl },
       { key: "footer_logo_alt", value: data.footerLogoAlt },
       { key: "footer_logo_height", value: data.footerLogoHeight },
-    ];
-    for (const row of logoRows) {
-      // Gleicher Grund wie in saveGeneralSettings: settings.value ist jsonb
-      // NOT NULL, PostgREST würde value: null als SQL NULL schicken.
-      if (row.value === null) {
-        const { error } = await adminClient
-          .from("settings")
-          .delete()
-          .eq("key", row.key);
-        if (error) throw error;
-        continue;
-      }
-      const { error } = await adminClient
-        .from("settings")
-        .upsert({ key: row.key, value: row.value }, { onConflict: "key" });
-      if (error) throw error;
-    }
+    ]);
 
     // "navigation" ist ein einzelner JSON-Datensatz (header + footerText +
     // footerColumns zusammen). Dieses Formular bearbeitet nur die
