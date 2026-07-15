@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus } from "lucide-react";
+import { FilePlus, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { NavLinkRow } from "@/components/admin/einstellungen/nav-link-row";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createDraftPageForLink } from "@/lib/actions/pages";
 import { saveFooterSettings } from "@/lib/actions/settings";
 import { createEmptyNavLink } from "@/lib/navigation";
 import type { FooterColumn, NavLink } from "@/lib/navigation";
@@ -76,6 +77,36 @@ export function FooterForm({
           : column
       )
     );
+  }
+
+  async function addPageLink(columnIndex: number) {
+    const result = await createDraftPageForLink();
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    setFooterColumns((prev) =>
+      prev.map((column, i) =>
+        i === columnIndex
+          ? {
+              ...column,
+              links: [
+                ...column.links,
+                {
+                  id: crypto.randomUUID(),
+                  label: "Neue Seite",
+                  href: `/${result.slug}`,
+                  visible: true,
+                },
+              ],
+            }
+          : column
+      )
+    );
+    toast.success(
+      "Seite angelegt — bearbeite Titel und Inhalt im neuen Tab, dann hier speichern, damit der Link erscheint."
+    );
+    window.open(`/admin/seiten/${result.id}`, "_blank");
   }
 
   function handleSave() {
@@ -161,15 +192,26 @@ export function FooterForm({
                 />
               )}
             />
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-fit"
-              onClick={() => addLink(columnIndex)}
-            >
-              <Plus className="size-4" aria-hidden="true" />
-              Link hinzufügen
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={() => addLink(columnIndex)}
+              >
+                <Plus className="size-4" aria-hidden="true" />
+                Link hinzufügen
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={() => void addPageLink(columnIndex)}
+              >
+                <FilePlus className="size-4" aria-hidden="true" />
+                Neue Seite verlinken
+              </Button>
+            </div>
           </div>
         </Card>
       ))}

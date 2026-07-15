@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Calendar,
+  FileText,
   HelpCircle,
   Image as ImageIcon,
   LayoutDashboard,
@@ -26,6 +27,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: "/admin/landschaft", label: "Landschaft", icon: Layers },
   { href: "/admin/grundlagen", label: "Grundlagen", icon: BookOpen },
   { href: "/admin/fragen", label: "Fragen", icon: HelpCircle },
+  { href: "/admin/seiten", label: "Seiten", icon: FileText },
   { href: "/admin/medien", label: "Medien", icon: ImageIcon },
   { href: "/admin/footer", label: "Footer", icon: PanelBottom },
   { href: "/admin/einstellungen", label: "Einstellungen", icon: Settings },

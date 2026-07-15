@@ -455,6 +455,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      pages: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          body: Json;
+          status: ContentStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          body?: Json;
+          status?: ContentStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title?: string;
+          body?: Json;
+          status?: ContentStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       media: {
         Row: {
           id: string;
@@ -575,6 +605,7 @@ export type Booking = Tables<"bookings">;
 export type Post = Tables<"posts">;
 export type Chapter = Tables<"chapters">;
 export type Tool = Tables<"tools">;
+export type Page = Tables<"pages">;
 export type Media = Tables<"media">;
 export type Setting = Tables<"settings">;
 export type EmailLog = Tables<"email_log">;

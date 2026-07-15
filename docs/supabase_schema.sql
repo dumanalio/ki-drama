@@ -211,6 +211,17 @@ create table tools (                            -- KI-Landschaft
 create index on tools (category, position);
 create trigger t_tools_touch before update on tools for each row execute function touch_updated_at();
 
+create table pages (                            -- Frei angelegte Seiten (aus der Navigation heraus)
+  id          uuid primary key default gen_random_uuid(),
+  slug        text not null unique,
+  title       text not null,
+  body        jsonb not null default '{}'::jsonb,   -- Tiptap-JSON
+  status      content_status not null default 'entwurf',
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create trigger t_pages_touch before update on pages for each row execute function touch_updated_at();
+
 create table media (                            -- Bildbibliothek
   id          uuid primary key default gen_random_uuid(),
   path        text not null unique,             -- Pfad im Storage-Bucket
@@ -257,6 +268,7 @@ alter table bookings                enable row level security;
 alter table posts                   enable row level security;
 alter table chapters                enable row level security;
 alter table tools                   enable row level security;
+alter table pages                   enable row level security;
 alter table media                   enable row level security;
 alter table settings                enable row level security;
 alter table email_log               enable row level security;
@@ -265,6 +277,7 @@ alter table email_log               enable row level security;
 create policy pub_posts    on posts    for select to anon, authenticated using (status = 'veroeffentlicht');
 create policy pub_chapters on chapters for select to anon, authenticated using (status = 'veroeffentlicht');
 create policy pub_tools    on tools    for select to anon, authenticated using (status = 'veroeffentlicht');
+create policy pub_pages    on pages    for select to anon, authenticated using (status = 'veroeffentlicht');
 create policy pub_media    on media    for select to anon, authenticated using (true);
 create policy pub_questions on quiz_questions for select to anon, authenticated using (active = true);
 -- Verfügbarkeiten müssen öffentlich lesbar sein, damit der Kalender freie Slots zeigt
@@ -283,6 +296,7 @@ create policy adm_bookings   on bookings                for all using (is_admin(
 create policy adm_posts      on posts                   for all using (is_admin()) with check (is_admin());
 create policy adm_chapters   on chapters                for all using (is_admin()) with check (is_admin());
 create policy adm_tools      on tools                   for all using (is_admin()) with check (is_admin());
+create policy adm_pages      on pages                   for all using (is_admin()) with check (is_admin());
 create policy adm_media      on media                   for all using (is_admin()) with check (is_admin());
 create policy adm_settings   on settings                for all using (is_admin()) with check (is_admin());
 create policy adm_maillog    on email_log               for all using (is_admin()) with check (is_admin());
