@@ -25,11 +25,14 @@ export function MediaPickerModal({
   onOpenChange,
   onSelect,
   accept = "image",
+  crop = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (media: Media) => void;
   accept?: MediaAccept;
+  /** Zeigt beim Hochladen einen Zuschneide-Schritt (z. B. für Logos). */
+  crop?: boolean;
 }) {
   const [media, setMedia] = React.useState<Media[] | null>(null);
   const [search, setSearch] = React.useState("");
@@ -119,7 +122,11 @@ export function MediaPickerModal({
 
           <TabsPanel value="upload">
             <div className="max-h-[60vh] overflow-y-auto">
-              <MediaUploader accept={accept} onSaved={(saved) => onSelect(saved)} />
+              <MediaUploader
+                accept={accept}
+                crop={crop}
+                onSaved={(saved) => onSelect(saved)}
+              />
             </div>
           </TabsPanel>
         </Tabs>

@@ -33,6 +33,7 @@ export function LogoField({
         onSelect={onSelect}
         onAltChange={onAltChange}
         onRemove={onRemove}
+        crop
       />
       {imageUrl ? (
         <div className="flex items-end gap-4">

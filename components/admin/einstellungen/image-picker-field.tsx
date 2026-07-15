@@ -15,6 +15,7 @@ export function ImagePickerField({
   onSelect,
   onAltChange,
   onRemove,
+  crop = false,
 }: {
   label: string;
   imageUrl: string | null;
@@ -22,6 +23,8 @@ export function ImagePickerField({
   onSelect: (url: string, alt: string) => void;
   onAltChange: (alt: string) => void;
   onRemove: () => void;
+  /** Zeigt beim Hochladen einen Zuschneide-Schritt (z. B. für Logos). */
+  crop?: boolean;
 }) {
   const [pickerOpen, setPickerOpen] = React.useState(false);
 
@@ -68,6 +71,7 @@ export function ImagePickerField({
       <MediaPickerModal
         open={pickerOpen}
         onOpenChange={setPickerOpen}
+        crop={crop}
         onSelect={(media) => {
           onSelect(media.url, media.alt);
           setPickerOpen(false);

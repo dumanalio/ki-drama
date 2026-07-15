@@ -4,6 +4,7 @@ import * as React from "react";
 import { AlertTriangle, Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { ImageCropModal } from "@/components/admin/medien/image-crop-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -59,12 +60,19 @@ function formatMaxSize(): string {
 export function MediaUploader({
   onSaved,
   accept = "all",
+  crop = false,
 }: {
   onSaved: (media: Media) => void;
   accept?: MediaAccept;
+  /** Zeigt vor dem Hochladen einen Zuschneide-Schritt (nur für einzelne, nicht-animierte Bilder). */
+  crop?: boolean;
 }) {
   const [pending, setPending] = React.useState<PendingUpload[]>([]);
   const [dragActive, setDragActive] = React.useState(false);
+  const [cropTarget, setCropTarget] = React.useState<{
+    file: File;
+    objectUrl: string;
+  } | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const acceptedTypes = acceptedTypesFor(accept);
 
@@ -78,47 +86,69 @@ export function MediaUploader({
     setPending((prev) => prev.filter((item) => item.id !== id));
   }
 
-  async function handleFiles(files: FileList | File[]) {
-    const validFiles = Array.from(files).filter((file) =>
-      acceptedTypes.includes(file.type)
-    );
+  function enqueueFile(file: File) {
+    const id = createLocalId();
+    const kind = isVideoMimeType(file.type) ? "video" : "image";
 
-    for (const file of validFiles) {
-      const id = createLocalId();
-      const kind = isVideoMimeType(file.type) ? "video" : "image";
-
-      if (file.size > MAX_UPLOAD_BYTES) {
-        setPending((prev) => [
-          ...prev,
-          {
-            id,
-            kind,
-            previewUrl: "",
-            progress: 0,
-            status: "error",
-            error: `Die Datei ist zu groß (maximal ${formatMaxSize()}).`,
-            alt: "",
-            caption: "",
-          },
-        ]);
-        continue;
-      }
-
-      const previewUrl = URL.createObjectURL(file);
+    if (file.size > MAX_UPLOAD_BYTES) {
       setPending((prev) => [
         ...prev,
         {
           id,
           kind,
-          previewUrl,
+          previewUrl: "",
           progress: 0,
-          status: kind === "video" ? "uploading" : "compressing",
+          status: "error",
+          error: `Die Datei ist zu groß (maximal ${formatMaxSize()}).`,
           alt: "",
           caption: "",
         },
       ]);
+      return;
+    }
 
-      void processUpload(id, file, previewUrl, kind);
+    const previewUrl = URL.createObjectURL(file);
+    setPending((prev) => [
+      ...prev,
+      {
+        id,
+        kind,
+        previewUrl,
+        progress: 0,
+        status: kind === "video" ? "uploading" : "compressing",
+        alt: "",
+        caption: "",
+      },
+    ]);
+
+    void processUpload(id, file, previewUrl, kind);
+  }
+
+  function handleFiles(files: FileList | File[]) {
+    const validFiles = Array.from(files).filter((file) =>
+      acceptedTypes.includes(file.type)
+    );
+
+    if (crop) {
+      // Nur die erste Datei -- der Zuschneide-Schritt ist für einen
+      // gezielten Einzel-Upload gedacht (z. B. Logo), nicht für Stapel.
+      const file = validFiles[0];
+      if (!file) return;
+      if (file.size > MAX_UPLOAD_BYTES) {
+        toast.error(`Die Datei ist zu groß (maximal ${formatMaxSize()}).`);
+        return;
+      }
+      if (isGifMimeType(file.type)) {
+        // GIF zuschneiden würde die Animation auf ein Standbild reduzieren.
+        enqueueFile(file);
+        return;
+      }
+      setCropTarget({ file, objectUrl: URL.createObjectURL(file) });
+      return;
+    }
+
+    for (const file of validFiles) {
+      enqueueFile(file);
     }
   }
 
@@ -261,7 +291,7 @@ export function MediaUploader({
           event.preventDefault();
           setDragActive(false);
           if (event.dataTransfer.files.length > 0) {
-            void handleFiles(event.dataTransfer.files);
+            handleFiles(event.dataTransfer.files);
           }
         }}
         onClick={() => inputRef.current?.click()}
@@ -290,10 +320,10 @@ export function MediaUploader({
           ref={inputRef}
           type="file"
           accept={acceptedTypes.join(",")}
-          multiple
+          multiple={!crop}
           className="hidden"
           onChange={(event) => {
-            if (event.target.files) void handleFiles(event.target.files);
+            if (event.target.files) handleFiles(event.target.files);
             event.target.value = "";
           }}
         />
@@ -433,6 +463,26 @@ export function MediaUploader({
             </div>
           ))}
         </div>
+      ) : null}
+
+      {cropTarget ? (
+        <ImageCropModal
+          open
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) {
+              URL.revokeObjectURL(cropTarget.objectUrl);
+              setCropTarget(null);
+            }
+          }}
+          imageUrl={cropTarget.objectUrl}
+          fileName={cropTarget.file.name}
+          mimeType={cropTarget.file.type}
+          onCropped={(croppedFile) => {
+            URL.revokeObjectURL(cropTarget.objectUrl);
+            setCropTarget(null);
+            enqueueFile(croppedFile);
+          }}
+        />
       ) : null}
     </div>
   );
