@@ -80,6 +80,9 @@ export interface LandingSection {
 
 export interface LandingClosingCta {
   title: string | null;
+  titleColor: LandingTextColor;
+  /** Nur relevant, wenn titleColor === "custom". Hex, z. B. "#ffffff". */
+  titleCustomColor: string | null;
   text: string | null;
   buttonLabel: string | null;
   buttonColor: LandingButtonColor;
@@ -137,6 +140,8 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
   },
   closingCta: {
     title: null,
+    titleColor: "auto",
+    titleCustomColor: null,
     text: null,
     buttonLabel: null,
     buttonColor: "accent",

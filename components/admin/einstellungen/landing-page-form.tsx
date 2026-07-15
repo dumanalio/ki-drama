@@ -8,12 +8,14 @@ import { ButtonColorPicker } from "@/components/admin/einstellungen/button-color
 import { FaqEditor } from "@/components/admin/einstellungen/faq-editor";
 import { ImagePickerField } from "@/components/admin/einstellungen/image-picker-field";
 import { SectionEditor } from "@/components/admin/einstellungen/section-editor";
+import { TextColorPicker } from "@/components/admin/einstellungen/text-color-picker";
 import { SortableList } from "@/components/admin/sortable-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { saveLandingPageContent } from "@/lib/actions/settings";
+import { VARIANT_BACKGROUND_HEX } from "@/lib/button-color";
 import { createEmptySection } from "@/lib/landing-content";
 import type { LandingPageContent, LandingSection } from "@/lib/landing-content";
 
@@ -268,6 +270,19 @@ export function LandingPageForm({
               placeholder="Bereit für ein kurzes Gespräch?"
             />
           </label>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-ink-muted text-[12px] font-medium">
+              Farbe der Überschrift
+            </span>
+            <TextColorPicker
+              color={content.closingCta.titleColor}
+              customColor={content.closingCta.titleCustomColor}
+              backgroundHex={VARIANT_BACKGROUND_HEX.primary}
+              onChange={(titleColor, titleCustomColor) =>
+                updateClosingCta({ titleColor, titleCustomColor })
+              }
+            />
+          </div>
           <label className="flex flex-col gap-1">
             <span className="text-ink-muted text-[12px] font-medium">Text</span>
             <Textarea

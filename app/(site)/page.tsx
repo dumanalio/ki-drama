@@ -229,7 +229,14 @@ export default async function Home() {
       <Section>
         <div className="bg-ink flex flex-col items-start gap-6 rounded-[20px] px-8 py-12 text-white md:flex-row md:items-center md:justify-between md:px-12">
           <div className="flex flex-col gap-2">
-            <h2 className="text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
+            <h2
+              className="text-[26px] font-bold tracking-[-0.015em] md:text-[34px]"
+              style={
+                cta.titleColor === "custom" && cta.titleCustomColor
+                  ? { color: cta.titleCustomColor }
+                  : undefined
+              }
+            >
               {pick(cta.title, "Bereit für ein kurzes Gespräch?")}
             </h2>
             <p className="max-w-[50ch] text-[17px] leading-relaxed text-white/80">

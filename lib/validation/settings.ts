@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { resolveButtonBackgroundHex } from "@/lib/button-color";
+import { resolveButtonBackgroundHex, VARIANT_BACKGROUND_HEX } from "@/lib/button-color";
 import { meetsWcagAA } from "@/lib/contrast";
 import type { LandingButtonColor, LandingTextColor } from "@/lib/landing-content";
 
@@ -146,6 +146,8 @@ const heroSchema = z
 const closingCtaSchema = z
   .object({
     title: nullableString(200),
+    titleColor: textColorEnum,
+    titleCustomColor: nullableHexColor,
     text: nullableString(400),
     buttonLabel: nullableString(60),
     buttonColor: buttonColorEnum,
@@ -154,6 +156,20 @@ const closingCtaSchema = z
     buttonTextCustomColor: nullableHexColor,
   })
   .superRefine((cta, ctx) => {
+    // Die CTA-Überschrift steht immer auf dem festen dunklen CTA-Hintergrund
+    // (--color-ink, wie die "primary"-Button-Variante) -- anders als bei
+    // Buttons gibt es hier keine wählbare Hintergrundfarbe zum Gegenprüfen.
+    if (
+      cta.titleColor === "custom" &&
+      cta.titleCustomColor &&
+      !meetsWcagAA(cta.titleCustomColor, VARIANT_BACKGROUND_HEX.primary)
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["titleCustomColor"],
+        message: CONTRAST_MESSAGE,
+      });
+    }
     refineButtonContrast(
       ctx,
       cta.buttonColor,
