@@ -287,6 +287,8 @@ const navigationContentShape = z.object({
   header: z.array(navLinkSchema).max(10),
   footerText: z.string().trim().max(300),
   footerColumns: z.array(footerColumnSchema).max(4),
+  copyrightText: nullableString(300),
+  legalLinks: z.array(navLinkSchema).max(6),
 });
 
 // Derselbe JSON-String-Rundgang wie landingPageContentSchema -- aus demselben
@@ -310,6 +312,8 @@ const footerSettingsShape = z.object({
   footerLogoHeight: z.number().int().min(16).max(120),
   footerText: z.string().trim().max(300),
   footerColumns: z.array(footerColumnSchema).max(4),
+  copyrightText: nullableString(300),
+  legalLinks: z.array(navLinkSchema).max(6),
 });
 
 // Derselbe JSON-String-Rundgang wie landingPageContentSchema -- aus demselben

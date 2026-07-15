@@ -95,6 +95,8 @@ const FOOTER_SETTINGS_LABELS: Record<string, string> = {
   label: "Beschriftung",
   href: "Ziel-Link",
   visible: "Sichtbarkeit",
+  copyrightText: "Copyright-Text",
+  legalLinks: "Link (Copyright-Zeile)",
 };
 
 /**
@@ -329,6 +331,8 @@ export async function saveFooterSettings(
           header: currentNavigation.header,
           footerText: data.footerText,
           footerColumns: data.footerColumns,
+          copyrightText: data.copyrightText,
+          legalLinks: data.legalLinks,
         } as unknown as Json,
       },
       { onConflict: "key" }

@@ -23,20 +23,40 @@ export function FooterForm({
   logoHeight: initialLogoHeight,
   footerText: initialFooterText,
   footerColumns: initialFooterColumns,
+  copyrightText: initialCopyrightText,
+  legalLinks: initialLegalLinks,
 }: {
   logoUrl: GeneralSettings["footerLogoUrl"];
   logoAlt: GeneralSettings["footerLogoAlt"];
   logoHeight: GeneralSettings["footerLogoHeight"];
   footerText: string;
   footerColumns: FooterColumn[];
+  copyrightText: string | null;
+  legalLinks: NavLink[];
 }) {
   const [logoUrl, setLogoUrl] = React.useState(initialLogoUrl);
   const [logoAlt, setLogoAlt] = React.useState(initialLogoAlt);
   const [logoHeight, setLogoHeight] = React.useState(initialLogoHeight);
   const [footerText, setFooterText] = React.useState(initialFooterText);
   const [footerColumns, setFooterColumns] = React.useState(initialFooterColumns);
+  const [copyrightText, setCopyrightText] = React.useState(initialCopyrightText);
+  const [legalLinks, setLegalLinks] = React.useState(initialLegalLinks);
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, startSaving] = React.useTransition();
+
+  function updateLegalLink(index: number, patch: Partial<NavLink>) {
+    setLegalLinks((prev) =>
+      prev.map((link, i) => (i === index ? { ...link, ...patch } : link))
+    );
+  }
+
+  function addLegalLink() {
+    setLegalLinks((prev) => [...prev, createEmptyNavLink()]);
+  }
+
+  function removeLegalLink(index: number) {
+    setLegalLinks((prev) => prev.filter((_, i) => i !== index));
+  }
 
   function updateColumn(columnIndex: number, patch: Partial<FooterColumn>) {
     setFooterColumns((prev) =>
@@ -119,6 +139,8 @@ export function FooterForm({
           footerLogoHeight: logoHeight,
           footerText,
           footerColumns,
+          copyrightText,
+          legalLinks,
         })
       );
       if (!result.ok) {
@@ -215,6 +237,58 @@ export function FooterForm({
           </div>
         </Card>
       ))}
+
+      <Card>
+        <CardHeader title="Copyright-Zeile" />
+        <div className="flex flex-col gap-4">
+          <label className="flex flex-col gap-1">
+            <span className="text-ink-muted text-[12px] font-medium">
+              Copyright-Text
+            </span>
+            <Input
+              value={copyrightText ?? ""}
+              onChange={(event) =>
+                setCopyrightText(
+                  event.target.value.trim().length === 0
+                    ? null
+                    : event.target.value
+                )
+              }
+              placeholder={`© ${new Date().getFullYear()} KI-Drama`}
+            />
+            <span className="text-ink-muted text-[12px]">
+              Leer lassen für den automatischen Text mit immer aktuellem
+              Jahr, z. B. {`© ${new Date().getFullYear()} KI-Drama`}.
+            </span>
+          </label>
+
+          <div className="flex flex-col gap-3">
+            <span className="text-ink-muted text-[12px] font-medium">
+              Links rechts (z. B. Impressum, Datenschutz)
+            </span>
+            <SortableList
+              items={legalLinks}
+              onReorder={setLegalLinks}
+              renderItem={(item, index) => (
+                <NavLinkRow
+                  link={item}
+                  onChange={(patch) => updateLegalLink(index, patch)}
+                  onRemove={() => removeLegalLink(index)}
+                />
+              )}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              onClick={addLegalLink}
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              Link hinzufügen
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {error ? (
         <p role="alert" className="text-danger text-[14px]">

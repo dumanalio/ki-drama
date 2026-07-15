@@ -15,6 +15,9 @@ export interface NavigationContent {
   header: NavLink[];
   footerText: string;
   footerColumns: FooterColumn[];
+  /** null = automatisch "© {aktuelles Jahr} KI-Drama" (bleibt immer aktuell, bis explizit überschrieben). */
+  copyrightText: string | null;
+  legalLinks: NavLink[];
 }
 
 export const DEFAULT_NAVIGATION: NavigationContent = {
@@ -45,6 +48,11 @@ export const DEFAULT_NAVIGATION: NavigationContent = {
       ],
     },
   ],
+  copyrightText: null,
+  legalLinks: [
+    { id: "impressum", label: "Impressum", href: "/impressum", visible: true },
+    { id: "datenschutz", label: "Datenschutz", href: "/datenschutz", visible: true },
+  ],
 };
 
 export function createEmptyNavLink(): NavLink {
@@ -69,5 +77,10 @@ export function normalizeNavigation(
     footerColumns: Array.isArray(stored.footerColumns)
       ? stored.footerColumns
       : DEFAULT_NAVIGATION.footerColumns,
+    copyrightText:
+      typeof stored.copyrightText === "string" ? stored.copyrightText : null,
+    legalLinks: Array.isArray(stored.legalLinks)
+      ? stored.legalLinks
+      : DEFAULT_NAVIGATION.legalLinks,
   };
 }

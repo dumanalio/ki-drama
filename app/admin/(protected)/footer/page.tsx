@@ -44,6 +44,8 @@ export default async function AdminFooterPage() {
         logoHeight={generalSettings.footerLogoHeight}
         footerText={navigationContent.footerText}
         footerColumns={navigationContent.footerColumns}
+        copyrightText={navigationContent.copyrightText}
+        legalLinks={navigationContent.legalLinks}
       />
     </>
   );

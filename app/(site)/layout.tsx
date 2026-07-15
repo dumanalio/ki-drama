@@ -38,6 +38,8 @@ export default async function SiteLayout({
         logoHeight={settings?.footerLogoHeight}
         footerText={navigation?.footerText}
         footerColumns={navigation?.footerColumns}
+        copyrightText={navigation?.copyrightText}
+        legalLinks={navigation?.legalLinks}
       />
     </>
   );

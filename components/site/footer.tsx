@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { DEFAULT_NAVIGATION, type FooterColumn } from "@/lib/navigation";
+import { DEFAULT_NAVIGATION, type FooterColumn, type NavLink } from "@/lib/navigation";
 
 export function Footer({
   logoUrl = null,
@@ -8,12 +8,16 @@ export function Footer({
   logoHeight = 32,
   footerText = DEFAULT_NAVIGATION.footerText,
   footerColumns = DEFAULT_NAVIGATION.footerColumns,
+  copyrightText = null,
+  legalLinks = DEFAULT_NAVIGATION.legalLinks,
 }: {
   logoUrl?: string | null;
   logoAlt?: string | null;
   logoHeight?: number;
   footerText?: string;
   footerColumns?: FooterColumn[];
+  copyrightText?: string | null;
+  legalLinks?: NavLink[];
 }) {
   const year = new Date().getFullYear();
 
@@ -70,20 +74,19 @@ export function Footer({
 
       <div className="border-line border-t">
         <div className="text-ink-muted mx-auto flex max-w-[1200px] flex-col gap-3 px-6 py-6 text-[14px] sm:flex-row sm:items-center sm:justify-between">
-          <span>© {year} KI-Drama</span>
+          <span>{copyrightText ?? `© ${year} KI-Drama`}</span>
           <div className="flex gap-6">
-            <Link
-              href="/impressum"
-              className="hover:text-ink transition-colors duration-[120ms]"
-            >
-              Impressum
-            </Link>
-            <Link
-              href="/datenschutz"
-              className="hover:text-ink transition-colors duration-[120ms]"
-            >
-              Datenschutz
-            </Link>
+            {legalLinks
+              .filter((item) => item.visible)
+              .map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="hover:text-ink transition-colors duration-[120ms]"
+                >
+                  {item.label}
+                </Link>
+              ))}
           </div>
         </div>
       </div>
