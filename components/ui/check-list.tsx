@@ -5,10 +5,12 @@ import { cn } from "@/lib/utils";
 
 export interface CheckListProps extends React.ComponentPropsWithoutRef<"ul"> {
   items: React.ReactNode[];
+  /** "inverted" = weißer Text, für dunkle Hintergründe (z. B. Bild-Overlay). Default: dunkler Text wie bisher. */
+  tone?: "default" | "inverted";
 }
 
 export const CheckList = React.forwardRef<HTMLUListElement, CheckListProps>(
-  ({ className, items, ...props }, ref) => (
+  ({ className, items, tone = "default", ...props }, ref) => (
     <ul ref={ref} className={cn("flex flex-col gap-3", className)} {...props}>
       {items.map((item, index) => (
         <li key={index} className="flex items-start gap-3">
@@ -20,7 +22,12 @@ export const CheckList = React.forwardRef<HTMLUListElement, CheckListProps>(
               aria-hidden="true"
             />
           </span>
-          <span className="text-ink-soft text-[15px] leading-relaxed">
+          <span
+            className={cn(
+              "text-[15px] leading-relaxed",
+              tone === "inverted" ? "text-white" : "text-ink-soft"
+            )}
+          >
             {item}
           </span>
         </li>

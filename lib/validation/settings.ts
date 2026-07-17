@@ -217,7 +217,13 @@ const landingSectionColumnSchema = z.object({
 
 const landingSectionSchema = z.object({
   id: z.string().min(1),
-  layout: z.enum(["image-left", "image-right", "image-top", "no-image"]),
+  layout: z.enum([
+    "image-left",
+    "image-right",
+    "image-top",
+    "image-overlay",
+    "no-image",
+  ]),
   columnCount: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   columns: z.array(landingSectionColumnSchema).max(3),
   eyebrow: nullableString(60),

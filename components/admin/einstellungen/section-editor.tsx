@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  Layers,
   Maximize2,
   PanelLeft,
   PanelRight,
@@ -38,6 +39,7 @@ const LAYOUT_OPTIONS: {
   { value: "image-left", label: "Bild links", icon: PanelLeft },
   { value: "image-right", label: "Bild rechts", icon: PanelRight },
   { value: "image-top", label: "Bild oben", icon: PanelTop },
+  { value: "image-overlay", label: "Text auf Bild", icon: Layers },
   { value: "no-image", label: "Kein Bild", icon: Type },
 ];
 
@@ -253,6 +255,14 @@ export function SectionEditor({
                     onChange({ imageVideoPlaybackMode: mode })
                   }
                 />
+              ) : null}
+
+              {section.layout === "image-overlay" && !section.imageUrl ? (
+                <p className="text-warning bg-warning-soft rounded-lg px-3 py-2 text-[13px]">
+                  Ohne Bild erscheint dieser Abschnitt als dunkle Fläche
+                  (gleicher Hintergrund wie der Verlauf, der den Text sonst
+                  lesbar macht).
+                </p>
               ) : null}
 
               <div className="border-line flex flex-col gap-3 border-t pt-4">

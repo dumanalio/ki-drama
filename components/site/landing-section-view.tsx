@@ -206,6 +206,54 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
     );
   }
 
+  if (section.layout === "image-overlay") {
+    const hasImage = Boolean(section.imageUrl);
+    return (
+      <div
+        className={cn(
+          "relative aspect-4/3 min-h-[360px] w-full overflow-hidden rounded-[20px] md:aspect-16/9",
+          hasImage ? "bg-accent-soft" : "bg-ink"
+        )}
+      >
+        {hasImage ? (
+          <>
+            <SectionMedia
+              imageUrl={section.imageUrl}
+              imageAlt={section.imageAlt}
+              videoPlaybackMode={section.imageVideoPlaybackMode}
+            />
+            {/* Scrim von unten -- macht weißen Text über jedem Bild lesbar. */}
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent"
+              aria-hidden="true"
+            />
+          </>
+        ) : null}
+        <div className="relative flex h-full flex-col items-start justify-end gap-4 p-8">
+          {section.eyebrow ? (
+            <span className="text-[13px] font-semibold tracking-[0.06em] text-white/80 uppercase">
+              {section.eyebrow}
+            </span>
+          ) : null}
+          {section.title ? (
+            <h2 className="text-[26px] font-bold tracking-[-0.015em] text-white md:text-[34px]">
+              {section.title}
+            </h2>
+          ) : null}
+          {section.text ? (
+            <p className="max-w-[65ch] text-[16px] leading-relaxed text-white/90 md:text-[17px]">
+              {section.text}
+            </p>
+          ) : null}
+          {checklistItems.length > 0 ? (
+            <CheckList items={checklistItems} tone="inverted" />
+          ) : null}
+          {button}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

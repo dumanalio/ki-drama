@@ -44,6 +44,7 @@ export type LandingSectionLayout =
   | "image-left"
   | "image-right"
   | "image-top"
+  | "image-overlay"
   | "no-image";
 
 export interface LandingSectionButton {
