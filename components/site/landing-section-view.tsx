@@ -313,7 +313,7 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
             />
           </>
         ) : null}
-        <div className="relative flex h-full flex-col items-start justify-end gap-4 p-8">
+        <div className="absolute inset-0 flex flex-col items-start justify-end gap-4 p-8">
           {section.eyebrow ? (
             <span className="text-[13px] font-semibold tracking-[0.06em] text-white/80 uppercase">
               {section.eyebrow}
