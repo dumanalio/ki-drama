@@ -257,6 +257,39 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
     );
   }
 
+  if (section.layout === "image-between") {
+    return (
+      <div className="flex flex-col items-start gap-6">
+        {section.eyebrow ? (
+          <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">
+            {section.eyebrow}
+          </span>
+        ) : null}
+        {section.title ? (
+          <h2 className="text-ink text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
+            {section.title}
+          </h2>
+        ) : null}
+        <div className="bg-accent-soft aspect-16/9 w-full overflow-hidden rounded-[20px]">
+          <SectionMedia
+            imageUrl={section.imageUrl}
+            imageAlt={section.imageAlt}
+            videoPlaybackMode={section.imageVideoPlaybackMode}
+          />
+        </div>
+        {section.text ? (
+          <p className="text-ink-soft max-w-[65ch] text-[16px] leading-relaxed md:text-[17px]">
+            {section.text}
+          </p>
+        ) : null}
+        {checklistItems.length > 0 ? (
+          <CheckList items={checklistItems} />
+        ) : null}
+        {button}
+      </div>
+    );
+  }
+
   if (section.layout === "image-overlay") {
     const hasImage = Boolean(section.imageUrl);
     return (

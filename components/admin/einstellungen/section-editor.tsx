@@ -8,6 +8,7 @@ import {
   PanelRight,
   PanelTop,
   Plus,
+  Rows3,
   Trash2,
   Type,
   X,
@@ -41,6 +42,7 @@ const LAYOUT_OPTIONS: {
   { value: "image-left", label: "Bild links", icon: PanelLeft },
   { value: "image-right", label: "Bild rechts", icon: PanelRight },
   { value: "image-top", label: "Bild oben", icon: PanelTop },
+  { value: "image-between", label: "Titel über Bild", icon: Rows3 },
   { value: "image-overlay", label: "Text auf Bild", icon: Layers },
   { value: "no-image", label: "Kein Bild", icon: Type },
 ];

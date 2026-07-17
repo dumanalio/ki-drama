@@ -44,6 +44,7 @@ export type LandingSectionLayout =
   | "image-left"
   | "image-right"
   | "image-top"
+  | "image-between"
   | "image-overlay"
   | "no-image";
 
