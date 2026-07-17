@@ -71,6 +71,9 @@ const LANDING_CONTENT_LABELS: Record<string, string> = {
   textCustomColor: "eigene Schriftfarbe",
   layout: "Layout",
   columnCount: "Spaltenzahl",
+  posts: "Neueste Beiträge",
+  enabled: "Anzeigen",
+  count: "Anzahl",
 };
 
 const NAVIGATION_LABELS: Record<string, string> = {

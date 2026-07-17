@@ -12,6 +12,7 @@ import { TextColorPicker } from "@/components/admin/einstellungen/text-color-pic
 import { SortableList } from "@/components/admin/sortable-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { saveLandingPageContent } from "@/lib/actions/settings";
@@ -91,6 +92,10 @@ export function LandingPageForm({
 
   function updateFaq(patch: Partial<LandingPageContent["faq"]>) {
     update({ faq: { ...content.faq, ...patch } });
+  }
+
+  function updatePosts(patch: Partial<LandingPageContent["posts"]>) {
+    update({ posts: { ...content.posts, ...patch } });
   }
 
   function updateSection(id: string, patch: Partial<LandingSection>) {
@@ -298,6 +303,52 @@ export function LandingPageForm({
           />
         )}
       </div>
+
+      <Card className="max-w-[720px]">
+        <CardHeader title="Neueste Beiträge" />
+        <div className="flex flex-col gap-4">
+          <Checkbox
+            checked={content.posts.enabled}
+            onCheckedChange={(enabled) => updatePosts({ enabled })}
+            label="Abschnitt auf der Startseite anzeigen"
+          />
+          <label className="flex flex-col gap-1">
+            <span className="text-ink-muted text-[12px] font-medium">
+              Überschrift
+            </span>
+            <Input
+              value={content.posts.title ?? ""}
+              onChange={(event) => updatePosts({ title: event.target.value })}
+              placeholder="Neueste Beiträge"
+              disabled={!content.posts.enabled}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-ink-muted text-[12px] font-medium">
+              Anzahl Beiträge (1–6)
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={6}
+              value={content.posts.count}
+              onChange={(event) => {
+                const parsed = Number.parseInt(event.target.value, 10);
+                if (Number.isNaN(parsed)) return;
+                updatePosts({
+                  count: Math.min(6, Math.max(1, parsed)),
+                });
+              }}
+              disabled={!content.posts.enabled}
+              className="w-[100px]"
+            />
+            <span className="text-ink-muted text-[12px]">
+              Es werden automatisch die neuesten veröffentlichten Beiträge
+              gezeigt.
+            </span>
+          </label>
+        </div>
+      </Card>
 
       <FaqEditor faq={content.faq} onChange={updateFaq} />
 

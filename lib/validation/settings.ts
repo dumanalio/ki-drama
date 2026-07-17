@@ -251,9 +251,16 @@ const faqSchema = z.object({
   items: z.array(faqItemSchema).max(30),
 });
 
+const postsSectionSchema = z.object({
+  enabled: z.boolean(),
+  title: nullableString(200),
+  count: z.number().int().min(1).max(6),
+});
+
 const landingPageContentShape = z.object({
   hero: heroSchema,
   sections: z.array(landingSectionSchema).max(20),
+  posts: postsSectionSchema,
   faq: faqSchema,
   closingCta: closingCtaSchema,
 });

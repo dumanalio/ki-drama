@@ -85,20 +85,22 @@ const DEFAULT_SECTIONS: LandingSection[] = [
 ];
 
 export default async function Home() {
-  let posts: Post[] = [];
-  let loadError = false;
-
-  try {
-    posts = await getPublishedPosts(3);
-  } catch {
-    loadError = true;
-  }
-
   // Ein Fehlschlag hier soll die Seite nicht blockieren — dieselbe
   // Rückfall-Logik greift ohnehin, wenn einfach nichts konfiguriert ist.
   const content = await getLandingPageContent().catch(
     () => EMPTY_LANDING_CONTENT
   );
+
+  let posts: Post[] = [];
+  let loadError = false;
+
+  try {
+    posts = content.posts.enabled
+      ? await getPublishedPosts(content.posts.count)
+      : [];
+  } catch {
+    loadError = true;
+  }
 
   const hero = content.hero;
   const sections =
@@ -207,29 +209,31 @@ export default async function Home() {
         </Section>
       ))}
 
-      <Section>
-        <h2 className="text-ink mb-8 text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
-          Neueste Beiträge
-        </h2>
-        {loadError ? (
-          <ErrorState
-            title="Beiträge konnten nicht geladen werden"
-            description="Die Verbindung zur Datenbank ist fehlgeschlagen. Bitte lade die Seite neu."
-          />
-        ) : posts.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            icon={Newspaper}
-            title="Noch keine Beiträge veröffentlicht"
-            description="Hier erscheinen in Kürze die neuesten Artikel rund um KI-Grundlagen und Werkzeuge."
-          />
-        )}
-      </Section>
+      {content.posts.enabled ? (
+        <Section>
+          <h2 className="text-ink mb-8 text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
+            {pick(content.posts.title, "Neueste Beiträge")}
+          </h2>
+          {loadError ? (
+            <ErrorState
+              title="Beiträge konnten nicht geladen werden"
+              description="Die Verbindung zur Datenbank ist fehlgeschlagen. Bitte lade die Seite neu."
+            />
+          ) : posts.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={Newspaper}
+              title="Noch keine Beiträge veröffentlicht"
+              description="Hier erscheinen in Kürze die neuesten Artikel rund um KI-Grundlagen und Werkzeuge."
+            />
+          )}
+        </Section>
+      ) : null}
 
       {faq.items.some((item) => item.question?.trim()) ? (
         <Section>

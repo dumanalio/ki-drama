@@ -125,9 +125,18 @@ export interface LandingFaq {
   items: LandingFaqItem[];
 }
 
+export interface LandingPosts {
+  /** Abschnitt "Neueste Beiträge" an-/ausschalten. */
+  enabled: boolean;
+  title: string | null;
+  /** Anzahl der automatisch gezogenen neuesten veröffentlichten Beiträge, 1-6. */
+  count: number;
+}
+
 export interface LandingPageContent {
   hero: LandingHero;
   sections: LandingSection[];
+  posts: LandingPosts;
   faq: LandingFaq;
   closingCta: LandingClosingCta;
 }
@@ -154,6 +163,11 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
     imageVideoPlaybackMode: DEFAULT_VIDEO_PLAYBACK_MODE,
   },
   sections: [],
+  posts: {
+    enabled: true,
+    title: null,
+    count: 3,
+  },
   faq: {
     title: null,
     displayStyle: "accordion",

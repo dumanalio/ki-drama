@@ -157,6 +157,7 @@ export async function getLandingPageContent(): Promise<LandingPageContent> {
     sections: Array.isArray(stored.sections)
       ? stored.sections.map(normalizeSection)
       : EMPTY_LANDING_CONTENT.sections,
+    posts: { ...EMPTY_LANDING_CONTENT.posts, ...stored.posts },
     faq: normalizeFaq(stored.faq),
     closingCta: { ...EMPTY_LANDING_CONTENT.closingCta, ...stored.closingCta },
   };
