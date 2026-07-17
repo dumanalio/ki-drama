@@ -128,7 +128,8 @@ export const EMPTY_LANDING_CONTENT: LandingPageContent = {
     eyebrow: null,
     title: null,
     titleSize: "large",
-    subtitle: null,
+    subtitle:
+      "Verstehe, wie KI funktioniert, sieh dir die aktuelle Tool-Landschaft an und finde in einem kurzen Gespräch heraus, wo du anfangen kannst.",
     primaryButtonLabel: null,
     primaryButtonColor: "accent",
     primaryButtonCustomColor: null,
