@@ -173,7 +173,12 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
     }
 
     return (
-      <div className="grid gap-y-6 md:grid-cols-[40%_55%] md:items-start md:gap-x-[5%]">
+      <div
+        className={cn(
+          "grid gap-y-6 md:grid-cols-[40%_55%] md:gap-x-[5%]",
+          section.columnAlign === "center" ? "md:items-center" : "md:items-start"
+        )}
+      >
         <div className="flex flex-col gap-2">
           {section.eyebrow ? (
             <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">

@@ -27,6 +27,7 @@ import { createEmptyColumn } from "@/lib/landing-content";
 import { cn } from "@/lib/utils";
 import type {
   LandingSection,
+  LandingSectionColumnAlign,
   LandingSectionColumnCount,
   LandingSectionLayout,
   LandingSectionTextLayout,
@@ -50,6 +51,14 @@ const TEXT_LAYOUT_OPTIONS: {
 }[] = [
   { value: "standard", label: "Standard" },
   { value: "two-column", label: "Zwei Spalten (Editorial)" },
+];
+
+const COLUMN_ALIGN_OPTIONS: {
+  value: LandingSectionColumnAlign;
+  label: string;
+}[] = [
+  { value: "top", label: "Oben bündig" },
+  { value: "center", label: "Vertikal mittig" },
 ];
 
 const COLUMN_COUNT_OPTIONS: { value: LandingSectionColumnCount; label: string }[] = [
@@ -205,11 +214,34 @@ export function SectionEditor({
                 ))}
               </div>
               {section.textLayout === "two-column" ? (
-                <p className="text-ink-muted text-[12px]">
-                  Leerzeilen im Text werden als getrennte Absätze
-                  dargestellt. Ohne Eyebrow und Überschrift erscheint der
-                  Text einspaltig.
-                </p>
+                <>
+                  <p className="text-ink-muted text-[12px]">
+                    Leerzeilen im Text werden als getrennte Absätze
+                    dargestellt. Ohne Eyebrow und Überschrift erscheint der
+                    Text einspaltig.
+                  </p>
+                  <span className="text-ink-muted mt-2 text-[12px] font-medium">
+                    Ausrichtung der Spalten
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {COLUMN_ALIGN_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={section.columnAlign === option.value}
+                        onClick={() => onChange({ columnAlign: option.value })}
+                        className={cn(
+                          "flex h-10 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-colors duration-[120ms]",
+                          section.columnAlign === option.value
+                            ? "border-accent bg-accent-soft text-accent"
+                            : "border-line text-ink-soft hover:border-line-strong"
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
               ) : null}
             </div>
           ) : null}

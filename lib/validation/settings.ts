@@ -225,6 +225,7 @@ const landingSectionSchema = z.object({
     "no-image",
   ]),
   textLayout: z.enum(["standard", "two-column"]),
+  columnAlign: z.enum(["top", "center"]),
   columnCount: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   columns: z.array(landingSectionColumnSchema).max(3),
   eyebrow: nullableString(60),

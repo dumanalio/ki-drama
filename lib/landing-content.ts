@@ -72,6 +72,7 @@ export interface LandingSectionColumn {
 }
 
 export type LandingSectionTextLayout = "standard" | "two-column";
+export type LandingSectionColumnAlign = "top" | "center";
 
 export interface LandingSection {
   /** Stabile Client-ID für Drag&Drop/React-Keys, kein DB-Primärschlüssel. */
@@ -80,6 +81,8 @@ export interface LandingSection {
   layout: LandingSectionLayout;
   /** Nur relevant, wenn layout === "no-image". */
   textLayout: LandingSectionTextLayout;
+  /** Nur relevant, wenn textLayout === "two-column". */
+  columnAlign: LandingSectionColumnAlign;
   columnCount: LandingSectionColumnCount;
   /** Nur relevant, wenn columnCount > 1 -- ein Eintrag pro Spalte. */
   columns: LandingSectionColumn[];
@@ -173,6 +176,7 @@ export function createEmptySection(): LandingSection {
     id: crypto.randomUUID(),
     layout: "image-left",
     textLayout: "standard",
+    columnAlign: "top",
     columnCount: 1,
     columns: [],
     eyebrow: null,
