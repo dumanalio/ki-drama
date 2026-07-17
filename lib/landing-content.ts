@@ -71,11 +71,15 @@ export interface LandingSectionColumn {
   button: LandingSectionButton | null;
 }
 
+export type LandingSectionTextLayout = "standard" | "two-column";
+
 export interface LandingSection {
   /** Stabile Client-ID für Drag&Drop/React-Keys, kein DB-Primärschlüssel. */
   id: string;
   /** Nur relevant, wenn columnCount === 1. */
   layout: LandingSectionLayout;
+  /** Nur relevant, wenn layout === "no-image". */
+  textLayout: LandingSectionTextLayout;
   columnCount: LandingSectionColumnCount;
   /** Nur relevant, wenn columnCount > 1 -- ein Eintrag pro Spalte. */
   columns: LandingSectionColumn[];
@@ -168,6 +172,7 @@ export function createEmptySection(): LandingSection {
   return {
     id: crypto.randomUUID(),
     layout: "image-left",
+    textLayout: "standard",
     columnCount: 1,
     columns: [],
     eyebrow: null,
@@ -254,6 +259,14 @@ export function normalizeSection(
       : empty.checklistItems,
     button: normalizeButton(section.button),
   };
+}
+
+/** Trennt Freitext bei Leerzeilen in einzelne Absätze (für das zweispaltige Textlayout). */
+export function splitParagraphs(text: string): string[] {
+  return text
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => paragraph.length > 0);
 }
 
 /** Liefert value, wenn gesetzt und nicht leer — sonst den Fallback-Text aus dem Code. */

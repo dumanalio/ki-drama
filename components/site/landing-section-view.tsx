@@ -7,6 +7,7 @@ import { CheckList } from "@/components/ui/check-list";
 import { resolveButtonStyle } from "@/lib/button-color";
 import { cn } from "@/lib/utils";
 import { isVideoPath, videoPlaybackAttrs } from "@/lib/media-constants";
+import { splitParagraphs } from "@/lib/landing-content";
 import type { LandingSection } from "@/lib/landing-content";
 
 function SectionButton({
@@ -141,6 +142,51 @@ export function LandingSectionView({ section }: { section: LandingSection }) {
             <SectionColumnView key={column.id} column={column} />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (section.layout === "no-image" && section.textLayout === "two-column") {
+    const hasHeading = Boolean(section.eyebrow || section.title);
+    const paragraphs = section.text ? splitParagraphs(section.text) : [];
+
+    const textColumn = (
+      <div className="flex flex-col items-start gap-4">
+        {paragraphs.map((paragraph, index) => (
+          <p
+            key={index}
+            className="text-ink-soft max-w-[65ch] text-[16px] leading-relaxed md:text-[17px]"
+          >
+            {paragraph}
+          </p>
+        ))}
+        {checklistItems.length > 0 ? (
+          <CheckList items={checklistItems} />
+        ) : null}
+        {button}
+      </div>
+    );
+
+    // Ohne Eyebrow/Überschrift keine leere linke Spalte -- einspaltig.
+    if (!hasHeading) {
+      return textColumn;
+    }
+
+    return (
+      <div className="grid gap-y-6 md:grid-cols-[40%_55%] md:items-start md:gap-x-[5%]">
+        <div className="flex flex-col gap-2">
+          {section.eyebrow ? (
+            <span className="text-ink-muted text-[13px] font-semibold tracking-[0.06em] uppercase">
+              {section.eyebrow}
+            </span>
+          ) : null}
+          {section.title ? (
+            <h2 className="text-ink text-[26px] font-bold tracking-[-0.015em] md:text-[34px]">
+              {section.title}
+            </h2>
+          ) : null}
+        </div>
+        {textColumn}
       </div>
     );
   }

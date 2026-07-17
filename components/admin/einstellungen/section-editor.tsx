@@ -29,6 +29,7 @@ import type {
   LandingSection,
   LandingSectionColumnCount,
   LandingSectionLayout,
+  LandingSectionTextLayout,
 } from "@/lib/landing-content";
 
 const LAYOUT_OPTIONS: {
@@ -41,6 +42,14 @@ const LAYOUT_OPTIONS: {
   { value: "image-top", label: "Bild oben", icon: PanelTop },
   { value: "image-overlay", label: "Text auf Bild", icon: Layers },
   { value: "no-image", label: "Kein Bild", icon: Type },
+];
+
+const TEXT_LAYOUT_OPTIONS: {
+  value: LandingSectionTextLayout;
+  label: string;
+}[] = [
+  { value: "standard", label: "Standard" },
+  { value: "two-column", label: "Zwei Spalten (Editorial)" },
 ];
 
 const COLUMN_COUNT_OPTIONS: { value: LandingSectionColumnCount; label: string }[] = [
@@ -169,6 +178,39 @@ export function SectionEditor({
                   </button>
                 ))}
               </div>
+            </div>
+          ) : null}
+
+          {section.columnCount === 1 && section.layout === "no-image" ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-ink-muted text-[12px] font-medium">
+                Textdarstellung
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {TEXT_LAYOUT_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={section.textLayout === option.value}
+                    onClick={() => onChange({ textLayout: option.value })}
+                    className={cn(
+                      "flex h-10 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-colors duration-[120ms]",
+                      section.textLayout === option.value
+                        ? "border-accent bg-accent-soft text-accent"
+                        : "border-line text-ink-soft hover:border-line-strong"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              {section.textLayout === "two-column" ? (
+                <p className="text-ink-muted text-[12px]">
+                  Leerzeilen im Text werden als getrennte Absätze
+                  dargestellt. Ohne Eyebrow und Überschrift erscheint der
+                  Text einspaltig.
+                </p>
+              ) : null}
             </div>
           ) : null}
 

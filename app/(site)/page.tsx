@@ -33,6 +33,7 @@ const DEFAULT_SECTIONS: LandingSection[] = [
   {
     id: "default-grundlagen",
     layout: "image-left",
+    textLayout: "standard",
     columnCount: 1,
     columns: [],
     eyebrow: "Grundlagen",
@@ -57,6 +58,7 @@ const DEFAULT_SECTIONS: LandingSection[] = [
   {
     id: "default-landschaft",
     layout: "image-right",
+    textLayout: "standard",
     columnCount: 1,
     columns: [],
     eyebrow: "Landschaft",
